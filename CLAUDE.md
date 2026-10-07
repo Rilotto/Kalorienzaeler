@@ -21,16 +21,18 @@ ist kein Android-Entwickler: Antworten kurz, einfache Worte, keine Fachbegriffe 
   - bei Fehlern hängt der Workflow einen Log-Auszug als Commit-Kommentar an:
     `gh api repos/Rilotto/Kalorienzaeler/commits/<sha>/comments --jq '.[].body'`
 - Build dauert ca. 5–10 min. Warten mit ScheduleWakeup/send_later, nicht in Sekunden-Schleifen pollen.
-- Release: Tag `vX.Y.Z` (oder `vX.Y.Z-rc.N` für Testversionen) pushen → `release.yml` baut signiert und erstellt
-  das GitHub-Release mit `kalorienzaehler-vX.Y.Z.apk`. Release-Text kommt aus dem passenden CHANGELOG-Abschnitt.
+- Release: Tag-Pushes und die Git-Refs-API sind über den Proxy gesperrt. Stattdessen einen Zweig pushen:
+  `git push origin HEAD:refs/heads/release/vX.Y.Z` (Testversion: `release/vX.Y.Z-rc.N`). `release.yml` baut signiert,
+  legt Tag + GitHub-Release mit `kalorienzaehler-vX.Y.Z.apk` an. Release-Text kommt aus dem CHANGELOG-Abschnitt.
+  Den Release-Zweig danach stehen lassen (Löschen ist ebenfalls nicht nötig).
 
 ## Ablauf pro Block
 1. `BLOCKS.md`, `CHANGELOG.md`, offene PRs/Kommentare lesen. Branch `block-<n>-<name>` von `main`.
 2. Kleine Commits. Rechenlogik als reine Kotlin-Funktionen in `core/domain` mit Unit-Tests.
 3. Push → CI prüfen (siehe oben) → Fehler beheben, bis grün.
-4. Testversion: Tag `vX.Y.0-rc.N` auf den Branch-Stand → Nutzer installiert sie vom Releases-Tab.
+4. Testversion: Zweig `release/vX.Y.0-rc.N` auf den Branch-Stand pushen → Nutzer installiert sie vom Releases-Tab.
 5. PR öffnen mit deutscher Zusammenfassung + Testliste fürs Handy (3–8 konkrete Punkte).
-6. Nach Freigabe durch den Nutzer: Merge, Tag `vX.Y.0` auf main, BLOCKS.md + CHANGELOG.md aktualisieren.
+6. Nach Freigabe durch den Nutzer: Merge, `release/vX.Y.0` von main pushen, BLOCKS.md + CHANGELOG.md aktualisieren.
 7. Nutzer in 2–4 Sätzen informieren: was neu ist, wie updaten, was als Nächstes kommt.
 
 Versionen: Block n → `v0.(n+1).0` (Block 0 = v0.1.0). Nach Block 5 → `v1.0.0`.

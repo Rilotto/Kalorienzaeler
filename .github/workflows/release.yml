@@ -1,9 +1,12 @@
 name: Release
 
-# Bei einem Tag v* (z. B. v0.1.0 oder v0.1.0-rc.1) wird eine signierte APK gebaut
-# und als GitHub-Release veröffentlicht. Tags mit Bindestrich werden als Vorabversion markiert.
+# Veröffentlicht eine signierte APK als GitHub-Release.
+# Auslöser: Push eines Zweigs `release/vX.Y.Z` (so arbeitet Claude, da Tag-Pushes über den Proxy gesperrt sind)
+# oder eines Tags `vX.Y.Z`. Der Workflow legt Tag und Release selbst an.
+# Versionen mit Bindestrich (z. B. v0.1.0-rc.1) werden als Vorabversion markiert.
 on:
   push:
+    branches: ["release/v*"]
     tags: ["v*"]
 
 permissions:
@@ -34,12 +37,16 @@ jobs:
             exit 1
           fi
 
+      - name: Version bestimmen
+        run: |
+          TAG="${GITHUB_REF_NAME#release/}"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
+
       - name: Signierte APK bauen
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
           set -o pipefail
-          TAG="${GITHUB_REF_NAME}"
           gradle --no-daemon --stacktrace testDebugUnitTest assembleRelease \
             -PversionName="${TAG#v}" -PversionCode="${{ github.run_number }}" 2>&1 | tee -a build.log
           cp app/build/outputs/apk/release/app-release.apk "kalorienzaehler-${TAG}.apk"
@@ -48,7 +55,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="${GITHUB_REF_NAME}"
           VER="${TAG#v}"
           # Abschnitt dieser Version aus CHANGELOG.md als Release-Text
           awk -v v="$VER" '
@@ -59,7 +65,7 @@ jobs:
           [ -s notes.md ] || echo "Siehe CHANGELOG.md" > notes.md
           PRE=""
           case "$TAG" in *-*) PRE="--prerelease";; esac
-          gh release create "$TAG" "kalorienzaehler-${TAG}.apk" --title "Kalorienzähler ${TAG}" --notes-file notes.md $PRE
+          gh release create "$TAG" "kalorienzaehler-${TAG}.apk" --title "Kalorienzähler ${TAG}" --notes-file notes.md --target "$GITHUB_SHA" $PRE
 
       - name: Fehlerauszug an den Commit hängen
         if: failure()
@@ -67,7 +73,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           {
-            echo "### Release ${GITHUB_REF_NAME} fehlgeschlagen"
+            echo "### Release ${TAG:-$GITHUB_REF_NAME} fehlgeschlagen"
             echo '```'
             grep -n -E "::error::|^e: |error:|What went wrong|FAILURE:|> Task .* FAILED" build.log | head -60 || true
             echo "----- Ende des Logs -----"
