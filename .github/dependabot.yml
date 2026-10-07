@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: monthly
+    groups:
+      androidx:
+        patterns: ["androidx.*"]
+      kotlin-und-build:
+        patterns: ["org.jetbrains.kotlin*", "com.android*", "com.google.devtools.ksp*"]
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
