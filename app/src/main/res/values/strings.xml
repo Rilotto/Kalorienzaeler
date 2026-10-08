@@ -22,6 +22,51 @@
     <string name="meal_empty">Noch nichts eingetragen</string>
     <string name="add_to_meal">%1$s hinzufügen</string>
     <string name="coming_in_block">Kommt mit Block %1$d</string>
+    <string name="yesterday">Gestern</string>
+    <string name="previous_day">Vorheriger Tag</string>
+    <string name="next_day">Nächster Tag</string>
+    <string name="tap_for_today">zu heute</string>
+    <string name="add_entry">Eintragen</string>
+    <string name="protein">Eiweiß</string>
+    <string name="carbs_short">Kohlenh.</string>
+    <string name="fat">Fett</string>
+    <string name="macro_value">%1$d / %2$d g</string>
+    <string name="amount_g">%1$s g</string>
+    <string name="amount_ml">%1$s ml</string>
+    <string name="unit_g">g</string>
+    <string name="unit_ml">ml</string>
+    <string name="amount_in">Menge in %1$s</string>
+    <string name="meal">Mahlzeit</string>
+    <string name="edit_entry">Eintrag bearbeiten</string>
+    <string name="delete">Löschen</string>
+    <string name="save">Speichern</string>
+    <string name="back">Zurück</string>
+    <string name="add">Hinzufügen</string>
+    <string name="undo">Rückgängig</string>
+    <string name="entry_deleted">„%1$s“ gelöscht</string>
+    <string name="added_to">%1$s → %2$s</string>
+    <string name="quick_added">%1$d kcal eingetragen</string>
+
+    <!-- Eintragen -->
+    <string name="tab_search">Suchen</string>
+    <string name="tab_quick">Schnell</string>
+    <string name="search_hint">z. B. Haferflocken, Banane, Quark</string>
+    <string name="search_empty_start">Tippe oben, was du gegessen hast. Was du einträgst, steht beim nächsten Mal hier unter „Zuletzt verwendet“.</string>
+    <string name="search_no_results">Nichts gefunden für „%1$s“. Probier ein anderes Wort oder nutze „Schnell“.</string>
+    <string name="bls_preparing">Lebensmittel werden beim ersten Start vorbereitet …</string>
+    <string name="favorites">Favoriten</string>
+    <string name="recently_used">Zuletzt verwendet</string>
+    <string name="favorite">Als Favorit merken</string>
+    <string name="unfavorite">Aus Favoriten entfernen</string>
+    <string name="source_bls">BLS</string>
+    <string name="source_custom">Eigenes</string>
+    <string name="kcal_per_100g">%1$d kcal/100 g</string>
+    <string name="kcal_per_100ml">%1$d kcal/100 ml</string>
+    <string name="macros_line">Eiweiß %1$d g · Kohlenhydrate %2$d g · Fett %3$d g</string>
+    <string name="quick_hint">Für Essen ohne Datenbank-Eintrag, z. B. im Restaurant.</string>
+    <string name="quick_name">Bezeichnung</string>
+    <string name="quick_default_name">Schnelleintrag</string>
+    <string name="quick_kcal">Kalorien</string>
 
     <!-- Verlauf -->
     <string name="history_title">Verlauf</string>
@@ -32,7 +77,13 @@
     <string name="settings_about">Über</string>
     <string name="settings_version">Version</string>
     <string name="settings_sources">Datenquellen</string>
-    <string name="settings_sources_text">Lebensmitteldaten folgen mit Block 2 (BLS 4.0, CC BY 4.0) und Block 3 (Open Food Facts, ODbL).</string>
+    <string name="settings_sources_text">Lebensmittel: Bundeslebensmittelschlüssel (BLS) 4.0, Max Rubner-Institut, Lizenz CC BY 4.0 (blsdb.de). Nährwerte je 100 g essbarem Anteil, für die App vereinfacht.</string>
+    <string name="settings_goal_section">Ziel</string>
+    <string name="settings_goal_label">Tagesziel in kcal</string>
+    <string name="settings_macros">Makros anzeigen</string>
+    <string name="settings_macros_sub">Eiweiß, Kohlenhydrate, Fett</string>
+    <string name="goal_invalid">Bitte eine Zahl zwischen %1$d und %2$d eingeben.</string>
+    <string name="goal_saved">Tagesziel gespeichert: %1$s kcal</string>
     <string name="settings_privacy">Datenschutz</string>
     <string name="settings_privacy_text">Alle Daten bleiben auf diesem Handy. Kein Konto, keine Cloud, keine Werbung.</string>
 </resources>
