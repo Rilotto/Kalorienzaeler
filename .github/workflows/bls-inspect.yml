@@ -1,26 +1,36 @@
-name: BLS untersuchen
-# Einmaliges Hilfswerkzeug: lädt das BLS-ZIP und hängt dessen Aufbau als Commit-Kommentar an.
+name: BLS aufbereiten
+# Hilfswerkzeug: lädt das BLS-4.0-ZIP, erzeugt app/src/main/assets/bls.tsv, committet die Datei auf
+# diesen Zweig und hängt eine Zusammenfassung als Commit-Kommentar an.
 on:
   push:
     branches: ["tools-bls-inspect"]
 permissions:
   contents: write
 jobs:
-  inspect:
+  bls:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: pip install openpyxl
-      - name: Laden und untersuchen
+      - name: Laden und aufbereiten
         run: |
-          set -x
-          curl -sSL -A "Mozilla/5.0 Kalorienzaehler-Build" -o bls.zip "https://blsdb.de/assets/uploads/BLS_4_0_2025_DE.zip?token=1XFC-4GP1-EVYQ-SONN-9HRU-3VUB-9GFV-84PA" || true
-          ls -la bls.zip; file bls.zip || true
-          { echo '```'; python tools/bls/bls_inspect.py bls.zip 2>&1 | head -c 60000; echo '```'; } > comment.md || { echo '```'; head -c 2000 bls.zip; echo '```'; } > comment.md
+          curl -sSL -A "Mozilla/5.0 Kalorienzaehler-Build" -o "$RUNNER_TEMP/bls.zip" "https://blsdb.de/assets/uploads/BLS_4_0_2025_DE.zip?token=1XFC-4GP1-EVYQ-SONN-9HRU-3VUB-9GFV-84PA"
+          mkdir -p app/src/main/assets
+          { echo '```'; python tools/bls/build_bls_tsv.py "$RUNNER_TEMP/bls.zip" app/src/main/assets/bls.tsv 2>&1 | head -c 50000; echo '```'; } > "$RUNNER_TEMP/comment.md"
+          ls -la app/src/main/assets/
+      - name: Ergebnis committen
+        run: |
+          if [ -s app/src/main/assets/bls.tsv ] && ! git diff --quiet --exit-code -- app/src/main/assets 2>/dev/null || [ -n "$(git status --porcelain app/src/main/assets)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add app/src/main/assets/bls.tsv
+            git commit -m "BLS-Tabelle aufbereitet (automatisch)"
+            git push
+          fi
       - name: Kommentar
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          [ -s comment.md ] || echo "kein Ergebnis" > comment.md
-          gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" -F body=@comment.md
+          [ -s "$RUNNER_TEMP/comment.md" ] || echo "kein Ergebnis" > "$RUNNER_TEMP/comment.md"
+          gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" -F body=@"$RUNNER_TEMP/comment.md"
