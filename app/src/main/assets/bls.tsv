@@ -4,7 +4,7 @@ B106000	Vollkornbrot mit Ölsamen	229	8.1	37	3.2	0
 B106500	Vollkornbrot mit Sonnenblumenkernen	230	8.1	37	3.3	0
 B106700	Vollkornbrot mit Kürbiskernen	231	8.5	37	3.2	0
 B106800	Vollkornbrot mit Nüssen	232	7.6	36	4.2	0
-B107300	Vollkornbrot mit Buttermilch	212	7.5	38	1.1	1
+B107300	Vollkornbrot mit Buttermilch	212	7.5	38	1.1	0
 B107900	Vollkornbrot mit Quark	213	7.9	38	1	0
 B111000	Weizenvollkornbrot	180	7.6	31.9	0.9	0
 B111200	Weizenvollkorntoastbrot	249	8.8	41	3.7	0
@@ -13,14 +13,14 @@ B111300	Weizenvollkornbrot mit Kürbiskernen	237	9.7	38	3.3	0
 B111400	Weizenvollkornbrot mit Nüssen	242	8.8	38	4.3	0
 B111500	Weizenvollkornbrot mit Ölsamen	235	9.3	38	3.2	0
 B111600	Weizenvollkornbrot mit Sonnenblumenkernen	236	9.3	38	3.4	0
-B111700	Weizenvollkornbrot mit Buttermilch	222	8.7	40	1.2	1
+B111700	Weizenvollkornbrot mit Buttermilch	222	8.7	40	1.2	0
 B111800	Weizenvollkornbrot mit Quark	223	9.2	40	1.1	0
 B121000	Roggenvollkornbrot	193	6	32.5	1.8	0
 B121100	Roggenvollkornbrot mit Kürbiskernen	209	6.9	33	3	0
 B121200	Roggenvollkornbrot mit Nüssen	214	6	33	3.9	0
 B121300	Roggenvollkornbrot mit Ölsamen	207	6.4	33	2.9	0
 B121400	Roggenvollkornbrot mit Sonnenblumenkernen	208	6.4	33	3	0
-B121500	Roggenvollkornbrot mit Buttermilch	190	5.8	34	0.9	1
+B121500	Roggenvollkornbrot mit Buttermilch	190	5.8	34	0.9	0
 B121600	Roggenvollkornbrot mit Quark	192	6.2	34	0.8	0
 B122000	Roggenvollkornschrotbrot	193	6	32.5	1.8	0
 B131000	Hafervollkornbrot	194	5.8	34	1.5	0
@@ -29,7 +29,7 @@ B226000	Roggenbrot mit Ölsamen	223	6.6	38	2.9	0
 B226500	Roggenbrot mit Sonnenblumenkernen	223	6.6	38	3	0
 B226700	Roggenbrot mit Kürbiskernen	225	7	38	3	0
 B226800	Roggenbrot mit Nüssen	230	6.1	38	4	0
-B227300	Roggenbrot mit Buttermilch	209	5.9	40	0.8	1
+B227300	Roggenbrot mit Buttermilch	209	5.9	40	0.8	0
 B227700	Roggenbrot mit Quark	210	6.3	40	0.8	0
 B231000	Haferbrot	212	6.6	39	1.6	0
 B251000	Weizenmischbrot	207	8.6	37.3	1.5	0
@@ -40,7 +40,7 @@ B255700	Weizenmischbrot mit Kümmel	220	7	43	0.8	0
 B256000	Weizenmischbrot mit Ölsamen	236	8	41	3	0
 B256500	Weizenmischbrot mit Sonnenblumenkernen	237	8	41	3.1	0
 B256700	Weizenmischbrot mit Nüssen	243	7.5	41	4.1	0
-B257300	Weizenmischbrot mit Buttermilch	222	7.3	43	0.9	1
+B257300	Weizenmischbrot mit Buttermilch	222	7.3	43	0.9	0
 B257700	Weizenmischbrot mit Quark	224	7.8	43	0.8	0
 B259000	Weizenmischbrot mit Kürbiskernen	238	8.4	41	3.1	0
 B271000	Roggenmischbrot	218	7.4	42	1	0
@@ -50,7 +50,7 @@ B276000	Roggenmischbrot mit Ölsamen	236	7.5	41	3	0
 B276500	Roggenmischbrot mit Sonnenblumenkernen	236	7.5	41	3.1	0
 B276700	Roggenmischbrot mit Kürbiskernen	238	8	41	3	0
 B276800	Roggenmischbrot mit Nüssen	243	7	41	4.1	0
-B277300	Roggenmischbrot mit Buttermilch	221	6.8	43	0.8	1
+B277300	Roggenmischbrot mit Buttermilch	221	6.8	43	0.8	0
 B277700	Roggenmischbrot mit Quark	223	7.3	43	0.8	0
 B291000	Mehrkornbrot mit Ölsamen	248	7.9	42	3.6	0
 B309000	Weißbrot glutenfrei	224	3.2	45	3.1	0
@@ -125,7 +125,7 @@ B6A1500	Weizenvollkornknäckebrot mit Ölsamen, Hartkäse und Möhre	417	16.1	48
 B6A1600	Weizenvollkornknäckebrot mit Ölsamen, Hartkäse und Zwiebeln	429	16.9	46	17.2	0
 B6A2000	Roggenknäckebrot	334	9.4	62	1.3	0
 B6A2100	Roggenvollkornknäckebrot	327	9.4	59.3	1.4	0
-B6A2200	Roggenvollkornknäckebrot mit Buttermilch	330	10.5	58.9	1.6	1
+B6A2200	Roggenvollkornknäckebrot mit Buttermilch	330	10.5	58.9	1.6	0
 B6A2300	Roggenvollkornknäckebrot mit Milch	327	9.7	59.2	1.4	0
 B6A2400	Roggenvollkornknäckebrot mit Dinkel	331	10.1	59.7	1.5	0
 B6A2500	Roggenvollkornknäckebrot mit Gerstenmalz	332	9.3	60.6	1.3	0
@@ -377,9 +377,9 @@ C522400	Getreideflakes gesüßt, mit Nüssen	370	10.8	60.9	6.9	0
 C522500	Getreideflakes gesüßt, mit Nüssen, angereichert mit Vitaminen und Mineralstoffen	370	10.8	60.9	6.9	0
 C522600	Getreideflakes gesüßt, mit Schokolade	376	8.1	69.3	5.8	0
 C522700	Getreideflakes gesüßt, mit Schokolade, angereichert mit Vitaminen und Mineralstoffen	376	8.1	69.3	5.8	0
-C526000	Polenta (Maisgrieß mit Wasser, Fett und Salz) gekocht	114	1.7	12.4	6	1
-C526062	Polenta (Maisgrieß mit Wasser, Fett und Salz) gekocht, gebacken	128	1.9	13.9	6.7	1
-C526082	Polenta (Maisgrieß mit Wasser, Fett und Salz) gekocht, gebraten ohne Fett (Pfanne)	126	1.9	14.4	6.3	1
+C526000	Polenta (Maisgrieß mit Wasser, Fett und Salz) gekocht	114	1.7	12.4	6	0
+C526062	Polenta (Maisgrieß mit Wasser, Fett und Salz) gekocht, gebacken	128	1.9	13.9	6.7	0
+C526082	Polenta (Maisgrieß mit Wasser, Fett und Salz) gekocht, gebraten ohne Fett (Pfanne)	126	1.9	14.4	6.3	0
 C530100	Amaranth gepufft, ungesüßt	393	13.2	66.9	5.9	0
 C530200	Quinoa gepufft, ungesüßt	380	9	75.7	3.3	0
 C531000	Weizen gepufft, ungesüßt	368	15.4	67.5	2	0
@@ -410,8 +410,8 @@ C557000	Fleischersatz gluten-, milch- und sojahaltig	128	17	8.7	2.7	0
 C558000	Fleischersatz glutenhaltig (Seitan)	199	28.4	4	7.2	0
 C559000	Reisnudeln roh	365	7.2	81.9	0.6	0
 C559032	Reisnudeln gekocht	91	1.9	20.4	0.1	0
-C650000	Reisdrink ungesüßt	59	0	12.3	1	0
-C650200	Reisdrink ungesüßt, angereichert mit Vitaminen und Calcium	59	0	12.3	1	0
+C650000	Reisdrink ungesüßt	59	0	12.3	1	1
+C650200	Reisdrink ungesüßt, angereichert mit Vitaminen und Calcium	59	0	12.3	1	1
 C660000	Haferdrink ungesüßt	29	0.7	4	1	1
 C660200	Haferdrink ungesüßt, angereichert mit Vitaminen, Calcium und Jod	29	0.7	4	1	1
 C660300	Haferdrink gesüßt, aromatisiert	41	0.7	7.2	1	1
@@ -433,7 +433,7 @@ D071000	Ausbackteig (mit Milch) gesüßt, roh	227	7	27.4	9.6	0
 D072000	Blätterteig eifrei, roh	425	4.2	28.6	32.2	0
 D072062	Blätterteig eifrei, gebacken	560	5.5	37.7	42.4	0
 D073000	Brandmasse/Brandteig, roh	178	6.8	16.2	9.3	0
-D076000	Ausbackteig (mit Bier) ungesüßt, roh	214	5.9	25.1	8.4	1
+D076000	Ausbackteig (mit Bier) ungesüßt, roh	214	5.9	25.1	8.4	0
 D077002	Biskuitboden	289	10.9	47.8	5.7	0
 D079000	Pizzateig (mit Hefe) roh	246	6.5	42	5.1	0
 D079062	Pizzateig (mit Hefe) gebacken	300	7.9	51	6.3	0
@@ -986,20 +986,20 @@ E811000	Frischteigwaren eifrei, roh	145	6.2	23.2	2.6	0
 E811032	Frischteigwaren eifrei, gekocht	82	3.6	12.9	1.6	0
 E901000	Teigwaren eifrei, Ravioli (Fleischfüllung) in Tomatensoße, Konserve	101	3.3	15.9	2.2	0
 E911000	Teigwaren eifrei, Ravioli (Gemüsefüllung) in Tomatensoße, Konserve	95	2.8	17	1.1	0
-F010600	Mehrfruchtsaft	48	0.4	10.7	0.1	0
-F012700	Mehrfruchtnektar	42	0.2	10.4	0	0
-F013700	Mehrfruchtnektar mit Süßungsmitteln	22	0.2	5.4	0	0
-F014600	Mehrfruchtsaft angereichert mit Vitaminen (Multivitaminsaft)	48	0.4	10.6	0.1	0
-F016600	Mehrfruchtsaft angereichert mit Vitaminen und Mineralstoffen	54	0.3	12.3	0.1	0
+F010600	Mehrfruchtsaft	48	0.4	10.7	0.1	1
+F012700	Mehrfruchtnektar	42	0.2	10.4	0	1
+F013700	Mehrfruchtnektar mit Süßungsmitteln	22	0.2	5.4	0	1
+F014600	Mehrfruchtsaft angereichert mit Vitaminen (Multivitaminsaft)	48	0.4	10.6	0.1	1
+F016600	Mehrfruchtsaft angereichert mit Vitaminen und Mineralstoffen	54	0.3	12.3	0.1	1
 F020600	Roter Mehrfruchtsaft	50	0.7	9.9	0.3	0
 F021600	Roter Mehrfruchtsaft angereichert mit Vitaminen (Roter Multivitaminsaft)	50	0.7	9.9	0.3	0
-F022700	Mehrfruchtnektar, angereichert mit Vitaminen (Multivitaminnektar)	42	0.2	10.4	0	0
-F023700	Mehrfruchtnektar mit Süßungsmitteln, angereichert mit Vitaminen (Multivitaminnektar)	22	0.2	5.4	0	0
+F022700	Mehrfruchtnektar, angereichert mit Vitaminen (Multivitaminnektar)	42	0.2	10.4	0	1
+F023700	Mehrfruchtnektar mit Süßungsmitteln, angereichert mit Vitaminen (Multivitaminnektar)	22	0.2	5.4	0	1
 F032600	Smoothie purpur (Früchte)	57	0.7	11	0.3	1
 F033600	Smoothie gelb (Früchte)	50	0.7	9.7	0.2	1
 F034600	Smoothie grün (Früchte/Gemüse)	46	1.3	8	0.3	1
 F081100	Rhabarber roh	20	0.6	1.4	0.1	0
-F081600	Rhabarbersaft	12	0.5	1.1	0.1	0
+F081600	Rhabarbersaft	12	0.5	1.1	0.1	1
 F081902	Rhabarber gezuckert, Konserve, abgetropft	74	0.3	16.8	0.1	0
 F083902	Rhabarber ungesüßt, Konserve, abgetropft	9	0.3	0.6	0.1	0
 F090100	Fruchtmischung gezuckert, roh	87	0.7	18.9	0.4	0
@@ -1014,10 +1014,10 @@ F093902	Fruchtmischung/Fruchtcocktail, ungesüßt, Konserve, abgetropft	34	0.5	6
 F110100	Apfel roh	58	0.4	11.7	0.5	0
 F110152	Apfel gedünstet	60	0.4	12	0.5	0
 F110400	Apfel getrocknet	242	1.3	53.4	0	0
-F110600	Apfelsaft	44	0.1	10.6	0	0
-F110700	Apfelnektar	37	0	8.9	0	0
-F112600	Apfelsaft angereichert mit Vitamin C	44	0.1	10.6	0	0
-F116600	Apfelnektar mit Süßungsmitteln	22	0	5.3	0	0
+F110600	Apfelsaft	44	0.1	10.6	0	1
+F110700	Apfelnektar	37	0	8.9	0	1
+F112600	Apfelsaft angereichert mit Vitamin C	44	0.1	10.6	0	1
+F116600	Apfelnektar mit Süßungsmitteln	22	0	5.3	0	1
 F119902	Apfel ungesüßt, Konserve, abgetropft	36	0.4	6.2	0.5	0
 F120100	Apfel geschält, roh	43	0.3	8.9	0.1	0
 F120152	Apfel geschält, gedünstet	51	0.2	11	0.3	0
@@ -1025,7 +1025,7 @@ F120400	Apfel geschält, getrocknet	242	1.3	53.4	0	0
 F130100	Birne roh	58	0.3	13.2	0.3	0
 F130152	Birne gedünstet	60	0.3	13.6	0.3	0
 F130400	Birne getrocknet	231	1.2	52.4	1.2	0
-F130600	Birnensaft	64	0.3	15.8	0.2	0
+F130600	Birnensaft	64	0.3	15.8	0.2	1
 F130902	Birne gezuckert, Konserve, abgetropft	84	0.5	19.5	0.2	0
 F131902	Birne ungesüßt, Konserve, abgetropft	35	0.3	7	0.3	0
 F133902	Birne mit Süßungsmitteln, Konserve, abgetropft	35	0.3	7	0.3	0
@@ -1033,19 +1033,19 @@ F134902	Birne in Fruchtsaft, Konserve, abgetropft	54	0.4	11.3	0.4	0
 F140100	Quitte roh	53	0.4	8.2	0.5	0
 F140132	Quitte gekocht	44	0.4	6.7	0.5	0
 F140152	Quitte gedünstet	54	0.4	8.4	0.5	0
-F140600	Quittensaft	38	0.4	7.3	0.4	0
+F140600	Quittensaft	38	0.4	7.3	0.4	1
 F150100	Mispel roh	45	0.5	9.2	0.2	0
 F201100	Aprikose roh	42	0.8	8.2	0.1	0
 F201152	Aprikose gedünstet	47	0.9	9.3	0.1	0
 F201400	Aprikose getrocknet	216	2.7	44	0.2	0
-F201600	Aprikosensaft	49	0.7	10.8	0.1	0
+F201600	Aprikosensaft	49	0.7	10.8	0.1	1
 F201902	Aprikose gezuckert, Konserve, abgetropft	69	0.5	15.5	0.1	0
 F202100	Nektarine roh	48	1.1	9.2	0.2	0
 F202152	Nektarine gedünstet	53	1.2	10.4	0.2	0
 F203100	Pfirsich roh	39	0.7	8	0.1	0
 F203152	Pfirsich gedünstet	45	0.8	9.1	0.1	0
 F203400	Pfirsich getrocknet	282	4.9	54.1	0.6	0
-F203700	Pfirsichnektar	48	0.3	11.6	0	0
+F203700	Pfirsichnektar	48	0.3	11.6	0	1
 F203902	Pfirsich gezuckert, Konserve, abgetropft	65	0.5	14.8	0	0
 F206902	Pfirsich in Fruchtsaft, Konserve, abgetropft	41	0.8	8.2	0.2	0
 F207902	Pfirsich mit Süßungsmitteln, Konserve, abgetropft	41	0.8	8.2	0.2	0
@@ -1054,19 +1054,19 @@ F210902	Süßkirsche ungesüßt, Konserve, abgetropft	54	0.9	11.5	0.2	0
 F211100	Süßkirsche roh	70	0.9	15.3	0.3	0
 F211152	Süßkirsche gedünstet	81	1	17.6	0.4	0
 F211400	Süßkirsche getrocknet	277	3.5	60.2	1.2	0
-F211600	Süßkirschsaft	60	0.8	13.8	0.2	0
+F211600	Süßkirschsaft	60	0.8	13.8	0.2	1
 F211902	Süßkirsche gezuckert, Konserve, abgetropft	67	0.7	15	0.3	0
 F212100	Sauerkirsche roh	69	0.9	13.7	0.5	0
 F212152	Sauerkirsche gedünstet	80	1	15.8	0.6	0
-F212600	Sauerkirschsaft	62	0.8	12.9	0.4	0
-F212700	Sauerkirschnektar	52	0.3	11.7	0.2	0
+F212600	Sauerkirschsaft	62	0.8	12.9	0.4	1
+F212700	Sauerkirschnektar	52	0.3	11.7	0.2	1
 F212902	Sauerkirsche gezuckert, Konserve, abgetropft	52	0.8	11.1	0.2	0
 F213902	Sauerkirsche ungesüßt, Konserve, abgetropft	31	0.7	5.5	0.4	0
 F217902	Sauerkirsche mit Süßungsmitteln, Konserve, abgetropft	31	0.7	5.5	0.4	0
 F220100	Pflaume roh	48	0.3	10.7	0.2	0
 F220152	Pflaume gedünstet	57	0.3	12.6	0.2	0
 F220400	Pflaume getrocknet	205	2.3	44.2	0	0
-F220600	Pflaumensaft	41	0.3	9.6	0.1	0
+F220600	Pflaumensaft	41	0.3	9.6	0.1	1
 F220902	Pflaume gezuckert, Konserve, abgetropft	70	0.7	15.9	0.1	0
 F223100	Zwetschge roh	48	0.3	10.7	0.2	0
 F223152	Zwetschge gedünstet	57	0.3	12.6	0.2	0
@@ -1081,27 +1081,27 @@ F22B902	Mirabelle mit Süßungsmitteln, Konserve, abgetropft	35	0.6	7.3	0.2	0
 F22C902	Mirabelle ungesüßt, Konserve, abgetropft	35	0.6	7.3	0.2	0
 F240902	Süßkirsche mit Süßungsmitteln, Konserve, abgetropft	33	0.7	6.3	0.3	0
 F2A1902	Aprikose in Fruchtsaft, Konserve, abgetropft	36	0.8	6.7	0.1	0
-F2A2700	Sauerkirschnektar mit Süßungsmitteln	22	0.3	4.5	0.1	0
+F2A2700	Sauerkirschnektar mit Süßungsmitteln	22	0.3	4.5	0.1	1
 F2B1902	Aprikose mit Süßungsmitteln, Konserve, abgetropft	23	0.7	3.6	0.1	0
 F2C1902	Aprikose ungesüßt, Konserve, abgetropft	23	0.7	3.6	0.1	0
 F301100	Erdbeere roh	38	0.8	5.9	0.4	0
 F301152	Erdbeere gedünstet	40	0.9	6.2	0.4	0
 F301400	Erdbeere getrocknet	323	7.1	50.9	3.4	0
-F301600	Erdbeersaft	30	0.7	5.3	0.3	0
+F301600	Erdbeersaft	30	0.7	5.3	0.3	1
 F301902	Erdbeere gezuckert, Konserve, abgetropft	63	0.8	13.7	0.2	0
 F302100	Himbeere roh	43	1	5.2	0.3	0
 F302152	Himbeere gedünstet	45	1.1	5.4	0.3	0
 F302400	Himbeere getrocknet	302	7	36.2	2.1	0
-F302600	Himbeersaft	35	0.9	5.5	0.2	0
+F302600	Himbeersaft	35	0.9	5.5	0.2	1
 F302902	Himbeere gezuckert, Konserve, abgetropft	67	0.9	13.7	0.4	0
 F303100	Brombeere roh	49	1.3	10.2	0.2	0
 F303152	Brombeere gedünstet	52	1.4	10.8	0.2	0
 F303400	Brombeere getrocknet	305	8	63.1	1.2	0
-F303600	Brombeersaft	40	1.2	9.2	0.2	0
+F303600	Brombeersaft	40	1.2	9.2	0.2	1
 F303902	Brombeere gezuckert, Konserve, abgetropft	68	0.7	15.7	0.1	0
 F304100	Heidelbeere roh	61	0.5	9.7	0.6	0
 F304152	Heidelbeere gedünstet	64	0.5	10.2	0.6	0
-F304600	Heidelbeersaft	47	0.4	8.7	0.5	0
+F304600	Heidelbeersaft	47	0.4	8.7	0.5	1
 F304902	Heidelbeere gezuckert, Konserve, abgetropft	71	1.2	13.2	0.8	0
 F305100	Stachelbeere roh	50	0.9	9.8	0.1	0
 F305152	Stachelbeere gedünstet	56	1	10.9	0.2	0
@@ -1109,30 +1109,30 @@ F305902	Stachelbeere gezuckert, Konserve, abgetropft	74	0.7	16.5	0.1	0
 F306100	Loganbeere roh	36	1.1	3.4	0.3	0
 F307100	Boysenbeere roh	48	0.5	7	0.3	0
 F310100	Weintraube roh	61	0.8	12.2	0.3	0
-F310600	Traubensaft	68	0.2	16.4	0	0
+F310600	Traubensaft	68	0.2	16.4	0	1
 F311100	Weintraube rot, roh	80	0.6	17.5	0.1	0
-F311600	Traubensaft rot	70	0.5	15.8	0.1	0
+F311600	Traubensaft rot	70	0.5	15.8	0.1	1
 F312100	Weintraube weiß, roh	72	0.7	15.5	0.2	0
-F312600	Traubensaft weiß	64	0.6	14	0.2	0
+F312600	Traubensaft weiß	64	0.6	14	0.2	1
 F313902	Weintraube weiß, ungesüßt, Konserve, abgetropft	22	0.4	4.5	0.1	0
-F317600	Traubensaft angereichert mit Eisen	68	0.2	16.4	0	0
+F317600	Traubensaft angereichert mit Eisen	68	0.2	16.4	0	1
 F321100	Johannisbeere rot, roh	39	1.4	4.3	0.2	0
 F321152	Johannisbeere rot, gedünstet	41	1.5	4.5	0.2	0
-F321600	Johannisbeersaft rot	30	1.3	3.9	0.2	0
+F321600	Johannisbeersaft rot	30	1.3	3.9	0.2	1
 F321902	Johannisbeere rot, gezuckert, Konserve, abgetropft	67	0.7	14.6	0.1	0
 F322100	Johannisbeere weiß, roh	45	1.1	6.1	0.2	0
 F323100	Johannisbeere schwarz roh	57	1.4	8.7	0.2	0
 F323152	Johannisbeere schwarz gedünstet	60	1.4	9.2	0.2	0
-F323600	Johannisbeersaft schwarz	55	1.2	10	0.2	0
-F323700	Johannisbeernektar schwarz	55	0.4	12.8	0	0
+F323600	Johannisbeersaft schwarz	55	1.2	10	0.2	1
+F323700	Johannisbeernektar schwarz	55	0.4	12.8	0	1
 F323902	Johannisbeere schwarz, gezuckert, Konserve, abgetropft	72	0.7	15.8	0.1	0
 F324902	Johannisbeere rot, ungesüßt, Konserve, abgetropft	14	0.7	1.1	0.1	0
 F331100	Maulbeere roh	51	1.4	8.1	0.4	0
-F331600	Maulbeersaft	44	1.2	7.3	0.3	0
+F331600	Maulbeersaft	44	1.2	7.3	0.3	1
 F340902	Erdbeere ungesüßt, Konserve, abgetropft	12	0.4	1.5	0.2	0
 F341902	Erdbeere mit Süßungsmitteln, Konserve, abgetropft	17	0.6	2.1	0.3	0
 F3A2902	Himbeere mit Süßungsmitteln, Konserve, abgetropft	14	0.5	1.3	0.2	0
-F3A3700	Johannisbeernektar schwarz, mit Süßungsmitteln	14	0.3	2.5	0	0
+F3A3700	Johannisbeernektar schwarz, mit Süßungsmitteln	14	0.3	2.5	0	1
 F3A3902	Brombeere ungesüßt, Konserve, abgetropft	16	0.7	2.7	0.1	0
 F3A4902	Heidelbeere mit Süßungsmitteln, Konserve, abgetropft	20	0.3	2.6	0.3	0
 F3A5902	Stachelbeere mit Süßungsmitteln, Konserve, abgetropft	24	0.7	3.9	0.1	0
@@ -1140,16 +1140,16 @@ F3B2902	Himbeere ungesüßt, Konserve, abgetropft	14	0.5	1.3	0.2	0
 F3B4902	Heidelbeere ungesüßt, Konserve, abgetropft	20	0.3	2.6	0.3	0
 F3B5902	Stachelbeere ungesüßt, Konserve, abgetropft	24	0.7	3.9	0.1	0
 F401100	Preiselbeere roh	43	0.7	6.2	0.5	0
-F401600	Preiselbeersaft	34	0.6	5.6	0.4	0
+F401600	Preiselbeersaft	34	0.6	5.6	0.4	1
 F401902	Preiselbeere gezuckert, Konserve, abgetropft	164	0.7	38.3	0.4	0
 F402100	Hagebutte roh	111	3.6	16.2	0.6	0
 F403100	Schlehe roh	52	0.8	7.8	0.2	0
-F403600	Schlehensaft	42	0.7	7	0.2	0
+F403600	Schlehensaft	42	0.7	7	0.2	1
 F404100	Eberesche süß, roh	73	1.3	12.7	1.2	0
 F405100	Sanddornbeere roh	51	1.4	2.4	3.2	0
-F405600	Sanddornsaft	33	0.9	1.9	2.3	0
+F405600	Sanddornsaft	33	0.9	1.9	2.3	1
 F406100	Holunderbeere roh	72	2.5	7.8	1.7	0
-F406600	Holundersaft	57	2	6.9	1.4	0
+F406600	Holundersaft	57	2	6.9	1.4	1
 F407100	Moosbeere roh	69	0.4	9.9	0.7	0
 F408000	Moltebeere roh	43	1	5.2	0.3	0
 F409100	Wald-Erdbeere roh	38	0.8	5.9	0.4	0
@@ -1161,12 +1161,12 @@ F4B1900	Preiselbeere mit einer Zuckerart und Süßungsmitteln (mit Pektin) Konse
 F501100	Ananas roh	46	0.5	9.4	0.1	0
 F501152	Ananas gedünstet	47	0.5	9.7	0.1	0
 F501400	Ananas getrocknet	333	3.7	68.9	0.7	0
-F501600	Ananassaft	47	0.4	10.7	0.1	0
+F501600	Ananassaft	47	0.4	10.7	0.1	1
 F501902	Ananas gezuckert, Konserve, abgetropft	61	0.4	14	0	0
 F502100	Avocado roh	132	1.4	1.4	12.5	0
 F503100	Banane roh	79	1.3	15.9	0.4	0
 F503400	Banane getrocknet	290	4.9	58.9	1.5	0
-F503700	Bananennektar	52	0.3	12.4	0.1	0
+F503700	Bananennektar	52	0.3	12.4	0.1	1
 F504100	Dattel roh	140	1.5	31.6	0.1	0
 F504400	Dattel getrocknet	356	2.6	79.3	0.4	0
 F505100	Feige roh	52	1.3	9.6	0.5	0
@@ -1174,23 +1174,23 @@ F505400	Feige getrocknet	276	3.5	55.2	1.3	0
 F505902	Feige gezuckert, Konserve, abgetropft	68	1	14.3	0.4	0
 F506100	Granatapfel roh	79	0.7	16.1	0.6	0
 F507100	Kaki roh	67	0.7	14.1	0.3	0
-F507600	Kakisaft	56	0.6	12.7	0.2	0
+F507600	Kakisaft	56	0.6	12.7	0.2	1
 F508100	Maracuja/Passionsfrucht, roh	57	0.7	9.5	0.2	0
-F508600	Maracujasaft/Passionsfruchtsaft	51	0.8	10	0.4	0
-F508700	Maracujanektar/Passionsfruchtnektar	56	0.2	13.2	0.1	0
+F508600	Maracujasaft/Passionsfruchtsaft	51	0.8	10	0.4	1
+F508700	Maracujanektar/Passionsfruchtnektar	56	0.2	13.2	0.1	1
 F511100	Acerola roh	16	0.2	2.7	0.2	0
-F511600	Acerolasaft	15	0.2	2.4	0.2	0
+F511600	Acerolasaft	15	0.2	2.4	0.2	1
 F513100	Guave roh	45	0.9	6	0.5	0
 F514100	Kiwi roh	61	0.9	10.1	0.5	0
 F514152	Kiwi gedünstet	62	0.9	10.3	0.5	0
-F514600	Kiwisaft	48	0.8	9.1	0.4	0
+F514600	Kiwisaft	48	0.8	9.1	0.4	1
 F515100	Litschi roh	83	0.9	18.4	0.3	0
-F515600	Litschisaft	72	0.8	16.6	0.2	0
+F515600	Litschisaft	72	0.8	16.6	0.2	1
 F515902	Litschi gezuckert, Konserve, abgetropft	68	0.7	15.3	0.2	0
 F516100	Mango roh	60	0.7	12	0.5	0
 F516400	Mango getrocknet	322	3.8	65	2.4	0
-F516600	Mangosaft	51	0.6	11	0.4	0
-F516700	Mangonektar	51	0.2	12.2	0.1	0
+F516600	Mangosaft	51	0.6	11	0.4	1
+F516700	Mangonektar	51	0.2	12.2	0.1	1
 F516902	Mango gezuckert, Konserve, abgetropft	65	0.5	14	0.4	0
 F517100	Papaya roh	46	0.7	9.6	0.1	0
 F517400	Papaya getrocknet	289	4.4	60.2	0.6	0
@@ -1201,7 +1201,7 @@ F524100	Cherimoya roh	79	1.5	15.9	0.3	0
 F529100	Japanische Wollmispel/Loquat, roh	48	0.6	9.8	0.2	0
 F532100	Netzmelone/Cantaloupmelone, roh	25	0.8	4.5	0.2	0
 F533100	Honigmelone roh	46	0.5	10.1	0.1	0
-F533600	Honigmelonensaft	35	0.4	8.1	0.1	0
+F533600	Honigmelonensaft	35	0.4	8.1	0.1	1
 F535100	Wassermelone roh	35	0.6	7	0.4	0
 F545100	Kochbanane roh	130	1.2	29.5	0.1	0
 F545132	Kochbanane gekocht	112	1.2	25.4	0.1	0
@@ -1212,41 +1212,41 @@ F545182	Kochbanane gebraten ohne Fett (Pfanne)	193	1.8	44	0.1	0
 F545400	Kochbanane getrocknet	306	2.8	69.7	0.2	0
 F549100	Jackfrucht roh	78	1.1	15.3	0.5	0
 F552100	Kapstachelbeere/Physalis, roh	81	2.3	14.1	1.1	0
-F552600	Kapstachelbeersaft/Physalissaft	68	2.1	12.7	0.9	0
+F552600	Kapstachelbeersaft/Physalissaft	68	2.1	12.7	0.9	1
 F553100	Karambole/Sternfrucht, roh	27	1.2	3.5	0.5	0
 F556100	Kaktusfeige roh	52	1	8.6	0.4	0
 F559100	Rambutan roh	63	1	13.7	0.1	0
 F563100	Feijoa/Ananas-Guave, roh	53	0.8	8.4	0.4	0
 F564100	Mangostane roh	67	0.6	14.1	0.6	0
-F564600	Mangostanesaft	58	0.5	12.7	0.5	0
+F564600	Mangostanesaft	58	0.5	12.7	0.5	1
 F572100	Tamarillo roh	75	1.7	14.1	0.8	0
 F591902	Ananas ungesüßt, Konserve, abgetropft	24	0.5	4.4	0.1	0
 F597902	Ananas mit Süßungsmitteln, Konserve, abgetropft	24	0.5	4.4	0.1	0
 F5A1902	Ananas in Fruchtsaft, Konserve, abgetropft	41	0.7	8.1	0.1	0
 F601100	Zitrone roh	40	0.7	3.2	0.4	0
-F601300	Zitronensaft Konzentrat	150	3.1	8.4	1.5	0
-F601600	Zitronensaft	30	0.6	1.7	0.3	0
+F601300	Zitronensaft Konzentrat	150	3.1	8.4	1.5	1
+F601600	Zitronensaft	30	0.6	1.7	0.3	1
 F602100	Limette roh	28	0.5	1.9	0.2	0
-F602300	Limettensaft Konzentrat	148	2.8	9.3	1.2	0
-F602600	Limettensaft	24	0.5	1.5	0.2	0
+F602300	Limettensaft Konzentrat	148	2.8	9.3	1.2	1
+F602600	Limettensaft	24	0.5	1.5	0.2	1
 F603100	Orange roh	49	1	8.8	0.2	0
-F603600	Orangensaft	41	0.8	8.5	0	0
-F603700	Orangennektar	38	0.4	8.6	0	0
+F603600	Orangensaft	41	0.8	8.5	0	1
+F603700	Orangennektar	38	0.4	8.6	0	1
 F604100	Grapefruit roh	35	0.5	6.5	0.1	0
-F604600	Grapefruitsaft	37	0.5	7.3	0.1	0
+F604600	Grapefruitsaft	37	0.5	7.3	0.1	1
 F605100	Pampelmuse/Pomelo, roh	46	0.9	7.8	0.4	0
-F605600	Pampelmusensaft/Pomelosaft	35	0.8	6.2	0.3	0
+F605600	Pampelmusensaft/Pomelosaft	35	0.8	6.2	0.3	1
 F606100	Mandarine roh	53	1	10.1	0.3	0
-F606600	Mandarinensaft	49	0.9	9.6	0.3	0
+F606600	Mandarinensaft	49	0.9	9.6	0.3	1
 F606902	Mandarine gezuckert, Konserve, abgetropft	72	0.5	16.1	0.3	0
 F607100	Clementine roh	48	0.8	9.2	0.1	0
-F607600	Clementinensaft	37	0.8	7.3	0.1	0
+F607600	Clementinensaft	37	0.8	7.3	0.1	1
 F608100	Satsuma roh	50	0.8	9.6	0.3	0
-F608600	Satsumasaft	39	0.7	7.7	0.2	0
+F608600	Satsumasaft	39	0.7	7.7	0.2	1
 F609100	Tangerine roh	53	1	10.1	0.3	0
-F609600	Tangerinensaft	42	0.9	8.1	0.2	0
+F609600	Tangerinensaft	42	0.9	8.1	0.2	1
 F613100	Kumquat roh	51	0.7	10.1	0.3	0
-F614600	Orangennektar mit Süßungsmitteln	20	0.4	4.3	0	0
+F614600	Orangennektar mit Süßungsmitteln	20	0.4	4.3	0	1
 F640902	Mandarine ungesüßt, Konserve, abgetropft	28	0.9	4.6	0.3	0
 F6A6902	Mandarine in Fruchtsaft, Konserve, abgetropft	48	1.4	8.1	0.4	0
 F6B6902	Mandarine mit Süßungsmitteln, Konserve, abgetropft	28	0.9	4.6	0.3	0
@@ -1277,7 +1277,7 @@ G090242	Gemüsemischung Kaisergemüse, tiefgefroren, geschmort ohne Fett	39	2.5	
 G090252	Gemüsemischung Kaisergemüse, tiefgefroren, gedünstet	39	2.5	4.8	0.5	0
 G090262	Gemüsemischung Kaisergemüse, tiefgefroren, gebacken	42	2.7	5.2	0.5	0
 G090282	Gemüsemischung Kaisergemüse, tiefgefroren, gebraten ohne Fett (Pfanne)	53	3.4	6.5	0.6	0
-G090600	Gemüsesaft aus Gemüsemischung	20	0.8	3.2	0.2	0
+G090600	Gemüsesaft aus Gemüsemischung	20	0.8	3.2	0.2	1
 G090802	Gemüsemischung gesäuert (Puszta Salat) abgetropft	43	0.8	7.6	0.2	0
 G093100	Suppengrün/Suppenkraut, roh	33	2.2	3.4	0.3	0
 G093132	Suppengrün/Suppenkraut, gekocht	31	2	3.3	0.3	0
@@ -1303,7 +1303,7 @@ G210232	Spinat tiefgefroren, gekocht	20	2.3	1	0.3	0
 G210252	Spinat tiefgefroren, gedünstet	24	2.8	1.2	0.4	0
 G210262	Spinat tiefgefroren, gebacken	24	2.7	1.2	0.4	0
 G210282	Spinat tiefgefroren, gebraten ohne Fett (Pfanne)	30	3.5	1.5	0.5	0
-G210600	Gemüsesaft aus Spinat	10	1.4	0.4	0.2	0
+G210600	Gemüsesaft aus Spinat	10	1.4	0.4	0.2	1
 G210902	Spinat Konserve, abgetropft	17	2.2	0.3	0.4	0
 G211100	Spinat roh	18	2.1	0.9	0.3	0
 G211152	Spinat gedünstet	22	2.5	1.1	0.4	0
@@ -1430,7 +1430,7 @@ G345062	Sauerkraut abgetropft, gebacken	26	1.3	1.2	0.4	0
 G345082	Sauerkraut abgetropft, gebraten ohne Fett (Pfanne)	42	2.1	1.9	0.6	0
 G345100	Sauerkraut abgetropft, roh	23	1.1	1	0.3	0
 G345152	Sauerkraut abgetropft, gedünstet	22	1.1	1	0.3	0
-G345600	Gemüsesaft aus Sauerkraut	18	1	0.8	0.2	0
+G345600	Gemüsesaft aus Sauerkraut	18	1	0.8	0.2	1
 G345902	Sauerkraut Konserve, abgetropft	34	1.1	2.4	0.4	0
 G346100	Weinsauerkraut roh	23	1.1	1	0.3	0
 G346132	Weinsauerkraut gekocht	18	1	0.9	0.3	0
@@ -1502,7 +1502,7 @@ G480262	Speisezwiebel tiefgefroren, gebacken	44	1.5	7.8	0.2	0
 G480282	Speisezwiebel tiefgefroren, gebraten ohne Fett (Pfanne)	59	2	10.6	0.3	0
 G480400	Speisezwiebel getrocknet	315	10.8	56.3	1.4	0
 G480500	Speisezwiebel Pulver	334	11.5	59.8	1.5	0
-G480600	Gemüsesaft aus Speisezwiebel	25	1	4.8	0.1	0
+G480600	Gemüsesaft aus Speisezwiebel	25	1	4.8	0.1	1
 G482100	Frühlingszwiebel/Lauchzwiebel, roh	27	1.9	3	0.2	0
 G482132	Frühlingszwiebel/Lauchzwiebel, gekocht	31	2.2	3.4	0.2	0
 G482142	Frühlingszwiebel/Lauchzwiebel, geschmort ohne Fett	34	2.4	3.7	0.2	0
@@ -1558,7 +1558,7 @@ G520100	Gurke roh	16	1.1	2	0.2	0
 G520132	Gurke gekocht	17	1.1	2	0.2	0
 G520152	Gurke gedünstet	18	1.2	2.1	0.2	0
 G520182	Gurke gebraten ohne Fett (Pfanne)	28	1.8	3.3	0.3	0
-G520600	Gemüsesaft aus Gurke	12	0.9	1.6	0.2	0
+G520600	Gemüsesaft aus Gurke	12	0.9	1.6	0.2	1
 G520802	Gurke gesäuert (Gewürzgurke) abgetropft	33	0.9	5.5	0	0
 G530100	Okra roh	32	2.1	3	0.2	0
 G530132	Okra gekocht	23	1.8	2	0.2	0
@@ -1600,7 +1600,7 @@ G554152	Pfefferschote rot, gedünstet	44	2	6.7	0.5	0
 G554182	Pfefferschote rot, gebraten ohne Fett (Pfanne)	68	3.2	10.5	0.8	0
 G560142	Tomate geschmort ohne Fett	27	1.2	4.1	0.1	0
 G560400	Tomate getrocknet	276	12.2	41.7	1.4	0
-G560600	Gemüsesaft aus Tomate, mit Salz	18	0.8	3	0	0
+G560600	Gemüsesaft aus Tomate, mit Salz	18	0.8	3	0	1
 G560900	Tomate Konserve	19	1.1	2.5	0.2	0
 G561072	Tomate gegrillt	26	1.1	4	0.1	0
 G561082	Tomate gebraten ohne Fett (Pfanne)	36	1.6	5.5	0.2	0
@@ -1655,7 +1655,7 @@ G611152	Kohlrübe/Steckrübe, gedünstet	22	1.2	2.3	0.2	0
 G613100	Rote Rübe/Rote Bete, roh	43	2.1	7.2	0.1	0
 G613132	Rote Rübe/Rote Bete, gekocht	58	1.6	11	0.3	0
 G613152	Rote Rübe/Rote Bete, gedünstet	43	2	7.1	0.1	0
-G613600	Gemüsesaft aus Rote Rübe/Rote Bete	37	1.1	7.8	0.1	0
+G613600	Gemüsesaft aus Rote Rübe/Rote Bete	37	1.1	7.8	0.1	1
 G613802	Rote Rübe/Rote Bete, gesäuert, abgetropft	70	1.6	13	0.3	0
 G614100	Weiße Rübe/Wasserrübe/Herbstrübe, roh	40	1	6.6	0.2	0
 G614132	Weiße Rübe/Wasserrübe/Herbstrübe, gekocht	39	1	6.4	0.2	0
@@ -1672,10 +1672,10 @@ G620242	Karotte/Möhre, tiefgefroren, geschmort ohne Fett	44	0.8	7.1	0.5	0
 G620252	Karotte/Möhre, tiefgefroren, gedünstet	46	0.9	7.4	0.5	0
 G620262	Karotte/Möhre, tiefgefroren, gebacken	47	0.9	7.6	0.5	0
 G620282	Karotte/Möhre, tiefgefroren, gebraten ohne Fett (Pfanne)	74	1.4	12	0.8	0
-G620600	Gemüsesaft aus Karotte/Möhre	22	0.6	3.7	0.3	0
+G620600	Gemüsesaft aus Karotte/Möhre	22	0.6	3.7	0.3	1
 G620802	Karotte/Möhre, gesäuert, abgetropft	50	0.5	8.7	0.5	0
 G620902	Karotte/Möhre, Konserve, abgetropft	23	0.8	2.6	0.5	0
-G622600	Gemüsesaft aus Karotte/Möhre, mit Honig	33	0.6	6.4	0.3	0
+G622600	Gemüsesaft aus Karotte/Möhre, mit Honig	33	0.6	6.4	0.3	1
 G630100	Meerrettich roh	84	5.9	11.7	0.3	0
 G630132	Meerrettich gekocht	79	5.6	11.1	0.3	0
 G640100	Pastinake roh	59	2.7	9.7	0.4	0
@@ -1698,7 +1698,7 @@ G660132	Knollensellerie gekocht	26	1.4	2.4	0.3	0
 G660152	Knollensellerie gedünstet	27	1.4	2.5	0.3	0
 G660162	Knollensellerie gebacken	35	1.8	3.3	0.4	0
 G660182	Knollensellerie gebraten ohne Fett (Pfanne)	55	2.9	5.1	0.6	0
-G660600	Gemüsesaft aus Knollensellerie	18	1.3	2.2	0.3	0
+G660600	Gemüsesaft aus Knollensellerie	18	1.3	2.2	0.3	1
 G660802	Knollensellerie gesäuert, abgetropft	40	1.1	5.8	0.2	0
 G670100	Wurzelpetersilie roh	76	2.9	13.8	0.5	0
 G670132	Wurzelpetersilie gekocht	72	2.7	13.1	0.4	0
@@ -1838,8 +1838,8 @@ H130610	Haselnuss geröstet ohne Fett	679	16.2	4.3	64.6	0
 H130800	Haselnussmus	669	16.4	4.3	63.9	0
 H150100	Kokos Fruchtfleisch, roh	378	4.6	3.5	36.5	0
 H150400	Kokos Fruchtfleisch, geraspelt, getrocknet	676	7.4	7.8	65.2	0
-H151000	Kokoswasser (Fruchtwasser)	10	0.2	1.3	0.4	0
-H154000	Kokosmilch/Kokosnussmilch	227	2.8	2.1	21.9	0
+H151000	Kokoswasser (Fruchtwasser)	10	0.2	1.3	0.4	1
+H154000	Kokosmilch/Kokosnussmilch	227	2.8	2.1	21.9	1
 H160100	Pekannuss	723	11	3	72	0
 H160600	Pekannuss geröstet ohne Fett	750	11.2	4.3	74.3	0
 H170100	Cashewkern	618	21	26	47.1	0
@@ -2120,29 +2120,29 @@ K762400	Hefe Flocken/Nährhefe	305	48.7	6.2	4.5	0
 K820000	Vegetarische Pastete, Brotaufstrich hefebasiert	229	5	7.9	18.1	0
 K850500	Pilzcremesuppe Instantpulver	338	11.9	60	4.5	0
 K850532	Pilzcremesuppe aus Instantpulver (mit Wasser zubereitet)	27	0.9	5	0.3	0
-M011000	Schafmilch mind. 4,5 % Fett	92	5.2	4.4	6	0
+M011000	Schafmilch mind. 4,5 % Fett	92	5.2	4.4	6	1
 M012100	Roquefort mind. 50 % Fett i. Tr.	363	21.5	0	30.6	0
 M012200	Feta mind. 45 % Fett i. Tr.	284	15.7	0	24.1	0
-M021000	Ziegenmilch mind. 3 % Fett	67	3.6	4.2	3.9	0
+M021000	Ziegenmilch mind. 3 % Fett	67	3.6	4.2	3.9	1
 M032100	Mozzarella mind. 45 % Fett i. Tr.	259	17.1	0	21	0
 M052000	Salzlakenkäse aus Kuhmilch, Hirtenkäse, mind. 45 % Fett i. Tr.	259	16.4	0	21	0
 M053000	Salzlakenkäse aus Ziegenmilch, mind. 45 % Fett i. Tr.	271	14.9	0	23	0
 M0A1000	Mozzarella mind. 20 % Fett i. Tr.	158	19.9	0	8.5	0
-M111100	Milch entrahmt, frisch, höchstens 0,1 % Fett, pasteurisiert	34	3.4	4.8	0.1	0
-M111200	Milch fettarm, frisch, 1,5 % Fett, pasteurisiert	44	3.5	3.9	1.5	0
+M111100	Milch entrahmt, frisch, höchstens 0,1 % Fett, pasteurisiert	34	3.4	4.8	0.1	1
+M111200	Milch fettarm, frisch, 1,5 % Fett, pasteurisiert	44	3.5	3.9	1.5	1
 M111300	Vollmilch frisch, 3,5 % Fett, pasteurisiert	62	3.5	4	3.5	1
-M112300	Rohmilch/Vorzugsmilch, mind. 3,5 % Fett	67	3.3	4.7	3.8	0
-M113100	H-Milch entrahmt, höchstens 0,5 % Fett, ultrahocherhitzt	35	3.5	4.7	0.2	0
-M113200	H-Milch fettarm, 1,5 % Fett, ultrahocherhitzt	44	3.2	4.2	1.4	0
+M112300	Rohmilch/Vorzugsmilch, mind. 3,5 % Fett	67	3.3	4.7	3.8	1
+M113100	H-Milch entrahmt, höchstens 0,5 % Fett, ultrahocherhitzt	35	3.5	4.7	0.2	1
+M113200	H-Milch fettarm, 1,5 % Fett, ultrahocherhitzt	44	3.2	4.2	1.4	1
 M113300	H-Vollmilch 3,5 % Fett, ultrahocherhitzt	62	3.2	4.2	3.5	1
-M114100	Milch entrahmt, höchstens 0,1 % Fett, laktosefrei, pasteurisiert	35	3.4	5.1	0.1	0
-M114200	Milch fettarm, 1,5 % Fett, laktosefrei, pasteurisiert	44	3.5	4.1	1.5	0
+M114100	Milch entrahmt, höchstens 0,1 % Fett, laktosefrei, pasteurisiert	35	3.4	5.1	0.1	1
+M114200	Milch fettarm, 1,5 % Fett, laktosefrei, pasteurisiert	44	3.5	4.1	1.5	1
 M114300	Vollmilch 3,5 % Fett, laktosefrei, pasteurisiert	62	3.5	4.2	3.5	1
 M117700	Sahneersatz (Mischung aus pflanzlichen Fetten und Milch)	182	1.6	3.4	18	0
-M121100	Dickmilch/Sauermilch, entrahmt, max. 0,5 % Fett	37	3.2	5.2	0.1	0
-M121200	Dickmilch/Sauermilch, fettarm, mind. 1,5 % bis max. 1,8 % Fett	52	3.4	5.2	1.5	0
-M121300	Dickmilch/Sauermilch, mind. 3,5 % Fett	67	3.3	4.8	3.5	0
-M121500	Sahnedickmilch/Sahnesauermilch, mind. 10 % Fett	123	3.1	4.5	10	0
+M121100	Dickmilch/Sauermilch, entrahmt, max. 0,5 % Fett	37	3.2	5.2	0.1	1
+M121200	Dickmilch/Sauermilch, fettarm, mind. 1,5 % bis max. 1,8 % Fett	52	3.4	5.2	1.5	1
+M121300	Dickmilch/Sauermilch, mind. 3,5 % Fett	67	3.3	4.8	3.5	1
+M121500	Sahnedickmilch/Sahnesauermilch, mind. 10 % Fett	123	3.1	4.5	10	1
 M130100	Kefir aus entrahmter Milch, max. 0,5 % Fett	37	3.3	4.2	0.5	1
 M130200	Kefir fettarm, mind. 1,5 % bis max. 1,8 % Fett	46	3.2	4.2	1.5	1
 M130300	Kefir mind. 3,5 % Fett	63	3.2	4.1	3.5	1
@@ -2167,14 +2167,14 @@ M173800	Schlagsahne mind. 30 % Fett	308	2.3	3.3	31.7	0
 M173900	Schlagsahne mind. 36 % Fett	363	2.2	3	38	0
 M175800	Sprühsahne/Schlagsahne, gesüßt, mind. 30 % Fett	309	2.4	7.2	30	0
 M176800	Sauerrahm/Creme fraiche, 30 % Fett	265	2.4	2.5	27	0
-M181100	Kondensmagermilch max. 1 % Fett, gezuckert	269	10	56.7	0.2	0
-M181400	Kondensmilch mind. 8 % Fett, gezuckert	322	7.9	52.9	8.7	0
-M182100	Kondensmagermilch max. 1 % Fett	85	8.2	12.1	0.2	0
-M182300	Kondensmilch teilentrahmt, mind. 1 % bis < 7,5 % Fett	109	7.6	10.3	4.1	0
-M182400	Kondensmilch mind. 7,5 % Fett	132	6.4	9.3	7.6	0
-M182500	Kondensmilch 10 % Fett	195	7.6	17.9	10.2	0
-M1A3100	H-Milch entrahmt, höchstens 0,5 % Fett, laktosefrei, ultrahocherhitzt	36	3.5	5	0.2	0
-M1A5200	H-Milch fettarm, 1,5 % Fett, laktosefrei, ultrahocherhitzt	46	3.2	4.6	1.4	0
+M181100	Kondensmagermilch max. 1 % Fett, gezuckert	269	10	56.7	0.2	1
+M181400	Kondensmilch mind. 8 % Fett, gezuckert	322	7.9	52.9	8.7	1
+M182100	Kondensmagermilch max. 1 % Fett	85	8.2	12.1	0.2	1
+M182300	Kondensmilch teilentrahmt, mind. 1 % bis < 7,5 % Fett	109	7.6	10.3	4.1	1
+M182400	Kondensmilch mind. 7,5 % Fett	132	6.4	9.3	7.6	1
+M182500	Kondensmilch 10 % Fett	195	7.6	17.9	10.2	1
+M1A3100	H-Milch entrahmt, höchstens 0,5 % Fett, laktosefrei, ultrahocherhitzt	36	3.5	5	0.2	1
+M1A5200	H-Milch fettarm, 1,5 % Fett, laktosefrei, ultrahocherhitzt	46	3.2	4.6	1.4	1
 M1A7300	H-Vollmilch 3,5 % Fett, laktosefrei, ultrahocherhitzt	63	3.2	4.6	3.5	1
 M1B1100	Joghurt aus entrahmter Milch, max. 0,5 % Fett, laktosefrei	49	5.3	6.1	0.1	0
 M1B2200	Joghurt fettarm, mind. 1,5 % bis max. 1,8 % Fett, laktosefrei	63	5	6.3	1.6	0
@@ -2182,9 +2182,9 @@ M1E3300	Joghurt mind. 3,5 % Fett, laktosefrei	68	4	4.4	3.5	0
 M200100	Milchmischgetränk < 1 % Fett, aromatisiert, gesüßt	56	3.2	10.5	0.1	1
 M200200	Milchmischgetränk 1,5 % Fett, aromatisiert, gesüßt	58	3.4	7.7	1.5	1
 M200300	Milchmischgetränk 3,5 % Fett, aromatisiert, gesüßt	78	3.4	8.5	3.3	1
-M206100	Milchmischgetränk < 1 % Fett, mit Kakao/Schokolade, gesüßt	52	3.6	8.7	0.2	0
-M206200	Milchmischgetränk 1,5 % Fett, mit Kakao/Schokolade, gesüßt	63	3.6	8.4	1.6	0
-M206300	Milchmischgetränk 3,5 % Fett, mit Kakao/Schokolade, gesüßt	78	3.7	7.6	3.5	0
+M206100	Milchmischgetränk < 1 % Fett, mit Kakao/Schokolade, gesüßt	52	3.6	8.7	0.2	1
+M206200	Milchmischgetränk 1,5 % Fett, mit Kakao/Schokolade, gesüßt	63	3.6	8.4	1.6	1
+M206300	Milchmischgetränk 3,5 % Fett, mit Kakao/Schokolade, gesüßt	78	3.7	7.6	3.5	1
 M208000	Milchmischgetränk 3,5 % Fett, mit Kaffee, gesüßt	76	2.8	7.9	3.7	1
 M231200	Kefir fettarm, mind. 1,5 % bis max. 1,8 % Fett, mit Fruchtzubereitung, gesüßt	65	2.9	9.6	1.3	1
 M231500	Sahnekefir mind. 10 % Fett, mit Fruchtzubereitung, gesüßt	136	2.4	13.3	7.9	0
@@ -2194,10 +2194,10 @@ M241300	Joghurt mild, max. 3,8 % Fett, mit Fruchtzubereitung, gesüßt	96	3	13	3
 M241500	Sahnejoghurt mind. 10 % Fett, mit Fruchtzubereitung, gesüßt	150	3.5	14.8	8.2	0
 M246000	Joghurt mind. 3,5 % Fett, mit Schokoladenzubereitung, gesüßt	117	3.5	14.9	4.5	0
 M248000	Joghurt mind. 3,5 % Fett, mit Kaffeezubereitung, gesüßt	101	3.8	13.7	3.1	0
-M252000	Buttermilchdrink mit Fruchtzubereitung, gesüßt	62	2.4	11.7	0.4	0
+M252000	Buttermilchdrink mit Fruchtzubereitung, gesüßt	62	2.4	11.7	0.4	1
 M255000	Buttermilchdessert mit Sahne und Fruchtzubereitung, gesüßt	110	3.4	14.7	3.9	0
-M259000	Buttermilchdrink mit Fruchtzubereitung, gesüßt, angereichert mit Vitaminen	62	2.4	11.7	0.4	0
-M260100	Molkenmischgetränk mit Fruchtsaft, Zucker und Süßungsmitteln, angereichert mit Vitaminen	33	0.6	7	0.1	0
+M259000	Buttermilchdrink mit Fruchtzubereitung, gesüßt, angereichert mit Vitaminen	62	2.4	11.7	0.4	1
+M260100	Molkenmischgetränk mit Fruchtsaft, Zucker und Süßungsmitteln, angereichert mit Vitaminen	33	0.6	7	0.1	1
 M276300	Joghurt mind. 3,5 % Fett, mit Frucht-Schokoladenzubereitung, gesüßt	104	3.5	13.9	3.5	0
 M293300	Joghurt mind. 3,5 % Fett, mit Schokoladen-Getreidezubereitung, gesüßt	140	4.1	18.3	5.1	0
 M2A0100	Milchmischgetränk < 1 % Fett, aromatisiert, mit Zucker und Süßungsmitteln	42	3.3	7	0.1	1
@@ -2227,8 +2227,8 @@ M2M2400	Sahnejoghurt mind. 10 % Fett, mit Schokoladenzubereitung, gesüßt	151	2
 M2N1400	Sahnejoghurt mind. 10 % Fett, mit Vanillezubereitung, gesüßt	140	2.7	12.9	8.3	0
 M2N3400	Sahnejoghurt mind. 10 % Fett, mit Fruchtzubereitung und Süßungsmitteln	110	2.8	5.4	8.3	0
 M2N6400	Sahnejoghurt mind. 10 % Fett, gesüßt	152	4.4	14.6	8.2	0
-M2Q4220	Milchmischgetränk 1,5 % Fett, mit Kakao/Schokolade, gesüßt, angereichert mit Vitaminen	63	3.6	8.4	1.6	0
-M2Q8320	Milchmischgetränk 3,5 % Fett, mit Kakao/Schokolade, gesüßt, angereichert mit Vitaminen	78	3.7	7.6	3.5	0
+M2Q4220	Milchmischgetränk 1,5 % Fett, mit Kakao/Schokolade, gesüßt, angereichert mit Vitaminen	63	3.6	8.4	1.6	1
+M2Q8320	Milchmischgetränk 3,5 % Fett, mit Kakao/Schokolade, gesüßt, angereichert mit Vitaminen	78	3.7	7.6	3.5	1
 M2R2200	Joghurt fettarm, mind. 1,5 % bis max. 1,8 % Fett, mit Vanillezubereitung, gesüßt	82	3.3	14	1.1	0
 M2R7300	Joghurt mind. 3,5 % Fett, mit Knuspermüslizubereitung, gesüßt	110	4.3	11.1	4.8	0
 M2R8300	Joghurt mind. 3,5 % Fett, mit Vanillezubereitung, gesüßt	94	3.5	12.5	3	0
@@ -2460,7 +2460,7 @@ N410600	Kaffee (Getränk) mit Zucker	9	0.1	1.9	0	1
 N410800	Kaffee (Getränk) mit Alkohol	16	0.1	0	0	1
 N411100	Espresso (Getränk)	2	0.4	0	0	1
 N411200	Espresso (Getränk) mit Zucker	43	0.4	10.1	0	1
-N412900	Cappuccino (Getränk) aus gesüßtem Instantpulver	31	0.8	4.7	0.8	0
+N412900	Cappuccino (Getränk) aus gesüßtem Instantpulver	31	0.8	4.7	0.8	1
 N414000	Cappuccino (Getränk) mit Milch 3,5 % Fett	50	2.9	3.2	2.8	1
 N414100	Kaffee (Getränk) entkoffeiniert, mit Milch 3,5 % Fett	3	0.2	0.1	0.1	1
 N414200	Kaffee (Getränk) entkoffeiniert, mit Kondensmilch 7,5 % Fett	5	0.3	0.3	0.3	1
@@ -2468,10 +2468,10 @@ N415000	Kaffee (Getränk) entkoffeiniert	0	0.1	0	0	1
 N416000	Kaffee (Getränk) koffeinreduziert	0	0.1	0	0	1
 N418000	Latte macchiato (Getränk) mit Milch 3,5 % Fett	50	2.9	3.2	2.8	1
 N419000	Türkischer Mokka (Getränk)	0	0.1	0	0	1
-N420100	Kaffee (Getränk) aus Instantpulver	2	0.3	0	0	0
-N420900	Instantkaffeepulver	150	19.5	4.1	1.2	0
-N440100	Kaffee (Getränk) entkoffeiniert, aus Instantpulver	2	0.3	0	0	0
-N440900	Instantkaffeepulver entkoffeiniert	150	19.5	4.1	1.2	0
+N420100	Kaffee (Getränk) aus Instantpulver	2	0.3	0	0	1
+N420900	Instantkaffeepulver	150	19.5	4.1	1.2	1
+N440100	Kaffee (Getränk) entkoffeiniert, aus Instantpulver	2	0.3	0	0	1
+N440900	Instantkaffeepulver entkoffeiniert	150	19.5	4.1	1.2	1
 N491000	Kaffee (Getränk) halb und halb, mit Milch 3,5 % Fett	31	1.8	2	1.7	1
 N4A0000	Kaffee (Getränk) mit Haferdrink, ungesüßt	2	0.1	0.1	0	1
 N4A1000	Kaffee (Getränk) mit Mandeldrink, ungesüßt	2	0.1	0	0.1	1
@@ -2484,10 +2484,10 @@ N500400	Kaffeeersatz (Getränk) mit Kondensmilch 7,5 % Fett	10	0.3	1.2	0.3	1
 N500500	Kaffeeersatz (Getränk) mit Kondensmilch 7,5 % Fett und Zucker	17	0.3	3	0.2	1
 N500600	Kaffeeersatz (Getränk) mit Zucker	13	0.1	2.8	0	1
 N500800	Kaffeeersatz (Getränk) mit Alkohol	20	0.1	0.9	0	1
-N500900	Kaffeeersatzpulver	279	4	51.2	0.1	0
-N503900	Cappuccino Instantpulver, gesüßt	403	10.3	60.5	10.9	0
+N500900	Kaffeeersatzpulver	279	4	51.2	0.1	1
+N503900	Cappuccino Instantpulver, gesüßt	403	10.3	60.5	10.9	1
 N540100	Zichorienkaffee (Getränk)	6	0.1	1	0	1
-N540900	Zichorienkaffeepulver	304	6.8	51.2	1.6	0
+N540900	Zichorienkaffeepulver	304	6.8	51.2	1.6	1
 N5A0000	Kaffeeersatz (Getränk) mit Haferdrink, ungesüßt	6	0.1	1.1	0	1
 N5A1000	Kaffeeersatz (Getränk) mit Mandeldrink, ungesüßt	6	0.1	0.9	0.1	1
 N5A2000	Kaffeeersatz (Getränk) mit Sojadrink, ungesüßt	6	0.2	0.9	0	1
@@ -2595,7 +2595,7 @@ P560100	Bitterlikör 11 % vol	150	0	25	0	1
 P571000	Apfelkorn	127	0.1	6.5	0	1
 P5A1000	Sahnelikör	262	0.8	18	10.2	1
 P5A2000	Fruchtsahnelikör	242	0.3	29	3.2	1
-P5A5000	Kaffeelikör/Schokoladenlikör, cremig, mit Milch/Sahne	262	0.8	18	10.2	0
+P5A5000	Kaffeelikör/Schokoladenlikör, cremig, mit Milch/Sahne	262	0.8	18	10.2	1
 P610000	Cognac	221	0	0	0	1
 P620000	Weinbrand/Brandy	221	0	0	0	1
 P640000	Calvados	227	0	0	0	1
@@ -2822,9 +2822,9 @@ S151000	Glukosesirup maltosehaltig	413	0	79.5	0	0
 S151100	Ahornsirup	240	0	59.9	0.1	0
 S152000	Melasse	229	1.2	55.9	0.1	0
 S154000	Fruchtsirup	249	0.6	60	0.1	0
-S155000	Apfeldicksaft	302	0.7	72.6	0	0
-S156000	Birnendicksaft	272	1.2	67.8	1	0
-S157000	Traubendicksaft	270	0.8	65.3	0	0
+S155000	Apfeldicksaft	302	0.7	72.6	0	1
+S156000	Birnendicksaft	272	1.2	67.8	1	1
+S157000	Traubendicksaft	270	0.8	65.3	0	1
 S161000	Pflaumenmus	195	0.9	45.9	0.2	0
 S162000	Sorbit Pulver (E 420)	235	0	98	0	0
 S163000	Xylit Pulver (E 967)	238	0	99	0	0
@@ -3027,7 +3027,7 @@ S623600	Pralinen gefüllt mit Vanillecreme	560	5.4	52.5	36.1	0
 S623700	Trüffel-Pralinen (alkoholhaltig)	519	5.8	44.6	33.9	0
 S624000	Pralinen gefüllt mit Fruchtcreme	550	4.3	51.1	35.3	0
 S625000	Trüffel-Pralinen	547	7.1	40	37.8	0
-S627000	Pralinen gefüllt mit Kaffee	425	2.7	57.2	20	1
+S627000	Pralinen gefüllt mit Kaffee	425	2.7	57.2	20	0
 S628000	Pralinen gefüllt mit Milch-/Joghurtcreme	565	7.5	39.4	40.3	0
 S640000	Rumkugeln	394	2.9	80	6.3	0
 S660000	Schokoladenstreusel	475	4.1	68	19.7	0
@@ -3118,7 +3118,7 @@ T107172	Makrele gegrillt	188	23.7	0	10.4	0
 T107182	Makrele gebraten ohne Fett (Pfanne)	164	21	0	8.9	0
 T107600	Makrele geräuchert	338	18.9	0	29.2	0
 T107702	Makrele in Öl, Konserve, abgetropft	212	15.1	0	16.8	0
-T107902	Makrele im eigenen Saft, Konserve, abgetropft	114	13.8	0	6.5	1
+T107902	Makrele im eigenen Saft, Konserve, abgetropft	114	13.8	0	6.5	0
 T113902	Rollmops Konserve, abgetropft	99	8	5.6	4.4	0
 T118100	Schildmakrele/Stöcker, roh	119	19.8	0	4.5	0
 T118152	Schildmakrele/Stöcker, gedünstet	114	18.5	0	4.5	0
@@ -3136,7 +3136,7 @@ T121262	Thunfisch tiefgefroren, gebraten ohne Fett (Ofen)	130	30.7	0	0.8	0
 T121272	Thunfisch tiefgefroren, gegrillt	131	30.9	0	0.8	0
 T121282	Thunfisch tiefgefroren, gebraten ohne Fett (Pfanne)	119	28.2	0	0.7	0
 T121702	Thunfisch in Öl, Konserve, abgetropft	207	28.3	0	10.4	0
-T121902	Thunfisch im eigenen Saft, Konserve, abgetropft	95	22.9	0	0.4	1
+T121902	Thunfisch im eigenen Saft, Konserve, abgetropft	95	22.9	0	0.4	0
 T122100	Weißer Thun roh	121	27.2	0	1.4	0
 T122152	Weißer Thun gedünstet	109	24.3	0	1.3	0
 T122182	Weißer Thun gebraten ohne Fett (Pfanne)	143	32.3	0	1.5	0
@@ -4236,11 +4236,11 @@ U892242	Schaf Hinterhaxe, mittelfett, tiefgefroren, geschmort ohne Fett	242	27.9
 U892262	Schaf Hinterhaxe, mittelfett, tiefgefroren, gebraten ohne Fett (Ofen)	219	25.2	0	13.1	0
 U892272	Schaf Hinterhaxe, mittelfett, tiefgefroren, gegrillt	256	27.3	0	16.3	0
 U912000	Rindfleisch in Gelee, Konserve	87	15.6	0.3	2.6	0
-U931100	Rindfleisch im eigenen Saft, mit Schweineschwarten, Konserve	217	34.4	0.4	8.6	1
+U931100	Rindfleisch im eigenen Saft, mit Schweineschwarten, Konserve	217	34.4	0.4	8.6	0
 U931600	Rinderroulade Konserve	176	18.7	0.5	11	0
 U931900	Corned Beef, deutsches, mit Schweineschwarten Konserve	159	25.1	0.3	6.4	0
 U941100	Königsberger Klopse, Konserve	164	9.4	3.3	12.5	0
-U950100	Schweinefleisch im eigenen Saft, mit Schwarten Konserve	297	17.6	0.4	25	1
+U950100	Schweinefleisch im eigenen Saft, mit Schwarten Konserve	297	17.6	0.4	25	0
 U950200	Schweinebraten (Pulled Pork) Konserve	197	26.8	5	7.6	0
 U951800	Corned Pork, Konserve	143	26.2	0.3	4.1	0
 U952000	Schwein Schnitzel, paniert, gebraten ohne Fett (Pfanne)	178	26.7	9.2	3.7	0
@@ -4713,7 +4713,7 @@ V988100	Leberknödel Konserve	212	16.2	14.3	9.8	0
 V990100	Geflügel Frikadelle, roh	105	14.8	4	3.2	0
 V990162	Geflügel Frikadelle, gebraten ohne Fett (Ofen)	113	16.7	4	3.2	0
 V990182	Geflügel Frikadelle, gebraten ohne Fett (Pfanne)	132	18.9	5	3.9	0
-V997100	Hähnchenbrustfilet im eigenen Saft, Konserve	117	24.6	0.3	1.9	1
+V997100	Hähnchenbrustfilet im eigenen Saft, Konserve	117	24.6	0.3	1.9	0
 W002000	Puten-Aufschnitt-Grundbrät mit Schweinefleisch	161	14.1	0.1	11.6	0
 W003000	Aufschnitt-Grundbrät fettreduziert	151	15.1	0.1	10.1	0
 W004000	Aufschnitt-Grundbrät	218	14.2	0.1	17.9	0
@@ -5117,22 +5117,22 @@ X092510	Müsli ungesüßt, mit Joghurt 3,5 % Fett und Fruchtmischung	117	5	12.7	
 X095540	Frischkornbrei gesüßt, mit Joghurt 3,5 % Fett und Fruchtmischung	99	3.3	15.6	1.8	0
 X0A1000	Cornflakes mit Milch 1,5 % Fett und Honig gesüßt	148	4	28.9	1.5	0
 X0A1010	Cornflakes mit Milch 3,5 % Fett und Honig gesüßt	160	4.1	29.1	2.8	0
-X0A1020	Cornflakes mit Sojadrink und Ahornsirup gesüßt	134	3.8	25.4	1.3	1
+X0A1020	Cornflakes mit Sojadrink und Ahornsirup gesüßt	134	3.8	25.4	1.3	0
 X0A2000	Frischkornbrei ungesüßt, mit Fruchtmischung	145	4.8	17.8	5	0
 X0A2010	Frischkornbrei ungesüßt, mit Joghurt 3,5 % Fett und Fruchtmischung	87	3.5	11.8	2.2	0
 X0A3000	Knuspermüsli (Granola) gesüßt, gebacken	416	12.3	46.6	18	0
 X0A3010	Knuspermüsli (Granola) gesüßt, mit Joghurt 3,5 % Fett und Fruchtmischung	123	4.6	12.8	5.2	0
 X0A3020	Knuspermüsli (Granola) gesüßt, mit Milch 3,5 % Fett und Fruchtmischung	154	4.8	17.9	6.2	0
-X0A3030	Knuspermüsli (Granola) gesüßt, mit Sojadrink und Fruchtmischung	142	4.7	16.5	5.4	1
+X0A3030	Knuspermüsli (Granola) gesüßt, mit Sojadrink und Fruchtmischung	142	4.7	16.5	5.4	0
 X0A4000	Haferflocken gesüßt, mit Joghurt 3,5 % Fett und Fruchtmischung	120	4.6	16.5	3.2	0
-X0A4010	Haferflocken gesüßt, mit Sojadrink und Fruchtmischung	131	4.7	20.6	2.3	1
+X0A4010	Haferflocken gesüßt, mit Sojadrink und Fruchtmischung	131	4.7	20.6	2.3	0
 X0A4020	Haferflocken ungesüßt mit Joghurt 3,5 % Fett und Fruchtmischung	111	4.8	13.9	3.3	0
-X0A4030	Haferflocken ungesüßt, mit Sojadrink und Fruchtmischung	124	5	18.2	2.4	1
+X0A4030	Haferflocken ungesüßt, mit Sojadrink und Fruchtmischung	124	5	18.2	2.4	0
 X0A5000	Müsli Bircher-Benner Art, ungesüßt, mit Äpfeln, Rosinen, Sahne und Nüssen	114	1.8	14.6	4.7	0
 X0A5010	Müsli gesüßt, mit Joghurt 3,5 % Fett und Fruchtmischung	125	4.8	15.3	4.1	0
 X0A5020	Müsli gesüßt, mit Milch 3,5 % Fett und Fruchtmischung	154	5.2	21.2	4.5	0
-X0A5030	Müsli gesüßt, mit Sojadrink und Fruchtmischung	138	5	18.9	3.7	1
-X0A5040	Müsli ungesüßt, mit Sojadrink und Fruchtmischung	131	5.3	16.2	3.9	1
+X0A5030	Müsli gesüßt, mit Sojadrink und Fruchtmischung	138	5	18.9	3.7	0
+X0A5040	Müsli ungesüßt, mit Sojadrink und Fruchtmischung	131	5.3	16.2	3.9	0
 X131460	Blumenkohlsalat (gegart) mit Essigmarinade	132	1.4	3.8	12.1	0
 X132460	Broccolisalat (gegart) mit Essigmarinade	125	2.5	2	11.2	0
 X141462	Artischockensalat (gegart) mit Zitronenmarinade	141	1.8	1.9	11.9	0
@@ -5363,7 +5363,7 @@ X354060	Roquefort-Dressing	253	5.6	2.2	24.2	0
 X356050	Quarkdressing	63	8.3	3.6	1.1	0
 X356250	Quark-Meerrettich-Dressing	64	8.2	4.1	1.1	0
 X356360	Quarkmayonnaise	214	5.9	3.1	19.4	0
-X357112	Buttermilch-Dressing mit Honig für Salat	104	2.9	8	6.3	1
+X357112	Buttermilch-Dressing mit Honig für Salat	104	2.9	8	6.3	0
 X357160	Meerrettichschaum	174	3.2	4.8	15.6	0
 X357260	Meerrettich-Dressing	149	3	3.7	13.1	0
 X357312	Cocktail-Dressing	423	1.7	6.6	43	0
@@ -5416,10 +5416,10 @@ X3A3020	Zucchini-Auberginensauce von heller/weißer Grundsauce	84	0.8	3	7.5	0
 X3A4000	Gorgonzolasauce	241	9.2	1	22.1	0
 X3A4010	Roquefortsauce	430	12.4	1.9	41.2	0
 X3A5000	Schokoladensauce mit Kuvertüre und Sahne	317	3	24.3	22.4	0
-X3A6000	Bechamelsauce vegan, mit Sojadrink	79	3.3	3.4	5.4	1
+X3A6000	Bechamelsauce vegan, mit Sojadrink	79	3.3	3.4	5.4	0
 X3A6010	Kokos-Currysauce vegan	191	2.3	2.4	18.3	0
 X3A6020	Linsen-Bolognese vegan	98	5.2	9	3.7	0
-X3A6030	Meerrettichsauce vegan, mit Sojadrink	79	3.6	4.2	4.9	1
+X3A6030	Meerrettichsauce vegan, mit Sojadrink	79	3.6	4.2	4.9	0
 X3A6040	Tofu-Bolognese vegan	160	11.4	2.7	10.7	0
 X3A7000	Mandelpesto	416	11.3	4	38.6	0
 X3A7010	Pesto rosso	495	10.2	19.3	39.2	0
@@ -5432,7 +5432,7 @@ X3A7070	Mayonnaise, gestreckt mit süßer Sahne	514	2.2	1.9	55.2	0
 X3A8000	Essigmarinade warm, für gekochte Salate	140	0.2	0.8	14.2	0
 X3A8010	Marinade mit Gemüsebrühe für Kartoffelsalat	97	0.5	2.4	9	0
 X3A8020	Senf-Honig-Dressing für Salat	404	0.6	5.2	41.3	0
-X3A9000	Buttermilch-Dressing für Salat	38	2.6	3.7	0.5	1
+X3A9000	Buttermilch-Dressing für Salat	38	2.6	3.7	0.5	0
 X3A9010	Joghurt-Dip	93	3.6	4	6.6	0
 X3A9020	Joghurt-Dip mit Kräutern	93	3.6	4	6.6	0
 X3A9030	Saure-Sahne-Dressing mit Joghurt und Senf	92	3.2	3.8	6.8	0
@@ -5508,7 +5508,7 @@ X441043	Grundsuppe hell	39	0.7	3.1	2.6	0
 X441653	Königinsuppe	61	3.5	2.8	3.9	0
 X442043	Grundsuppe dunkel	47	0.8	3.2	3.4	0
 X443063	Blumenkohlcremesuppe/Dubarry-Suppe	53	2	4	3.1	0
-X443812	Karotten im Backteig (mit Bier) frittiert	231	5	20.8	13.3	1
+X443812	Karotten im Backteig (mit Bier) frittiert	231	5	20.8	13.3	0
 X444112	Kräutercremesuppe	93	0.9	1.5	9.2	0
 X444143	Gemüsecremesuppe	63	1.2	4.1	4.5	0
 X444253	Lauchcremesuppe	64	1.4	4	4.5	0
@@ -5645,7 +5645,7 @@ X475453	Vanille-Milchkaltschale mit Ei und Fruchteinlage, gebunden mit Stärke	9
 X475713	Haferflockensuppe geröstet, mit Gemüsebrühe und Ei	39	1.5	3.2	2	0
 X476140	Buttermilchsuppe gesüßt	69	3.1	9.9	1.7	0
 X476512	Tsatsiki	81	2.4	3.5	6	0
-X476540	Gurken-Buttermilch-Joghurt-Kaltschale	34	2.2	3.2	1.1	1
+X476540	Gurken-Buttermilch-Joghurt-Kaltschale	34	2.2	3.2	1.1	0
 X476650	Buttermilchkaltschale gesüßt	68	3.2	11.4	0.6	0
 X490153	Rhabarberkaltschale gebunden mit Stärke	41	0.3	8.6	0.1	0
 X490263	Kürbissuppe scharf, mit Sahne	70	1	3	5.9	0
@@ -5711,7 +5711,7 @@ X511043	Champignons gedünstet, in Grundsauce hell/weiß mit Sahne	76	4	4	4.8	0
 X511153	Champignons gedünstet, in Kräutersauce von heller/weißer Grundsauce	54	3.9	3.9	2.5	0
 X511343	Pilzragout von Champignons, überbacken	202	11.1	2.6	16.4	0
 X511463	Champignons gefüllt, überbacken	220	13.1	3.3	16.8	0
-X511812	Champignons im Backteig (mit Bier) frittiert	219	6.8	17.7	13	1
+X511812	Champignons im Backteig (mit Bier) frittiert	219	6.8	17.7	13	0
 X512053	Pfifferlinge gedünstet	97	4.6	1.5	7.3	0
 X512163	Pfifferlinge gedünstet, in Grundsauce hell/weiß mit Sahne	72	4.3	1.6	4.7	0
 X513063	Steinpilze gedünstet	114	6.6	5.5	6.2	0
@@ -5747,13 +5747,13 @@ X531433	Blumenkohlauflauf	86	4.9	4.9	5.1	0
 X531543	Blumenkohl mit Käsesauce von Bechamelsauce überbacken	84	3.9	5.4	5	0
 X531612	Blumenkohl gedünstet (mit Fett und Salz)	75	2	4.3	5.3	0
 X531713	Blumenkohl mit Hackfleischfüllung und Käse überbacken	127	9.4	4	8	0
-X531812	Blumenkohl im Backteig (mit Bier) frittiert	246	6.5	21.4	14.3	1
+X531812	Blumenkohl im Backteig (mit Bier) frittiert	246	6.5	21.4	14.3	0
 X532043	Broccoli gedünstet, mit gerösteten Mandelblättchen	112	4.9	2.5	8.3	0
 X532142	Broccoli gedünstet, mit gerösteten Semmelbröseln	100	4.1	5.1	6.3	0
 X532263	Broccoli gedünstet, mit Bechamelsauce	69	3.1	4.3	4	0
 X532363	Broccoliauflauf	114	7	3.2	7.8	0
 X532512	Broccoli gedünstet (mit Fett und Salz)	82	3.7	2.4	5.6	0
-X532812	Broccoli im Backteig (mit Bier) frittiert	234	6.8	17.7	14.2	1
+X532812	Broccoli im Backteig (mit Bier) frittiert	234	6.8	17.7	14.2	0
 X533042	Chinakohl gedünstet, mit geriebenem Käse	56	2.1	1.4	4.3	0
 X534133	Grünkohl gedünstet, mit westfälischer Mettwurst	141	6.6	2.7	10.6	0
 X534212	Grünkohl gedünstet, mit Speck	103	4.8	3.3	6.7	0
@@ -5794,7 +5794,7 @@ X548163	Zwiebeln gebraten	66	1.7	9.4	1.8	0
 X548243	Zwiebeln gedünstet, mit saurer Sahne	72	1.2	5.2	4.9	0
 X548343	Zwiebeln gedünstet, mit Speck	56	2.6	4.9	2.5	0
 X548443	Zwiebeln überbacken	123	4.3	6	8.6	0
-X548812	Zwiebelringe im Backteig (mit Bier) frittiert	226	5.1	20.2	13.1	1
+X548812	Zwiebelringe im Backteig (mit Bier) frittiert	226	5.1	20.2	13.1	0
 X548912	Zwiebeln gedünstet (mit Fett und Salz)	66	1	4.9	4.4	0
 X551142	Auberginenscheiben gebraten	159	1.1	4.6	14.2	0
 X551162	Auberginenscheiben frittiert	76	0.6	3.6	6.1	0
@@ -5802,7 +5802,7 @@ X551343	Auberginen mit Tomaten gedünstet	55	0.9	3.6	3.6	0
 X551363	Auberginenscheiben gebraten, mit Tomatensauce (aus Tomaten Konserve) und Käse überbacken	154	4.4	5.5	12.2	0
 X551463	Auberginen gefüllt mit Lammfleisch, Reis und Tomaten, überbacken	108	7.4	4.1	6.5	0
 X551563	Auberginen-Tomaten-Paprikagemüse geschmort	143	1.6	7.9	10.7	0
-X551812	Auberginenscheiben im Backteig (mit Bier) frittiert	239	5.4	20.5	14.3	1
+X551812	Auberginenscheiben im Backteig (mit Bier) frittiert	239	5.4	20.5	14.3	0
 X552043	Gurken gedünstet	67	1.4	2.6	5.3	0
 X552153	Schmorgurken	137	1.6	3	12.9	0
 X552423	Gurken mit Hackfleischfüllung, geschmort, mit Sauce	136	7.3	4	9.7	0
@@ -5843,7 +5843,7 @@ X562463	Karotten-/Möhrenpüree	32	0.8	4.5	0.7	0
 X565043	Schwarzwurzeln gekocht	56	1.3	7.7	0.4	0
 X565143	Schwarzwurzeln gekocht, mit Sauce Hollandaise/Holländischer Sauce	174	2.1	6	14.2	0
 X566063	Selleriepüree	23	1.1	1.9	0.6	0
-X566142	Selleriescheiben im Backteig (mit Bier) frittiert	241	5.8	19.3	14.3	1
+X566142	Selleriescheiben im Backteig (mit Bier) frittiert	241	5.8	19.3	14.3	0
 X566253	Selleriegemüse gekocht, in Grundsauce hell/weiß mit Sahne	65	1.4	2.8	4.7	0
 X566412	Sellerie gekocht, mit Sahne	31	1.4	2.5	0.8	0
 X567053	Rote-Bete-Gemüse süß/sauer, gedünstet	60	1.3	5.3	3.3	0
@@ -6134,7 +6134,7 @@ X891133	Nasi Goreng (Reis gebraten mit Gemüse und Schweinefleisch)	110	10.2	14	
 X891212	Bami Goreng (Eierteigwaren gebraten mit Gemüse und Hähnchenfleisch)	113	5.9	16	2.4	0
 X891412	Wildreismischung gedünstet (mit Fett und Salz)	170	4.4	24.8	5.6	0
 X8A1000	Brühreis (mit Gemüsebrühe)	142	3.1	28.9	1.3	0
-X8A1010	Reisflockenbrei ungesüßt, mit Wasser, Apfelsaft und Rapsöl	127	2.1	21.7	3.4	1
+X8A1010	Reisflockenbrei ungesüßt, mit Wasser, Apfelsaft und Rapsöl	127	2.1	21.7	3.4	0
 X8A1020	Leberrisotto/Leberreis	153	7.8	19.5	4.7	0
 X8A1030	Milchreis gesüßt, mit Reisdrink	166	1.9	30.1	4.1	0
 X8A1040	Milchreis gesüßt, mit Sojadrink	104	4.2	18.4	1.1	0
@@ -6175,8 +6175,8 @@ X930862	Pfannkuchen/Eierkuchen, gebraten, gefüllt mit gedünstetem Rahmspinat	2
 X931152	Pfannkuchen/Eierkuchen, gebraten, gefüllt mit gedünstetem Mischgemüse	143	4.6	14.8	6.7	0
 X934412	Flammkuchen Elsässer Art	233	8.7	23	11.3	0
 X935613	Grießpudding salzig, mit Käse und Petersilie	167	6.9	17	7.8	0
-X936410	Bananenmilch mit Milch 3,5 % Fett	71	2.5	9.4	2.3	0
-X937510	Erdbeermilch mit Milch 1,5 % Fett	54	2.4	8	1.1	0
+X936410	Bananenmilch mit Milch 3,5 % Fett	71	2.5	9.4	2.3	1
+X937510	Erdbeermilch mit Milch 1,5 % Fett	54	2.4	8	1.1	1
 X940112	Mehlschmarren (süddeutsche Mehlspeise) gebraten	254	7.8	29.9	11	0
 X940212	Mehlpüfferchen gebraten	284	7.3	38.7	10.5	0
 X940362	Fränkische Mehlklöße	218	9.6	35.4	3.6	0
@@ -6195,8 +6195,8 @@ X981452	Schinkenknödel	180	9.8	19.9	6.5	0
 X981662	Böhmische Knödel	229	8.2	27.6	9	0
 X983062	Grießklöße	159	6.6	14.7	8	0
 X985162	Germknödel	287	7.1	41	9.7	0
-X985212	Rohrnudeln (aus Hefeteig mit Wasser zubereitet) gebacken	347	6.7	46	14.5	1
-X986143	Polenta (Maisbrei zubereitet mit Wasser, Rapsöl und Salz) gebacken	128	1.9	13.9	6.8	1
+X985212	Rohrnudeln (aus Hefeteig mit Wasser zubereitet) gebacken	347	6.7	46	14.5	0
+X986143	Polenta (Maisbrei zubereitet mit Wasser, Rapsöl und Salz) gebacken	128	1.9	13.9	6.8	0
 X987112	Pizzabaguette mit Kochschinken und Käse überbacken	222	15.7	16	10	0
 X987212	Pizzabaguette mit Gemüse und Schafskäse überbacken	221	9.4	20	10.8	0
 X987312	Pizzabaguette mit Tomaten und Käse überbacken	260	13.9	21	12.8	0
@@ -6218,17 +6218,17 @@ X9A1050	Hirsebratlinge gebraten	192	6.6	13.4	12	0
 X9A1060	Hirse-Gemüse-Bratlinge gebraten	98	4.2	11.4	3.6	0
 X9A2000	Hirsebrei gesüßt, mit Milch 3,5 % Fett	143	5.9	20.3	4.1	0
 X9A2010	Hirsebrei ungesüßt, mit Milch 3,5 % Fett	134	6	17.8	4.2	0
-X9A2020	Hirsebrei ungesüßt, mit Mandeldrink	92	3.1	15.1	1.9	1
+X9A2020	Hirsebrei ungesüßt, mit Mandeldrink	92	3.1	15.1	1.9	0
 X9A2030	Getreide-Obst-Brei, mit Apfelmus ungesüßt und Haferflocken (geeignet für Beikost)	71	1.4	10	2.3	0
 X9A2040	Milch-Getreide-Brei, mit Haferflocken und Apfelsaft (geeignet für Beikost)	98	4.6	10.4	4	0
-X9A2050	Polenta (Maisbrei mit Wasser, Rapsöl und Salz) gekocht	114	1.7	12.4	6	1
+X9A2050	Polenta (Maisbrei mit Wasser, Rapsöl und Salz) gekocht	114	1.7	12.4	6	0
 X9A2060	Porridge gesüßt, mit Milch 3,5 % Fett	141	6.1	17.4	4.7	0
 X9A2070	Porridge gesüßt, mit Milch 3,5 % Fett und Kakaopulver	142	6.2	17.4	4.8	0
-X9A2080	Porridge gesüßt, mit Sojadrink	103	5.3	13.3	2.4	1
-X9A2090	Porridge gesüßt, mit Wasser	81	2.6	13.5	1.3	1
+X9A2080	Porridge gesüßt, mit Sojadrink	103	5.3	13.3	2.4	0
+X9A2090	Porridge gesüßt, mit Wasser	81	2.6	13.5	1.3	0
 X9A2100	Porridge ungesüßt, mit Milch 3,5 % Fett	134	6.3	15	4.9	0
-X9A2110	Porridge ungesüßt, mit Sojadrink	96	5.5	11.2	2.5	1
-X9A2120	Porridge ungesüßt, mit Wasser	71	2.7	10.8	1.4	1
+X9A2110	Porridge ungesüßt, mit Sojadrink	96	5.5	11.2	2.5	0
+X9A2120	Porridge ungesüßt, mit Wasser	71	2.7	10.8	1.4	0
 X9A3000	Blätterteigtaschen gefüllt mit Blattspinat und Schafskäse, gebacken	360	8.9	18	27.4	0
 X9A3010	Blätterteigtaschen gefüllt mit Käse und Kochschinken, gebacken	363	16	15.6	25.8	0
 X9A3020	Blätterteigtaschen mit Lachs-Schmandfüllung, gebacken	352	11	15.9	26.7	0
@@ -6246,7 +6246,7 @@ X9A4030	Pfannkuchen-Auflauf mit Spinatgemüse	234	9.3	14.9	14.8	0
 X9A5000	Flammkuchen vegetarisch	221	6.8	23	10.7	0
 X9A5010	Pizza Hawaii (mit Tomatensauce, Mozzarella, Ananas, Schinken)	207	9.9	17	10.5	0
 X9A5020	Pizza Spezial (mit Tomatensauce, Mozzarella, Schinken, Salami)	247	13	15	14.5	0
-X9A6000	Backteig ungesüßt, mit Bier, roh	204	7.2	26.5	6.3	1
+X9A6000	Backteig ungesüßt, mit Bier, roh	204	7.2	26.5	6.3	0
 X9A6010	Backteig ungesüßt, mit Milch 3,5 % Fett, roh	177	7.8	27.3	3.6	0
 X9A6020	Blätterteig (mit Butter) roh	465	5.2	29.8	35.7	0
 X9A6030	Hefeteig für Pizza/Pizzateig, roh	244	6.2	38	6.8	0
@@ -6566,7 +6566,7 @@ Y584223	Putenragout mit Tomaten und Champignons	89	15.2	1.5	2.3	0
 Y584412	Putengeschnetzeltes mit Weißwein und saurer Sahne	139	17.6	1.3	6.7	0
 Y586113	Gans gebraten im Ofen, mit Grundsauce dunkel/braun	419	19.1	1.1	37.6	0
 Y591112	Hähnchenbrustfilet paniert, gebraten	186	20.9	6.6	8.1	0
-Y593112	Entenfleisch im Backteig (mit Bier) frittiert	370	17.7	15.2	26.1	1
+Y593112	Entenfleisch im Backteig (mit Bier) frittiert	370	17.7	15.2	26.1	0
 Y599012	Hähnchenschenkel gekocht (mit Fett und Salz)	292	22.9	0	22.3	0
 Y599112	Wrap gefüllt mit Salat und gebratenem Hähnchenbrustfilet	153	12.2	15.9	4.2	0
 Y5A1000	Hähnchenbrustfilet mit Cornflakes paniert, gebraten	191	23.1	6.1	8.1	0
@@ -6648,7 +6648,7 @@ Y650313	Karpfen pochiert im Wurzelsud	76	9.8	1.8	2.9	0
 Y650412	Karpfen blau (im Essigsud pochiert)	96	13.7	0.2	4.2	0
 Y650513	Karpfen pochiert polnische Art	105	10	4	5.2	0
 Y650732	Karpfen mariniert, gegrillt	147	18.7	4.8	5.6	0
-Y650812	Karpfen im Backteig (mit Bier) frittiert	244	16.1	13.5	13.6	1
+Y650812	Karpfen im Backteig (mit Bier) frittiert	244	16.1	13.5	13.6	0
 Y652112	Schleie pochiert im Wurzelsud	54	9.7	1.8	0.5	0
 Y652232	Schleie paniert, frittiert	208	17.4	14	8.7	0
 Y652313	Schleie gedünstet, mit Senfsauce von heller/weißer Grundsauce	82	11.3	1.9	3.1	0
@@ -6676,7 +6676,7 @@ Y682132	Hummer Thermidor (gratiniert mit Käse und Sauce)	123	11	2.2	6.8	0
 Y682333	Hummer gegart, in Currysauce von heller/weißer Grundsauce	87	10.1	1.4	4.1	0
 Y683312	Muscheln gedämpft, im Weißweinsud	91	4	0.2	6.6	0
 Y684562	Jakobsmuscheln gebraten provenzalische Art	89	6.1	3.5	5.1	0
-Y686132	Tintenfischringe im Backteig (mit Bier) frittiert	185	12.5	10.3	10	1
+Y686132	Tintenfischringe im Backteig (mit Bier) frittiert	185	12.5	10.3	10	0
 Y686212	Tintenfische mehliert, gebraten	96	16.2	2.2	2.2	0
 Y686433	Tintenfischtuben gefüllt, gegrillt	173	20.1	5	7.8	0
 Y686612	Tintenfischringe im Backteig frittiert, mit Tsatsiki	159	10.1	8.6	9	0
@@ -6701,7 +6701,7 @@ Y692943	Ragout fin mit Rotbarsch	106	10.8	1.1	6.3	0
 Y693312	Seezunge gebraten in Butter, mit Kaisergemüse und Salzkartoffeln	81	8.2	6.2	2.3	0
 Y693342	Seezunge gebraten in Butter	104	19.4	0.1	2.7	0
 Y693522	Kabeljaufilet gedünstet (mit Fett und Salz)	102	15.8	0.1	4.2	0
-Y693723	Kabeljaufilet im Backteig (mit Bier) frittiert	221	14.8	12.8	11.8	1
+Y693723	Kabeljaufilet im Backteig (mit Bier) frittiert	221	14.8	12.8	11.8	0
 Y693752	Rotbarschfilet im Backteig (mit Milch) frittiert	213	14.2	11.2	12.1	0
 Y693842	Rotbarschfilet gegrillt	132	18	0	6.6	0
 Y693932	Fish and Chips (mit Rotbarsch)	221	10.7	17.7	11.6	0
@@ -6816,7 +6816,7 @@ Y818242	Quarkplinsen gebraten	257	10.6	21.6	13.9	0
 Y818342	Hefeplinsen mit Apfel, gebraten	280	6.1	33	13.2	0
 Y821043	Grießauflauf mit Rosinen	128	4.1	13.2	6.4	0
 Y821143	Grießauflauf mit Apfel	121	3.3	13.4	5.7	0
-Y823143	Haferflockenauflauf mit Kakao	169	6.1	14.4	9.3	1
+Y823143	Haferflockenauflauf mit Kakao	169	6.1	14.4	9.3	0
 Y824043	Semmelauflauf	300	8.6	32.5	14.5	0
 Y824243	Scheiterhaufen gebacken	168	4.9	25.1	4.9	0
 Y824443	Kirschenmichel gebacken	152	5	21.6	4.8	0
@@ -7058,12 +7058,12 @@ Y8A7000	Pfannkuchen/Eierkuchen, mit Milch 3,5 % Fett und Apfel, gebraten	203	6	2
 Y8A7010	Pfannkuchen/Eierkuchen, mit Milch 3,5 % Fett und Rosinen, gebraten	268	7.8	33.4	11	0
 Y8A8000	Backteig gesüßt, mit Milch 3,5 % Fett, roh	231	7.1	28.4	9.5	0
 Y8A8010	Hefeteig gesüßt, mit Milch 3,5 % Fett, roh	317	7.9	47	10.1	0
-Y8A8020	Hefeteig gesüßt, mit Wasser, roh	298	7.1	45	9.3	1
+Y8A8020	Hefeteig gesüßt, mit Wasser, roh	298	7.1	45	9.3	0
 Y8A8030	Mürbeteig gesüßt, roh	432	6.9	49.6	22.3	0
 Y8B1012	Vanillepudding, Flammeri, zubereitet aus Pulver und Milch 3,5 % Fett, mit Süßstoff	88	3.6	10.2	3.6	0
-Y8D5010	Tiramisu (ohne Ei) mit Likör	313	5.4	30	18.2	1
-Y8D6000	Tiramisu fettreduziert, mit Likör	219	7.9	30	6.6	1
-Y8D7010	Tiramisu (ohne Ei) mit Likör und Früchten	209	3.7	21	11.3	1
+Y8D5010	Tiramisu (ohne Ei) mit Likör	313	5.4	30	18.2	0
+Y8D6000	Tiramisu fettreduziert, mit Likör	219	7.9	30	6.6	0
+Y8D7010	Tiramisu (ohne Ei) mit Likör und Früchten	209	3.7	21	11.3	0
 Y8D8012	Sahnepudding, Flammeri, zubereitet aus Pulver, Milch 3,5 % Fett und Sahne	198	2.9	16.2	13.5	0
 Y910030	Pommes frites mit Ketchup	216	3	29.5	9	0
 Y910060	Pommes frites mit Mayonnaise	316	3.1	26.1	21.6	0
