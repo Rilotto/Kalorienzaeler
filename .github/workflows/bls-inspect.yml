@@ -16,7 +16,7 @@ jobs:
           set -x
           curl -sSL -A "Mozilla/5.0 Kalorienzaehler-Build" -o bls.zip "https://blsdb.de/assets/uploads/BLS_4_0_2025_DE.zip?token=1XFC-4GP1-EVYQ-SONN-9HRU-3VUB-9GFV-84PA" || true
           ls -la bls.zip; file bls.zip || true
-          { echo '```'; python tools/bls/inspect.py bls.zip 2>&1 | head -c 60000; echo '```'; } > comment.md || { echo '```'; head -c 2000 bls.zip; echo '```'; } > comment.md
+          { echo '```'; python tools/bls/bls_inspect.py bls.zip 2>&1 | head -c 60000; echo '```'; } > comment.md || { echo '```'; head -c 2000 bls.zip; echo '```'; } > comment.md
       - name: Kommentar
         if: always()
         env:
