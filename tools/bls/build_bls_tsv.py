@@ -6,13 +6,20 @@ Aufruf: python tools/bls/build_bls_tsv.py BLS.zip app/src/main/assets/bls.tsv
 import io, re, sys, zipfile
 import openpyxl
 
-LIQUID_WORDS = re.compile(
-    r"\b(saft|säfte|nektar|getränk|limonade|cola|schorle|bier|wein|sekt|likör|spirituose|"
-    r"tee|kaffee|espresso|wasser|mineralwasser|smoothie|milchmischgetränk|kakao(getränk)?|"
-    r"vollmilch|magermilch|fettarme milch|trinkmilch|buttermilch|kefir|sojadrink|haferdrink|mandeldrink)\b",
+# Flüssig = Getränkegruppen N/P oder das erste Wort (das Hauptwort) ist ein Getränk.
+# Nur das erste Wort zählt, damit z. B. „Vollkornbrot mit Buttermilch“ nicht als Getränk gilt.
+LIQUID_FIRST = re.compile(
+    r"^(.*saft|.*nektar|.*drink|.*milch|kefir|smoothie|.*tee|kaffee|espresso|cappuccino|latte|.*wasser|"
+    r"limonade|.*limo|cola|.*schorle|.*bier|wein|sekt|likör|.*getränk)$",
     re.IGNORECASE,
 )
-NOT_LIQUID = re.compile(r"(pulver|schokolade|bonbon|gummi|eis\b|bohne|blätter|gebäck|kuchen|creme|dessert|pudding)", re.IGNORECASE)
+
+
+def is_liquid(code, name):
+    if code[:1].upper() in ("N", "P"):
+        return True
+    first = re.split(r"[\s,(/]+", name.strip())[0]
+    return bool(LIQUID_FIRST.match(first))
 
 
 def num(v):
@@ -53,8 +60,7 @@ def main(zip_path, out_path):
         if not code or not nm:
             skipped += 1
             continue
-        group = code[0].upper()
-        liquid = (group in ("N", "P") or bool(LIQUID_WORDS.search(nm))) and not NOT_LIQUID.search(nm)
+        liquid = is_liquid(code, nm)
         liquids += liquid
         out.append((code, nm, num(r[i_kcal]), num(r[i_prot]), num(r[i_cho]), num(r[i_fat]), 1 if liquid else 0))
 
@@ -70,7 +76,8 @@ def main(zip_path, out_path):
         groups.setdefault(t[0][0], []).append(t[1])
     for g in sorted(groups):
         print(f"Gruppe {g} ({len(groups[g])}): " + "; ".join(groups[g][:6]))
-    print("Beispiele flüssig: " + "; ".join([t[1] for t in out if t[6]][:25]))
+    liq = [t[1] for t in out if t[6] and t[0][0] not in "NP"]
+    print(f"Flüssig außerhalb N/P ({len(liq)}): " + "; ".join(liq[:80]))
     for probe in ("Hafer Flocken", "Banane", "Vollmilch", "Apfel", "Quark", "Ei ", "Butter", "Nudel", "Reis", "Bier", "Kartoffel"):
         hits = [f"{t[1]} ({fmt(t[2])} kcal)" for t in out if probe.lower() in t[1].lower()][:4]
         print(f"Suche '{probe}': " + "; ".join(hits))
