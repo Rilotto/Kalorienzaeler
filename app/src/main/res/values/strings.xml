@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kalorien</string>
+
+    <!-- Navigation -->
+    <string name="nav_today">Heute</string>
+    <string name="nav_history">Verlauf</string>
+    <string name="nav_settings">Einstellungen</string>
+
+    <!-- Heute -->
+    <string name="today_title">Heute</string>
+    <string name="kcal_left">kcal übrig</string>
+    <string name="kcal_over">kcal drüber</string>
+    <string name="goal">Ziel</string>
+    <string name="eaten">Gegessen</string>
+    <string name="entries">Einträge</string>
+    <string name="kcal_value">%1$s kcal</string>
+    <string name="meal_breakfast">Frühstück</string>
+    <string name="meal_lunch">Mittagessen</string>
+    <string name="meal_dinner">Abendessen</string>
+    <string name="meal_snacks">Snacks</string>
+    <string name="meal_empty">Noch nichts eingetragen</string>
+    <string name="add_to_meal">%1$s hinzufügen</string>
+    <string name="coming_in_block">Kommt mit Block %1$d</string>
+
+    <!-- Verlauf -->
+    <string name="history_title">Verlauf</string>
+    <string name="history_placeholder">Hier erscheint dein Verlauf, sobald du Einträge hast.</string>
+
+    <!-- Einstellungen -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_about">Über</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_sources">Datenquellen</string>
+    <string name="settings_sources_text">Lebensmitteldaten folgen mit Block 2 (BLS 4.0, CC BY 4.0) und Block 3 (Open Food Facts, ODbL).</string>
+    <string name="settings_privacy">Datenschutz</string>
+    <string name="settings_privacy_text">Alle Daten bleiben auf diesem Handy. Kein Konto, keine Cloud, keine Werbung.</string>
+</resources>
