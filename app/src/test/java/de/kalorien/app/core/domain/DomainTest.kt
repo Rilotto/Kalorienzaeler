@@ -66,18 +66,34 @@ class SearchRankerTest {
         SearchCandidate(id, key, fav, uses, own)
 
     @Test fun allWordsMustMatch() {
-        val list = listOf(c(1, "hafer flocken haferflocken"), c(2, "hafer ganzes korn roh"))
+        val list = listOf(c(1, "hafer flocken"), c(2, "hafer ganzes korn roh"))
         assertEquals(listOf(1L), SearchRanker.rank("hafer flocken", list).map { it.id })
     }
 
-    @Test fun joinedWordFindsSplitName() {
-        val list = listOf(c(1, "hafer flocken haferflocken"), c(2, "apfel roh apfelroh"))
-        assertEquals(listOf(1L), SearchRanker.rank("Haferflocken", list).map { it.id })
+    @Test fun joinedWordFindsSplitNameFirst() {
+        val list = listOf(c(1, "haferflocken nussplaetzchen"), c(2, "hafer flocken"), c(3, "apfel roh"))
+        assertEquals(listOf(2L, 1L), SearchRanker.rank("Haferflocken", list).map { it.id })
     }
 
     @Test fun favoritesAndFrequentFirst() {
-        val list = listOf(c(1, "banane roh bananeroh"), c(2, "banane getrocknet bananegetrocknet", fav = true), c(3, "bananenchips", uses = 1))
+        val list = listOf(c(1, "banane roh"), c(2, "banane getrocknet", fav = true), c(3, "bananenchips", uses = 1))
         assertEquals(2L, SearchRanker.rank("banane", list).first().id)
+    }
+
+    @Test fun baseProductBeforeDishes() {
+        val list = listOf(c(1, "bananenkuchen ruehrmasse"), c(2, "banane roh"), c(3, "joghurt mit banane"))
+        assertEquals(2L, SearchRanker.rank("banane", list).first().id)
+    }
+
+    @Test fun synonymsFindBlsNames() {
+        val list = listOf(c(1, "teigwaren eifrei gekocht"), c(2, "reisnudeln gekocht"), c(3, "kartoffel schupfnudeln roh"))
+        assertEquals(1L, SearchRanker.rank("Nudeln", list).first().id)
+        val eggs = listOf(c(4, "ei einlauf suppeneinlage"), c(5, "huehnerei gekocht"))
+        assertEquals(5L, SearchRanker.rank("Ei", eggs).first().id)
+    }
+
+    @Test fun prefilterIncludesSynonyms() {
+        assertEquals(listOf("nudeln", "teigwaren"), SearchRanker.prefilterTerms("Nudeln"))
     }
 
     @Test fun startsWithBeatsContains() {

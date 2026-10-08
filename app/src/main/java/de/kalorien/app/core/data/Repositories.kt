@@ -76,14 +76,19 @@ class FoodRepository(private val db: KalorienDatabase) {
     suspend fun setFavorite(id: Long, favorite: Boolean) = foods.setFavorite(id, favorite)
 
     suspend fun search(query: String): List<FoodEntity> {
-        val tokens = TextNormalizer.tokens(query)
-        if (tokens.isEmpty()) return emptyList()
-        // Vorauswahl über das längste Wort (trennt am besten), Feinsortierung im SearchRanker
-        val raw = foods.searchRaw(tokens.maxBy { it.length })
+        val terms = SearchRanker.prefilterTerms(query)
+        if (terms.isEmpty()) return emptyList()
+        // Vorauswahl in der Datenbank über das längste Wort (+ Synonyme), Feinsortierung im SearchRanker
+        val raw = terms.flatMap { foods.searchRaw(it) }.distinctBy { it.id }
         val byId = raw.associateBy { it.id }
         val ranked = SearchRanker.rank(
             query,
-            raw.map { SearchCandidate(it.id, it.searchKey, it.favorite, it.useCount, it.source == FoodSource.CUSTOM) },
+            raw.map {
+                SearchCandidate(
+                    it.id, TextNormalizer.normalize(listOfNotNull(it.name, it.brand).joinToString(" ")),
+                    it.favorite, it.useCount, it.source == FoodSource.CUSTOM,
+                )
+            },
         )
         return ranked.mapNotNull { byId[it.id] }
     }
