@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 // Versionsnummern kommen aus dem Release-Workflow (-PversionCode / -PversionName).
@@ -71,9 +72,12 @@ android {
     }
 }
 
-ksp {
+room {
     // Datenbank-Schema jeder Version wird hier abgelegt und eingecheckt (Grundlage für Migrationen)
-    arg("room.schemaLocation", "$projectDir/schemas")
+    schemaDirectory("$projectDir/schemas")
+}
+
+ksp {
     arg("room.generateKotlin", "true")
 }
 
