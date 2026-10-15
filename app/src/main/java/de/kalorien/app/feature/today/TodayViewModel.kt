@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.kalorien.app.core.data.EntryEntity
 import de.kalorien.app.core.data.EntryRepository
+import de.kalorien.app.core.data.FoodRepository
 import de.kalorien.app.core.data.Settings
 import de.kalorien.app.core.data.SettingsRepository
 import de.kalorien.app.core.domain.Amount
@@ -33,6 +34,7 @@ data class TodayUiState(
 @OptIn(ExperimentalCoroutinesApi::class)
 class TodayViewModel(
     private val entries: EntryRepository,
+    private val foods: FoodRepository,
     settings: SettingsRepository,
 ) : ViewModel() {
     private val date = MutableStateFlow(LocalDate.now())
@@ -68,6 +70,27 @@ class TodayViewModel(
 
     fun updateFoodEntry(entry: EntryEntity, grams: Double, meal: Meal) =
         viewModelScope.launch { entries.updateFoodEntry(entry, grams, meal) }
+
+    /** Ist das Lebensmittel hinter dem Eintrag ein Favorit? (Schnelleintrag ohne Lebensmittel: false) */
+    suspend fun isFavorite(entry: EntryEntity): Boolean =
+        (entries.get(entry.id) ?: entry).foodId?.let { foods.get(it) }?.favorite ?: false
+
+    /**
+     * Herz im Eintrag umschalten. Bei Schnelleinträgen wird beim ersten Mal ein eigenes
+     * Portions-Lebensmittel (Name + kcal) angelegt. Gibt den neuen Zustand zurück.
+     */
+    suspend fun toggleFavorite(entry: EntryEntity, current: Boolean): Boolean {
+        // frisch aus der Datenbank: nach dem ersten Herz ist der Schnelleintrag schon verknüpft
+        val fresh = entries.get(entry.id) ?: entry
+        val food = fresh.foodId?.let { foods.get(it) }
+        return if (food == null) {
+            foods.favoriteFromQuickEntry(fresh)
+            true
+        } else {
+            foods.setFavorite(food.id, !current)
+            !current
+        }
+    }
 
     fun updateQuickEntry(entry: EntryEntity, name: String, kcal: Int, meal: Meal) =
         viewModelScope.launch { entries.updateQuickEntry(entry, name, kcal, meal) }

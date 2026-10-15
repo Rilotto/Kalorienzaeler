@@ -42,6 +42,9 @@ class AddViewModel(
     fun addFood(food: FoodEntity, grams: Double, meal: Meal, date: LocalDate) =
         viewModelScope.launch { entries.addFood(food, grams, meal, date) }
 
+    fun addPortions(food: FoodEntity, portions: Double, meal: Meal, date: LocalDate) =
+        viewModelScope.launch { entries.addPortions(food, portions, meal, date) }
+
     fun addQuick(name: String, kcal: Int, meal: Meal, date: LocalDate) =
         viewModelScope.launch { entries.addQuick(name, kcal, meal, date) }
 

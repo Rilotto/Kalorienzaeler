@@ -106,8 +106,8 @@ fun AddSheet(
                     onMeal = { meal = it },
                     onFavorite = { selected = vm.toggleFavorite(food) },
                     onBack = { selected = null },
-                    onAdd = { grams ->
-                        vm.addFood(food, grams, meal, date)
+                    onAdd = { amount ->
+                        if (food.isPortionFood) vm.addPortions(food, amount, meal, date) else vm.addFood(food, amount, meal, date)
                         onAdded(context.getString(R.string.added_to, food.name, context.getString(mealRes(meal))))
                         onDismiss()
                     },
@@ -208,13 +208,20 @@ private fun FoodRow(food: FoodEntity, onClick: () -> Unit) {
             Text(listOfNotNull(food.brand, src).joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = c.muted)
         }
         if (food.favorite) Icon(Icons.Filled.Favorite, contentDescription = null, tint = c.over, modifier = Modifier.padding(end = 6.dp))
-        Text(
-            stringResource(if (food.isLiquid) R.string.kcal_per_100ml else R.string.kcal_per_100g, food.kcal100.roundToInt()),
-            style = MaterialTheme.typography.bodySmall, color = c.muted,
-        )
+        Text(per100Label(food), style = MaterialTheme.typography.bodySmall, color = c.muted)
     }
     }
 }
+
+@Composable
+private fun per100Label(food: FoodEntity): String = when {
+    food.isPortionFood -> stringResource(R.string.kcal_per_portion, food.kcal100.roundToInt())
+    food.isLiquid -> stringResource(R.string.kcal_per_100ml, food.kcal100.roundToInt())
+    else -> stringResource(R.string.kcal_per_100g, food.kcal100.roundToInt())
+}
+
+/** Für Portions-Lebensmittel: Anzahl Portionen statt Gramm. */
+private val portionCounts = listOf(0.5, 1.0, 1.5, 2.0)
 
 private val plainAmount = Regex("""\d+ (g|ml)""")
 
@@ -229,17 +236,19 @@ private fun FoodDetail(
     onAdd: (Double) -> Unit,
 ) {
     val c = Tokens.colors
+    val byPortion = food.isPortionFood
     val portions = remember(food.id) { PortionGuesser.portionsFor(food.name, food.isLiquid) }
-    var gramsText by remember(food.id) { mutableStateOf(NumberInput.format(portions.first().grams)) }
+    var gramsText by remember(food.id) { mutableStateOf(if (byPortion) "1" else NumberInput.format(portions.first().grams)) }
+    // bei Portions-Lebensmitteln ist das die Anzahl Portionen, sonst Gramm/ml
     val grams = NumberInput.parse(gramsText)
-    val amount = grams?.let { Amount.of(food.per100, it) }
+    val amount = grams?.let { Amount.of(food.per100, if (byPortion) it * 100.0 else it) }
     val unit = stringResource(if (food.isLiquid) R.string.unit_ml else R.string.unit_g)
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             Text(food.name, style = MaterialTheme.typography.titleLarge, color = c.fg)
             Text(
-                stringResource(if (food.isLiquid) R.string.kcal_per_100ml else R.string.kcal_per_100g, food.kcal100.roundToInt()) +
+                per100Label(food) +
                     " · " + stringResource(if (food.source == FoodSource.BLS) R.string.source_bls else R.string.source_custom),
                 style = MaterialTheme.typography.bodySmall, color = c.muted,
             )
@@ -263,15 +272,21 @@ private fun FoodDetail(
         )
     }
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        portions.forEach { p ->
-            // „50 g“ steht für sich, „1 EL“ bekommt die Menge dazu: „1 EL (10 g)“
-            val label = if (p.label.matches(plainAmount)) p.label else "${p.label} (${NumberInput.format(p.grams)} $unit)"
-            AppChip(label, grams == p.grams) { gramsText = NumberInput.format(p.grams) }
+        if (byPortion) {
+            portionCounts.forEach { n ->
+                AppChip(stringResource(R.string.portion_count, NumberInput.format(n)), grams == n) { gramsText = NumberInput.format(n) }
+            }
+        } else {
+            portions.forEach { p ->
+                // „50 g“ steht für sich, „1 EL“ bekommt die Menge dazu: „1 EL (10 g)“
+                val label = if (p.label.matches(plainAmount)) p.label else "${p.label} (${NumberInput.format(p.grams)} $unit)"
+                AppChip(label, grams == p.grams) { gramsText = NumberInput.format(p.grams) }
+            }
         }
     }
     OutlinedTextField(
         value = gramsText, onValueChange = { gramsText = it },
-        label = { Text(stringResource(R.string.amount_in, unit)) }, singleLine = true,
+        label = { Text(if (byPortion) stringResource(R.string.portions_amount) else stringResource(R.string.amount_in, unit)) }, singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), modifier = Modifier.fillMaxWidth(),
     )
     Text(stringResource(R.string.meal), style = MaterialTheme.typography.bodySmall, color = c.muted)

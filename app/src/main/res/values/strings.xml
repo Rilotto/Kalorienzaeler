@@ -62,6 +62,10 @@
     <string name="source_custom">Eigenes</string>
     <string name="kcal_per_100g">%1$d kcal/100 g</string>
     <string name="kcal_per_100ml">%1$d kcal/100 ml</string>
+    <string name="kcal_per_portion">%1$d kcal/Portion</string>
+    <string name="portion_count">%1$s×</string>
+    <string name="portions_amount">Anzahl Portionen</string>
+    <string name="favorite_quick_hint">Tipp aufs Herz merkt Name und Kalorien als Favorit – dann musst du es nicht neu eintippen.</string>
     <string name="macros_line">Eiweiß %1$d g · Kohlenhydrate %2$d g · Fett %3$d g</string>
     <string name="quick_hint">Für Essen ohne Datenbank-Eintrag, z. B. im Restaurant.</string>
     <string name="quick_name">Bezeichnung</string>

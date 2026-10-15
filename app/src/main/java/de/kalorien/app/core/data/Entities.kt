@@ -1,5 +1,6 @@
 package de.kalorien.app.core.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -39,6 +40,12 @@ data class FoodEntity(
     val useCount: Int = 0,
     /** normalisierter Name + Marke für die Suche */
     val searchKey: String,
+    /**
+     * true = „Portions-Lebensmittel“ (z. B. aus einem Schnelleintrag gemerkt): Die Nährwerte in *100-Feldern
+     * gelten für EINE Portion, gewählt wird die Anzahl Portionen statt Gramm. Seit Datenbank-Version 2.
+     */
+    @ColumnInfo(defaultValue = "0")
+    val isPortionFood: Boolean = false,
 ) {
     val per100: Per100 get() = Per100(kcal100, protein100, carbs100, fat100)
 }
