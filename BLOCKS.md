@@ -30,6 +30,12 @@ Etappen (mit dem Nutzer abgestimmt): 1+2 zusammen → 3 einzeln (Kamera am Gerä
   Datei übernehmen, `BlsImporter.ASSET_VERSION` erhöhen.
 - Suchqualität: Synonyme und Gewichtung in `core/domain/SearchRanker.kt`, mit echten Namen geprüft.
 
+## Wünsche des Nutzers (offen) – geplant als v0.3.1, vor Block 3
+- [ ] **Wischen zum Löschen** in der Tagesansicht: Eintrag nach links wischen → gelöscht, Snackbar „Rückgängig“ wie beim Löschen-Knopf
+- [ ] **Favorit direkt aus dem Eintrag**: Im „Eintrag bearbeiten“-Fenster ein Herz/Stern, das das Lebensmittel zu den Favoriten hinzufügt/entfernt.
+      Bei Schnelleinträgen (ohne Lebensmittel) legt der Stern ein eigenes Lebensmittel mit Name + kcal an und markiert es als Favorit,
+      damit man es nicht jedes Mal neu eintippen muss.
+
 ## Zusätzlich gebaut
 - Update-Knopf in den Einstellungen (v0.3.0): GitHub-Releases prüfen, APK laden, Android-Installer starten. Repo ist dafür öffentlich.
 
