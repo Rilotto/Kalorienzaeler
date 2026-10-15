@@ -61,3 +61,13 @@ app/src/main/java/de/kalorien/app/
 - Ab Block 1: Room + KSP, DataStore für Einstellungen. Block 3: CameraX + ML Kit (gebündelt), Ktor/Retrofit.
   Block 5: Glance-Widget, AlarmManager.setExactAndAllowWhileIdle + BOOT_COMPLETED.
 - Einträge speichern einen Nährwert-Snapshot (kcal, P, K, F), damit spätere Änderungen an Lebensmitteln alte Tage nicht verändern.
+- Datenbank aktuell Version 3. Migrationstests in `app/src/test/.../core/data/MigrationTest.kt` (Robolectric, JVM).
+  Neue Version: Test ergänzen; die neue Schema-JSON entsteht erst im ersten CI-Lauf (bot committet sie) →
+  danach einen weiteren Commit pushen, damit der Test sie findet.
+- Portions-Lebensmittel (`isPortionFood`): Werte in den *100-Feldern gelten für 1 Portion, Auswahl nach Anzahl.
+- Scanner: CameraX + ML Kit Barcode (gebündelt), Code nur nach 2× gleicher Lesung + Prüfziffer.
+  Fotos: System-Kamera (TakePicture) oder Galerie → verkleinert → ML Kit Text → `NutritionTextParser`.
+- APK nur für `arm64-v8a` (abiFilters), sonst ~90 MB wegen ML-Kit-Modellen.
+- Update-Knopf: GitHub-Releases-API, Repo ist öffentlich. FileProvider-Authority `${applicationId}.updates`
+  (Pfade `updates/` und `photos/` im Cache).
+- Offene Ideen und die Vorschlagsliste für v0.5 stehen in `BLOCKS.md`.
