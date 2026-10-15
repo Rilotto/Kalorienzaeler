@@ -5,6 +5,16 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Damit die App ihr eigenes Update an den Android-Installer übergeben darf -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- Barcode-Scanner und Fotos von Nährwerten (wird beim ersten Mal erfragt) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <!-- Android 11: Kamera-App für „Foto aufnehmen“ sichtbar machen -->
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
 
     <application
         android:name=".KalorienApp"

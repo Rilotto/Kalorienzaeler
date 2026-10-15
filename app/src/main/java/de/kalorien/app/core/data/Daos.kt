@@ -41,6 +41,16 @@ interface FoodDao {
     @Query("SELECT * FROM food WHERE id = :id")
     suspend fun get(id: Long): FoodEntity?
 
+    /** Bekanntes Produkt zu einem Barcode (egal ob von Open Food Facts oder selbst angelegt), neuestes zuerst. */
+    @Query("SELECT * FROM food WHERE ean = :ean ORDER BY id DESC LIMIT 1")
+    suspend fun findByEan(ean: String): FoodEntity?
+
+    @Query("SELECT * FROM food WHERE source = :source AND sourceId = :sourceId LIMIT 1")
+    suspend fun findBySource(source: String, sourceId: String): FoodEntity?
+
+    @Update
+    suspend fun update(food: FoodEntity)
+
     @Query("UPDATE food SET favorite = :favorite WHERE id = :id")
     suspend fun setFavorite(id: Long, favorite: Boolean)
 

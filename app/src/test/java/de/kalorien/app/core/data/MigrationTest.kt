@@ -53,4 +53,28 @@ class MigrationTest {
         }
         db.close()
     }
+
+    @Test
+    fun migrate2To3KeepsPortionFoods() {
+        val dbName = "migration-2-3.db"
+        helper.createDatabase(dbName, 2).apply {
+            execSQL(
+                "INSERT INTO food (id, name, source, kcal100, protein100, carbs100, fat100, isLiquid, favorite, useCount, searchKey, isPortionFood) " +
+                    "VALUES (7, 'Kantine', 'CUSTOM', 650, 0, 0, 0, 0, 1, 1, 'kantine', 1)",
+            )
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate(dbName, 3, true)
+
+        db.query("SELECT name, isPortionFood, favorite, servingGrams, servingLabel FROM food WHERE id = 7").use { c ->
+            c.moveToFirst()
+            assertEquals("Kantine", c.getString(0))
+            assertEquals(1, c.getInt(1))
+            assertEquals(1, c.getInt(2))
+            assertEquals(true, c.isNull(3)) // neue Spalten sind leer
+            assertEquals(true, c.isNull(4))
+        }
+        db.close()
+    }
 }
