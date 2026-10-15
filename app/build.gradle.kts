@@ -25,6 +25,11 @@ android {
         targetSdk = 35
         versionCode = appVersionCode
         versionName = appVersionName
+        ndk {
+            // Nur 64-Bit-ARM (Oppo Reno 2 Z und praktisch alle aktuellen Handys). Die ML-Kit-Modelle
+            // sind sonst für 4 Prozessortypen enthalten → APK ~90 MB statt ~30 MB.
+            abiFilters += listOf("arm64-v8a")
+        }
     }
 
     signingConfigs {

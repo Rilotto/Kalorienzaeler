@@ -1,5 +1,9 @@
 # Änderungen
 
+## [0.4.1] – Kleinere App
+### Verbessert
+- Download deutlich kleiner: Die App enthält nur noch den Teil für 64-Bit-Handys (wie das Oppo Reno 2 Z) statt für vier Prozessortypen.
+
 ## [0.4.0] – Block 3: Scannen, Foto, eigene Lebensmittel
 ### Neu
 - Reiter **Scannen**: Barcode mit der Kamera lesen (mit Licht-Knopf) oder Nummer eintippen.
