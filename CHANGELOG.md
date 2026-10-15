@@ -1,5 +1,14 @@
 # Änderungen
 
+## [0.3.1] – Wünsche aus dem Alltag
+### Neu
+- Einträge in der Tagesansicht nach links wischen zum Löschen (mit „Rückgängig“)
+- Herz im Fenster „Eintrag bearbeiten“: Lebensmittel direkt als Favorit merken
+- Herz bei Schnelleinträgen (z. B. „Kantine, 650 kcal“) merkt Name und Kalorien als eigenes Lebensmittel –
+  danach in der Suche unter „Favoriten“, Auswahl nach Anzahl Portionen (½×, 1×, 1½×, 2×)
+### Technik
+- Datenbank Version 2 (automatische Migration, mit Test: bestehende Einträge und Favoriten bleiben erhalten)
+
 ## [0.3.0] – Block 1 + 2: Tagebuch und Lebensmittel
 ### Neu
 - Tagesansicht mit echten Einträgen: Ring „kcal übrig“, Ziel, Gegessen, Makro-Balken (abschaltbar)

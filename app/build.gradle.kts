@@ -64,8 +64,12 @@ android {
         buildConfig = true
     }
     sourceSets {
-        // Room-Schemas auch für Tests verfügbar machen (Migrationstests)
-        getByName("test").assets.srcDir("$projectDir/schemas")
+        // Room-Schemas für die Migrationstests (Robolectric liest die Assets der Debug-Variante;
+        // in der Release-APK landen sie nicht)
+        getByName("debug").assets.srcDir("$projectDir/schemas")
+    }
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
     }
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -102,4 +106,17 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     testImplementation(libs.junit)
+    // Datenbank-Migrationstests laufen ohne Gerät (Robolectric)
+    testImplementation(libs.androidx.room.testing)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+}
+
+// Fehlgeschlagene Tests vollständig im Log zeigen (CI-Kommentar liest sie von dort)
+tasks.withType<Test>().configureEach {
+    testLogging {
+        events("failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStackTraces = true
+    }
 }

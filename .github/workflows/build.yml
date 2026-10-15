@@ -40,6 +40,7 @@ jobs:
             -PversionName="0.0.0-build.${{ github.run_number }}" 2>&1 | tee build.log
 
       - name: Datenbank-Schema einchecken
+        if: always()
         # Room schreibt bei jedem Build das Schema nach app/schemas. Neue/geänderte Dateien werden
         # automatisch auf den Zweig committet (Grundlage für spätere Migrationen).
         run: |
@@ -66,7 +67,7 @@ jobs:
           {
             echo "### Build fehlgeschlagen (Run ${{ github.run_number }})"
             echo '```'
-            grep -n -E "^e: |error:|What went wrong|FAILURE:|Caused by|> Task .* FAILED|AAPT|Unresolved|Could not" build.log | head -80 || true
+            grep -n -E "^e: |error:|What went wrong|FAILURE:|> Task .* FAILED|AAPT|Unresolved|Could not|FAILED$|Exception|expected:" build.log | head -80 || true
             echo "----- Ende des Logs -----"
             tail -n 60 build.log || true
             echo '```'

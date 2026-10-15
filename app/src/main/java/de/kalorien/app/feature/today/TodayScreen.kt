@@ -1,6 +1,7 @@
 package de.kalorien.app.feature.today
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +22,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
@@ -32,10 +35,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -115,6 +122,7 @@ fun TodayScreen(snackbar: SnackbarHostState, vm: TodayViewModel = viewModel(fact
                     entries = state.byMeal[meal].orEmpty(),
                     onAdd = { addFor = meal },
                     onEdit = { editing = it },
+                    onDelete = { deleteWithUndo(it) },
                 )
             }
         }
@@ -143,6 +151,8 @@ fun TodayScreen(snackbar: SnackbarHostState, vm: TodayViewModel = viewModel(fact
             onSaveFood = { grams, meal -> vm.updateFoodEntry(entry, grams, meal); editing = null },
             onSaveQuick = { name, kcal, meal -> vm.updateQuickEntry(entry, name, kcal, meal); editing = null },
             onDelete = { editing = null; deleteWithUndo(entry) },
+            loadFavorite = { vm.isFavorite(entry) },
+            toggleFavorite = { current -> vm.toggleFavorite(entry, current) },
         )
     }
 }
@@ -253,7 +263,13 @@ private fun MacroBar(label: String, value: Double, target: Int, color: Color, mo
 }
 
 @Composable
-private fun MealCard(meal: Meal, entries: List<EntryEntity>, onAdd: () -> Unit, onEdit: (EntryEntity) -> Unit) {
+private fun MealCard(
+    meal: Meal,
+    entries: List<EntryEntity>,
+    onAdd: () -> Unit,
+    onEdit: (EntryEntity) -> Unit,
+    onDelete: (EntryEntity) -> Unit,
+) {
     val c = Tokens.colors
     val sum = entries.sumOf { it.kcal }
     AppCard(padding = false) {
@@ -276,8 +292,10 @@ private fun MealCard(meal: Meal, entries: List<EntryEntity>, onAdd: () -> Unit, 
         }
         entries.forEach { e ->
             HorizontalDivider(color = c.line)
+            // key: damit nach dem Löschen nicht der nächste Eintrag den „weggewischt“-Zustand erbt
+            key(e.id) { SwipeToDelete(onDelete = { onDelete(e) }) {
             Row(
-                Modifier.fillMaxWidth().clickable { onEdit(e) }.padding(horizontal = 16.dp, vertical = 10.dp),
+                Modifier.fillMaxWidth().background(c.surface).clickable { onEdit(e) }.padding(horizontal = 16.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(Modifier.weight(1f)) {
@@ -287,6 +305,39 @@ private fun MealCard(meal: Meal, entries: List<EntryEntity>, onAdd: () -> Unit, 
                 }
                 Text(Nutrition.format(e.kcal), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = c.fg)
             }
+            } }
         }
     }
+}
+
+/** Nach links wischen = löschen (mit „Rückgängig“ in der Snackbar). */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SwipeToDelete(onDelete: () -> Unit, content: @Composable () -> Unit) {
+    val c = Tokens.colors
+    val state = rememberSwipeToDismissBoxState(
+        confirmValueChange = { value ->
+            if (value == SwipeToDismissBoxValue.EndToStart) {
+                onDelete()
+                true
+            } else {
+                false
+            }
+        },
+    )
+    SwipeToDismissBox(
+        state = state,
+        enableDismissFromStartToEnd = false,
+        backgroundContent = {
+            Row(
+                Modifier.fillMaxSize().background(c.overSoft).padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(stringResource(R.string.delete), color = c.over, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.width(8.dp))
+                Icon(Icons.Filled.Delete, contentDescription = null, tint = c.over)
+            }
+        },
+    ) { content() }
 }

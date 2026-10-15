@@ -16,6 +16,8 @@ class EntryRepository(private val db: KalorienDatabase) {
 
     fun observeDay(date: LocalDate): Flow<List<EntryEntity>> = entries.observeDay(date.toString())
 
+    suspend fun get(id: Long): EntryEntity? = entries.get(id)
+
     suspend fun addFood(food: FoodEntity, grams: Double, meal: Meal, date: LocalDate) {
         val now = System.currentTimeMillis()
         val a = Amount.of(food.per100, grams)
@@ -25,6 +27,22 @@ class EntryRepository(private val db: KalorienDatabase) {
                     date = date.toString(), meal = meal.name, foodId = food.id, name = food.name, brand = food.brand,
                     grams = grams, isLiquid = food.isLiquid, kcal = a.kcal, protein = a.protein, carbs = a.carbs,
                     fat = a.fat, createdAt = now,
+                ),
+            )
+            foods.markUsed(food.id, now)
+        }
+    }
+
+    /** Portions-Lebensmittel (gemerkter Schnelleintrag): Anzahl Portionen statt Gramm. */
+    suspend fun addPortions(food: FoodEntity, portions: Double, meal: Meal, date: LocalDate) {
+        val now = System.currentTimeMillis()
+        val a = Amount.of(food.per100, portions * 100.0)
+        val name = if (portions == 1.0) food.name else "${food.name} (${de.kalorien.app.core.domain.NumberInput.format(portions)}×)"
+        db.withTransaction {
+            entries.insert(
+                EntryEntity(
+                    date = date.toString(), meal = meal.name, foodId = food.id, name = name, brand = food.brand,
+                    grams = null, kcal = a.kcal, protein = a.protein, carbs = a.carbs, fat = a.fat, createdAt = now,
                 ),
             )
             foods.markUsed(food.id, now)
@@ -94,6 +112,24 @@ class FoodRepository(private val db: KalorienDatabase) {
     }
 
     /** Eigenes Lebensmittel anlegen (z. B. aus dem Schnelleintrag „als Lebensmittel merken“). */
+    /**
+     * Herz bei einem Schnelleintrag: legt ein Portions-Lebensmittel mit Name + kcal als Favorit an
+     * und verknüpft den Eintrag damit (damit das Herz im Eintrag gefüllt bleibt).
+     */
+    suspend fun favoriteFromQuickEntry(entry: EntryEntity): FoodEntity {
+        val entity = FoodEntity(
+            name = entry.name.trim(), source = FoodSource.CUSTOM,
+            kcal100 = entry.kcal.toDouble(), protein100 = entry.protein, carbs100 = entry.carbs, fat100 = entry.fat,
+            favorite = true, lastUsedAt = System.currentTimeMillis(), useCount = 1,
+            searchKey = searchKey(entry.name, null), isPortionFood = true,
+        )
+        return db.withTransaction {
+            val id = foods.insert(entity)
+            foods.linkEntry(entry.id, id)
+            entity.copy(id = id)
+        }
+    }
+
     suspend fun addCustom(name: String, brand: String?, per100: Per100, isLiquid: Boolean): FoodEntity {
         val entity = FoodEntity(
             name = name.trim(), brand = brand?.trim()?.ifEmpty { null }, source = FoodSource.CUSTOM,

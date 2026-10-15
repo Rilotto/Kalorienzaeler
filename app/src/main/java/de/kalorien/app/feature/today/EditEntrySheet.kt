@@ -9,7 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -19,6 +24,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +44,7 @@ import de.kalorien.app.core.domain.PortionGuesser
 import de.kalorien.app.core.ui.AppChip
 import de.kalorien.app.core.ui.MealChips
 import de.kalorien.app.core.ui.theme.Tokens
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /** Eintrag ändern oder löschen. Lebensmittel-Einträge: Menge + Mahlzeit. Schnelleinträge: Name + kcal + Mahlzeit. */
@@ -47,8 +56,13 @@ fun EditEntrySheet(
     onSaveFood: (grams: Double, meal: Meal) -> Unit,
     onSaveQuick: (name: String, kcal: Int, meal: Meal) -> Unit,
     onDelete: () -> Unit,
+    loadFavorite: suspend () -> Boolean,
+    toggleFavorite: suspend (current: Boolean) -> Boolean,
 ) {
     val c = Tokens.colors
+    val scope = rememberCoroutineScope()
+    var favorite by remember { mutableStateOf<Boolean?>(null) }
+    LaunchedEffect(entry.id) { favorite = loadFavorite() }
     val isFood = entry.grams != null
     var meal by remember { mutableStateOf(Meal.fromDb(entry.meal)) }
     var gramsText by remember { mutableStateOf(entry.grams?.let(NumberInput::format) ?: "") }
@@ -61,7 +75,23 @@ fun EditEntrySheet(
             Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 16.dp).navigationBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text(stringResource(R.string.edit_entry), style = MaterialTheme.typography.titleLarge, color = c.fg)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.edit_entry), style = MaterialTheme.typography.titleLarge, color = c.fg, modifier = Modifier.weight(1f))
+                val fav = favorite
+                IconButton(
+                    onClick = { if (fav != null) scope.launch { favorite = toggleFavorite(fav) } },
+                    enabled = fav != null,
+                ) {
+                    Icon(
+                        if (fav == true) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = stringResource(if (fav == true) R.string.unfavorite else R.string.favorite),
+                        tint = if (fav == true) c.over else c.muted,
+                    )
+                }
+            }
+            if (!isFood && favorite == false) {
+                Text(stringResource(R.string.favorite_quick_hint), style = MaterialTheme.typography.bodySmall, color = c.muted)
+            }
             if (isFood) {
                 Text(entry.name, style = MaterialTheme.typography.titleMedium, color = c.fg)
                 val grams = NumberInput.parse(gramsText)

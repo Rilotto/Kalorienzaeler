@@ -60,6 +60,9 @@ interface FoodDao {
         isLiquid: Boolean, searchKey: String,
     ): Int
 
+    @Query("UPDATE entry SET foodId = :foodId WHERE id = :entryId")
+    suspend fun linkEntry(entryId: Long, foodId: Long)
+
     @Query("SELECT COUNT(*) FROM food WHERE source = 'BLS'")
     suspend fun countBls(): Int
 }
