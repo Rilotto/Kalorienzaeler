@@ -7,7 +7,7 @@ Status: offen · in Arbeit · Testversion · fertig
 | 0 Fundament | Projekt, Design, Navigation, CI, feste Signatur, Release-Weg | v0.1.0 | fertig |
 | 1 Tagebuch | Room, Heute-Ansicht, Schnelleintrag, Bearbeiten, Rückgängig, Tagesziel, Tage wechseln | v0.3.0 (mit 2) | fertig |
 | 2 Lebensmittel | BLS 4.0 eingebaut, Suche, Portions-Chips, Zuletzt/Favoriten, Mahlzeit nach Uhrzeit | v0.3.0 | fertig |
-| 3 Scanner | CameraX + ML Kit, Open Food Facts + Cache, EAN von Hand, Taschenlampe, Produkt anlegen | v0.4.0 | offen |
+| 3 Scanner | CameraX + ML Kit, Open Food Facts + Cache, EAN von Hand, Taschenlampe, Produkt anlegen, **Nährwerte per Foto (OCR)** | v0.4.0 | offen |
 | 4 Verlauf & Sicherung | Verlauf 7/14/30, CSV-Export, automatisches Backup + Wiederherstellen | v0.5.0 | offen |
 | 5 Android | Erinnerungen, Oppo-Einrichtung, Widget (mit Getränke-Knöpfen), Shortcuts, Benachrichtigungs-Aktionen | v1.0.0 | offen |
 | 6 Wiederholen | „Wie gestern“, Mahlzeit-Vorlagen, Einträge verschieben, Ziel pro Wochentag | v1.1.0 | offen |
@@ -36,8 +36,21 @@ Etappen (mit dem Nutzer abgestimmt): 1+2 zusammen → 3 einzeln (Kamera am Gerä
       Bei Schnelleinträgen (ohne Lebensmittel) legt der Stern ein eigenes Lebensmittel mit Name + kcal an und markiert es als Favorit,
       damit man es nicht jedes Mal neu eintippen muss.
 
+## Block 3 – Ergänzung: Nährwerte per Foto (OCR, lokal)
+- ML Kit Texterkennung (gebündelt, offline). Reiter „Foto“ neben „Scannen“.
+- Foto von Kantinen-Schild oder Nährwerttabelle → Zahlen hinter kcal / Eiweiß / Fett / Kohlenhydrate finden →
+  vorausgefülltes Formular (Name, Werte, pro Portion oder pro 100 g) → prüfen → speichern, optional als Favorit.
+- Auch für „Barcode unbekannt → Produkt anlegen“.
+- Nutzer fotografiert die Kantinenwerte meist vom **Monitor** (Moiré/Spiegelung beachten). Beispielfotos vom Nutzer
+  abwarten und den Parser daran testen.
+
 ## Zusätzlich gebaut
 - Update-Knopf in den Einstellungen (v0.3.0): GitHub-Releases prüfen, APK laden, Android-Installer starten. Repo ist dafür öffentlich.
+
+## Vielleicht (Nutzer plant noch)
+- **Kantinen-Wochenplan**: ganzen Wochenplan fotografieren oder als **PDF** einfügen → App erkennt die Gerichte mit
+  Nährwerten → kleine Auswahlliste („Was gab es heute?“) zum schnellen Eintragen. Bei PDFs mit echtem Text ist keine
+  Texterkennung nötig (Text direkt auslesen), bei gescannten PDFs OCR wie bei Fotos. Baut auf der OCR aus Block 3 auf.
 
 ## Später (Ideen, noch keinem Block zugeordnet)
 - Eigene Schriften (Bricolage Grotesque / Figtree wie im Prototyp)
