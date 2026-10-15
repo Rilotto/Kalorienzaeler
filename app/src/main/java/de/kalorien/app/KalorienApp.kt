@@ -6,6 +6,7 @@ import de.kalorien.app.core.data.EntryRepository
 import de.kalorien.app.core.data.FoodRepository
 import de.kalorien.app.core.data.KalorienDatabase
 import de.kalorien.app.core.data.SettingsRepository
+import de.kalorien.app.core.update.UpdateRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -30,4 +31,5 @@ class AppContainer(app: Application) {
     val entries = EntryRepository(database)
     val foods = FoodRepository(database)
     val blsImporter = BlsImporter(app, database, settings)
+    val updates = UpdateRepository(app)
 }

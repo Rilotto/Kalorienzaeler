@@ -51,6 +51,7 @@ import kotlinx.coroutines.launch
 fun SettingsScreen(snackbar: SnackbarHostState, vm: SettingsViewModel = viewModel(factory = AppViewModels.Factory)) {
     val c = Tokens.colors
     val settings by vm.settings.collectAsStateWithLifecycle()
+    val update by vm.update.collectAsStateWithLifecycle()
     val s = settings ?: return
     var goalText by remember { mutableStateOf("") }
     LaunchedEffect(s.dailyGoal) { goalText = s.dailyGoal.toString() }
@@ -106,6 +107,13 @@ fun SettingsScreen(snackbar: SnackbarHostState, vm: SettingsViewModel = viewMode
                 )
             }
         }
+        UpdateCard(
+            state = update,
+            includeTestVersions = s.includeTestVersions,
+            onIncludeTestVersions = vm::setIncludeTestVersions,
+            onCheck = vm::checkForUpdate,
+            onDownload = vm::download,
+        )
         AppCard {
             Text(stringResource(R.string.settings_about), style = MaterialTheme.typography.titleMedium, color = c.fg)
             Spacer(Modifier.height(8.dp))

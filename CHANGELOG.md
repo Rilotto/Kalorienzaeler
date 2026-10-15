@@ -12,6 +12,7 @@
 - Schnelleintrag nur mit Name und Kalorien
 - Einträge antippen zum Ändern (Menge, Mahlzeit) oder Löschen – mit „Rückgängig“
 - Einstellungen: Tagesziel, Makros an/aus, Quellenangabe
+- Einstellungen → Updates: „Nach Updates suchen“ lädt neue Versionen direkt in der App herunter und startet die Installation (auf Wunsch inkl. Testversionen)
 ### Behoben (nach Test rc.1)
 - Portions-Vorschläge fehlten bei BLS-Namen mit Leerzeichen (z. B. „Hafer Flocken“ zeigte nur „100 g“)
 - Lebensmittel ohne passende Portion bekommen jetzt 50 / 100 / 150 / 200 g zur Auswahl

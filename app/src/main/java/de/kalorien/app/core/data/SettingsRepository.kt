@@ -11,7 +11,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-data class Settings(val dailyGoal: Int = DEFAULT_GOAL, val showMacros: Boolean = true) {
+data class Settings(
+    val dailyGoal: Int = DEFAULT_GOAL,
+    val showMacros: Boolean = true,
+    /** Auch Testversionen (rc) als Update anbieten */
+    val includeTestVersions: Boolean = true,
+) {
     companion object {
         const val DEFAULT_GOAL = 2200
         const val MIN_GOAL = 800
@@ -26,12 +31,14 @@ class SettingsRepository(private val context: Context) {
         val goal = intPreferencesKey("daily_goal")
         val macros = booleanPreferencesKey("show_macros")
         val blsVersion = intPreferencesKey("bls_version")
+        val testVersions = booleanPreferencesKey("include_test_versions")
     }
 
     val settings: Flow<Settings> = context.dataStore.data.map { p ->
         Settings(
             dailyGoal = p[Keys.goal] ?: Settings.DEFAULT_GOAL,
             showMacros = p[Keys.macros] ?: true,
+            includeTestVersions = p[Keys.testVersions] ?: true,
         )
     }
 
@@ -41,6 +48,10 @@ class SettingsRepository(private val context: Context) {
 
     suspend fun setShowMacros(show: Boolean) {
         context.dataStore.edit { it[Keys.macros] = show }
+    }
+
+    suspend fun setIncludeTestVersions(include: Boolean) {
+        context.dataStore.edit { it[Keys.testVersions] = include }
     }
 
     suspend fun blsVersion(): Int = context.dataStore.data.first()[Keys.blsVersion] ?: 0

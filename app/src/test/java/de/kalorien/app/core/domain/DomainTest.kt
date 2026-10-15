@@ -155,3 +155,26 @@ class BlsRowTest {
         assertNull(BlsRow.parse(""))
     }
 }
+
+class AppVersionTest {
+    private fun v(s: String) = AppVersion.parse(s)!!
+
+    @Test fun ordersReleasesAndTestVersions() {
+        assertTrue(v("0.3.0-rc.1") < v("0.3.0-rc.2"))
+        assertTrue(v("0.3.0-rc.2") < v("0.3.0"))
+        assertTrue(v("0.3.0") < v("0.3.1"))
+        assertTrue(v("v0.10.0") > v("0.9.9"))
+        assertTrue(v("0.3.0-rc.10") > v("0.3.0-rc.9"))
+        assertEquals(0, v("v1.0.0").compareTo(v("1.0.0")))
+    }
+
+    @Test fun devBuildsAreOlderThanReleases() {
+        assertTrue(v("0.0.0-dev") < v("0.1.0"))
+        assertTrue(v("0.0.0-build.15") < v("0.3.0-rc.1"))
+    }
+
+    @Test fun rejectsGarbage() {
+        assertNull(AppVersion.parse("neueste"))
+        assertTrue(v("0.3.0-rc.2").isPreRelease)
+    }
+}
