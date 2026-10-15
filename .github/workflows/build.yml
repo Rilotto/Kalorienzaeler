@@ -39,6 +39,18 @@ jobs:
           gradle --no-daemon --stacktrace testDebugUnitTest assembleRelease \
             -PversionName="0.0.0-build.${{ github.run_number }}" 2>&1 | tee build.log
 
+      - name: Datenbank-Schema einchecken
+        # Room schreibt bei jedem Build das Schema nach app/schemas. Neue/geänderte Dateien werden
+        # automatisch auf den Zweig committet (Grundlage für spätere Migrationen).
+        run: |
+          if [ -n "$(git status --porcelain app/schemas)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add app/schemas
+            git commit -m "Datenbank-Schema aktualisieren (automatisch)"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
       - name: APK bereitstellen
         uses: actions/upload-artifact@v4
         with:

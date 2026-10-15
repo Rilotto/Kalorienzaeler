@@ -1,0 +1,69 @@
+package de.kalorien.app.core.data
+
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import de.kalorien.app.core.domain.Per100
+
+/** Herkunft eines Lebensmittels. Werte werden als Text gespeichert – nicht umbenennen. */
+object FoodSource {
+    const val BLS = "BLS"
+    const val CUSTOM = "CUSTOM"
+    const val QUICK = "QUICK"
+    // später: OFF (Open Food Facts, Block 3), RECIPE (Block 7)
+}
+
+@Entity(
+    tableName = "food",
+    indices = [
+        Index("searchKey"),
+        Index(value = ["source", "sourceId"], unique = true),
+        Index("ean"),
+    ],
+)
+data class FoodEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val brand: String? = null,
+    val source: String,
+    /** z. B. BLS-Schlüssel */
+    val sourceId: String? = null,
+    val ean: String? = null,
+    val kcal100: Double,
+    val protein100: Double,
+    val carbs100: Double,
+    val fat100: Double,
+    val isLiquid: Boolean = false,
+    val favorite: Boolean = false,
+    val lastUsedAt: Long? = null,
+    val useCount: Int = 0,
+    /** normalisierter Name + Marke für die Suche */
+    val searchKey: String,
+) {
+    val per100: Per100 get() = Per100(kcal100, protein100, carbs100, fat100)
+}
+
+/**
+ * Ein Tagebucheintrag. Nährwerte sind ein Snapshot zum Zeitpunkt des Eintragens,
+ * damit spätere Änderungen am Lebensmittel alte Tage nicht verändern.
+ */
+@Entity(tableName = "entry", indices = [Index("date"), Index("foodId")])
+data class EntryEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    /** ISO-Datum yyyy-MM-dd */
+    val date: String,
+    /** [de.kalorien.app.core.domain.Meal.name] */
+    val meal: String,
+    /** null = Schnelleintrag ohne Lebensmittel */
+    val foodId: Long?,
+    val name: String,
+    val brand: String? = null,
+    /** null = Schnelleintrag ohne Menge */
+    val grams: Double?,
+    val isLiquid: Boolean = false,
+    val kcal: Int,
+    val protein: Double,
+    val carbs: Double,
+    val fat: Double,
+    val createdAt: Long,
+)

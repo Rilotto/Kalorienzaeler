@@ -82,7 +82,7 @@ fun KalorienAppRoot() {
         ) {
             composable(TopLevel.Today.route) { TodayScreen(snackbar) }
             composable(TopLevel.History.route) { HistoryScreen() }
-            composable(TopLevel.Settings.route) { SettingsScreen() }
+            composable(TopLevel.Settings.route) { SettingsScreen(snackbar) }
         }
     }
 }

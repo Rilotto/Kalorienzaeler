@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 // Versionsnummern kommen aus dem Release-Workflow (-PversionCode / -PversionName).
@@ -61,12 +63,30 @@ android {
         compose = true
         buildConfig = true
     }
+    sourceSets {
+        // Room-Schemas auch für Tests verfügbar machen (Migrationstests)
+        getByName("test").assets.srcDir("$projectDir/schemas")
+    }
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
 }
 
+room {
+    // Datenbank-Schema jeder Version wird hier abgelegt und eingecheckt (Grundlage für Migrationen)
+    schemaDirectory("$projectDir/schemas")
+}
+
+ksp {
+    arg("room.generateKotlin", "true")
+}
+
 dependencies {
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.datastore.preferences)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)

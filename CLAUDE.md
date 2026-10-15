@@ -5,7 +5,8 @@ ist kein Android-Entwickler: Antworten kurz, einfache Worte, keine Fachbegriffe 
 
 ## Nicht verhandelbar
 - Kein Gewichtsverlauf, keine Motivation/Tipps/Streaks, keine Foto-Erkennung, kein Konto, keine Cloud, keine Analytics.
-- Daten bleiben auf dem Gerät. Netzwerk nur für Open Food Facts (ab Block 3) und Rezept-Import (Block 8).
+- Daten bleiben auf dem Gerät. Netzwerk nur für: Update-Prüfung per Knopf (GitHub-Releases, Repo ist öffentlich),
+  Open Food Facts (ab Block 3) und Rezept-Import (Block 8). Nie automatisch im Hintergrund.
 - Datenbank: niemals `fallbackToDestructiveMigration`. Jede Schemaänderung = Version +1 + Migration + Test.
   Schemas liegen in `app/schemas/` und werden eingecheckt.
 - Signatur: `signing/release.p12` nie ersetzen oder neu erzeugen – sonst lassen sich Updates nicht mehr installieren.
