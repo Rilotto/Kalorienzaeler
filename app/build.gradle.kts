@@ -64,8 +64,9 @@ android {
         buildConfig = true
     }
     sourceSets {
-        // Room-Schemas auch für Tests verfügbar machen (Migrationstests)
-        getByName("test").assets.srcDir("$projectDir/schemas")
+        // Room-Schemas für die Migrationstests (Robolectric liest die Assets der Debug-Variante;
+        // in der Release-APK landen sie nicht)
+        getByName("debug").assets.srcDir("$projectDir/schemas")
     }
     testOptions {
         unitTests.isIncludeAndroidResources = true
