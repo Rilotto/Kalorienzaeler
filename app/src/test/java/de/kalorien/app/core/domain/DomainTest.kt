@@ -112,8 +112,26 @@ class PortionGuesserTest {
         assertEquals("1 Scheibe", PortionGuesser.portionsFor("Roggenmischbrot", false).first().label)
     }
 
+    @Test fun onlyMainWordCounts() {
+        assertEquals("1 Pizza", PortionGuesser.portionsFor("Pizza Margherita (mit Tomatensauce, Mozzarella)", false).first().label)
+        assertTrue(PortionGuesser.portionsFor("Weizentoastbrot/Buttertoastbrot", false).none { it.label == "1 TL" })
+    }
+
     @Test fun eiDoesNotMatchInsideOtherWords() {
         assertTrue(PortionGuesser.portionsFor("Reis, gekocht", false).none { it.grams == 58.0 })
+    }
+
+    @Test fun blsNamesWithSpacesStillMatch() {
+        // Fehler aus dem Test auf dem Oppo: „Hafer Flocken“ bekam nur „100 g“
+        val oats = PortionGuesser.portionsFor("Hafer Flocken", false)
+        assertTrue(oats.any { it.label == "1 EL" && it.grams == 10.0 })
+        assertTrue(oats.any { it.label == "1 Portion" && it.grams == 50.0 })
+        assertTrue(PortionGuesser.portionsFor("Teigwaren eifrei, gekocht", false).any { it.grams == 200.0 })
+    }
+
+    @Test fun unknownFoodsGetSeveralAmounts() {
+        val q = PortionGuesser.portionsFor("Zucchini roh", false).map { it.grams }
+        assertEquals(listOf(50.0, 100.0, 150.0, 200.0), q)
     }
 
     @Test fun alwaysOffers100() {

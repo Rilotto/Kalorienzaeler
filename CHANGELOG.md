@@ -12,6 +12,10 @@
 - Schnelleintrag nur mit Name und Kalorien
 - Einträge antippen zum Ändern (Menge, Mahlzeit) oder Löschen – mit „Rückgängig“
 - Einstellungen: Tagesziel, Makros an/aus, Quellenangabe
+### Behoben (nach Test rc.1)
+- Portions-Vorschläge fehlten bei BLS-Namen mit Leerzeichen (z. B. „Hafer Flocken“ zeigte nur „100 g“)
+- Lebensmittel ohne passende Portion bekommen jetzt 50 / 100 / 150 / 200 g zur Auswahl
+- Neue Portionen für Pizza, Döner, Schnitzel/Filet, Lachs, Pommes, Würstchen
 
 
 ## [0.1.0] – Block 0: Fundament

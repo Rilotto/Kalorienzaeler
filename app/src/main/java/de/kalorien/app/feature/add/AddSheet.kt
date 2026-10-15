@@ -216,6 +216,8 @@ private fun FoodRow(food: FoodEntity, onClick: () -> Unit) {
     }
 }
 
+private val plainAmount = Regex("""\d+ (g|ml)""")
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FoodDetail(
@@ -262,7 +264,8 @@ private fun FoodDetail(
     }
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         portions.forEach { p ->
-            val label = if (p.label.startsWith("100 ")) p.label else "${p.label} (${NumberInput.format(p.grams)} $unit)"
+            // „50 g“ steht für sich, „1 EL“ bekommt die Menge dazu: „1 EL (10 g)“
+            val label = if (p.label.matches(plainAmount)) p.label else "${p.label} (${NumberInput.format(p.grams)} $unit)"
             AppChip(label, grams == p.grams) { gramsText = NumberInput.format(p.grams) }
         }
     }
