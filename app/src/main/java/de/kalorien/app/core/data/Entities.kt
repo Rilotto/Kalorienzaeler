@@ -11,7 +11,9 @@ object FoodSource {
     const val BLS = "BLS"
     const val CUSTOM = "CUSTOM"
     const val QUICK = "QUICK"
-    // später: OFF (Open Food Facts, Block 3), RECIPE (Block 7)
+    /** Open Food Facts (Barcode, Block 3) */
+    const val OFF = "OFF"
+    // später: RECIPE (Block 7)
 }
 
 @Entity(
@@ -46,6 +48,10 @@ data class FoodEntity(
      */
     @ColumnInfo(defaultValue = "0")
     val isPortionFood: Boolean = false,
+    /** Packungs-/Portionsgröße, z. B. 330 (ml) für „1 Dose“ (Open Food Facts oder selbst eingegeben). Seit DB v3. */
+    val servingGrams: Double? = null,
+    /** Bezeichnung dazu, z. B. „1 Dose“; null = „1 Portion“. Seit DB v3. */
+    val servingLabel: String? = null,
 ) {
     val per100: Per100 get() = Per100(kcal100, protein100, carbs100, fat100)
 }

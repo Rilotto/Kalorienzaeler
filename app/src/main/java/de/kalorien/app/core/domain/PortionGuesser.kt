@@ -43,7 +43,8 @@ object PortionGuesser {
     /** Wenn keine Regel passt: einfache Standardmengen statt nur „100 g“. */
     private val solidDefaults = listOf(Portion("50 g", 50.0), Portion("150 g", 150.0), Portion("200 g", 200.0))
 
-    fun portionsFor(name: String, isLiquid: Boolean): List<Portion> {
+    /** [serving]: bekannte Packungs-/Portionsgröße (z. B. „1 Dose“ 330 ml) – steht dann ganz vorne. */
+    fun portionsFor(name: String, isLiquid: Boolean, serving: Portion? = null): List<Portion> {
         // Nur das Hauptwort am Anfang zählt (sonst bekäme „Pizza mit Tomatensauce“ Tomaten-Portionen).
         // Passt dort nichts, die ersten zwei Wörter zusammengeschrieben: BLS schreibt „Hafer Flocken“.
         val words = TextNormalizer.tokens(name)
@@ -63,6 +64,6 @@ object PortionGuesser {
             found.isEmpty() -> listOf(solidDefaults[0], hundred) + solidDefaults.drop(1)
             else -> found + hundred
         }
-        return list.distinctBy { it.grams }.take(5)
+        return (listOfNotNull(serving) + list).distinctBy { it.grams }.take(5)
     }
 }

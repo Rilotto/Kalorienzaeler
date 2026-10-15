@@ -7,7 +7,7 @@ Status: offen · in Arbeit · Testversion · fertig
 | 0 Fundament | Projekt, Design, Navigation, CI, feste Signatur, Release-Weg | v0.1.0 | fertig |
 | 1 Tagebuch | Room, Heute-Ansicht, Schnelleintrag, Bearbeiten, Rückgängig, Tagesziel, Tage wechseln | v0.3.0 (mit 2) | fertig |
 | 2 Lebensmittel | BLS 4.0 eingebaut, Suche, Portions-Chips, Zuletzt/Favoriten, Mahlzeit nach Uhrzeit | v0.3.0 | fertig |
-| 3 Scanner | CameraX + ML Kit, Open Food Facts + Cache, EAN von Hand, Taschenlampe, Produkt anlegen, **Nährwerte per Foto (OCR)** | v0.4.0 | offen |
+| 3 Scanner | CameraX + ML Kit, Open Food Facts + Cache, EAN von Hand, Taschenlampe, Produkt anlegen, **Nährwerte per Foto (OCR)** | v0.4.0 | fertig |
 | 4 Verlauf & Sicherung | Verlauf 7/14/30, CSV-Export, automatisches Backup + Wiederherstellen | v0.5.0 | offen |
 | 5 Android | Erinnerungen, Oppo-Einrichtung, Widget (mit Getränke-Knöpfen), Shortcuts, Benachrichtigungs-Aktionen | v1.0.0 | offen |
 | 6 Wiederholen | „Wie gestern“, Mahlzeit-Vorlagen, Einträge verschieben, Ziel pro Wochentag | v1.1.0 | offen |
@@ -36,7 +36,7 @@ Etappen (mit dem Nutzer abgestimmt): 1+2 zusammen → 3 einzeln (Kamera am Gerä
       Bei Schnelleinträgen (ohne Lebensmittel) legt der Stern ein eigenes Lebensmittel mit Name + kcal an und markiert es als Favorit,
       damit man es nicht jedes Mal neu eintippen muss.
 
-## Block 3 – Ergänzung: Nährwerte per Foto (OCR, lokal)
+## Block 3 – Ergänzung: Nährwerte per Foto (OCR, lokal) – gebaut in v0.4.0
 - ML Kit Texterkennung (gebündelt, offline). Reiter „Foto“ neben „Scannen“.
 - Foto von Kantinen-Schild oder Nährwerttabelle → Zahlen hinter kcal / Eiweiß / Fett / Kohlenhydrate finden →
   vorausgefülltes Formular (Name, Werte, pro Portion oder pro 100 g) → prüfen → speichern, optional als Favorit.
@@ -46,6 +46,42 @@ Etappen (mit dem Nutzer abgestimmt): 1+2 zusammen → 3 einzeln (Kamera am Gerä
 
 ## Zusätzlich gebaut
 - Update-Knopf in den Einstellungen (v0.3.0): GitHub-Releases prüfen, APK laden, Android-Installer starten. Repo ist dafür öffentlich.
+
+## To-do v0.5 – Vorschläge (★ = Empfehlung, bitte auswählen)
+
+### Weitere Wege, Essen einzutragen
+- [ ] ★ **Mehrere nacheinander**: „Weiter eintragen“-Knopf – das Fenster bleibt offen (Frühstück mit 4 Zutaten ohne 4× öffnen)
+- [ ] ★ **Mahlzeit kopieren / „Wie gestern“**: ganze Mahlzeit eines anderen Tages mit einem Tipp übernehmen
+- [ ] ★ **Nochmal**: Eintrag lange drücken → noch einmal eintragen (heute, gleiche Menge)
+- [ ] ★ **Mahlzeit-Vorlagen**: „Mein Frühstück“ = Quark + Banane + Kaffee, ein Tipp trägt alles ein
+- [ ] **Packungsanteil** bei gescannten Produkten: ¼ / ½ / ganze Packung
+- [ ] **Rest-Wiegen**: Packung vorher/nachher wiegen → gegessene Menge wird berechnet
+- [ ] **Rechnen im Schnelleintrag**: „250+120+80“ und kJ → kcal
+- [ ] **Getränke-Knöpfe** in der Tagesansicht (Kaffee, Cola, Bier, Saft) – vorgezogen aus Block 5
+- [ ] **Spracheingabe** („200 Gramm Quark“) über die Android-Spracherkennung
+- [ ] Später: Rezepte (Block 7), Rezept-Import (Block 8), Kantinen-Wochenplan (siehe „Vielleicht“)
+
+### Bedienung
+- [ ] ★ **Zwischen Tagen wischen** in der Tagesansicht
+- [ ] ★ **Eintrag verschieben** (anderer Tag / andere Mahlzeit) im Bearbeiten-Fenster
+- [ ] **Eigene Lebensmittel verwalten** (bearbeiten, löschen) in den Einstellungen
+- [ ] Optionale **Uhrzeit** an Einträgen
+
+### Verlauf & Sicherung (Block 4)
+- [ ] ★ **Verlauf** 7/14/30 Tage mit Ziellinie, Durchschnitt, Tag antippen
+- [ ] ★ **Automatische Sicherung** + Wiederherstellen (Datei im Download-Ordner), **CSV-Export**
+
+### Einstellungen
+- [ ] **Makro-Ziele** selbst festlegen (Gramm oder Prozent)
+- [ ] **Ziel pro Wochentag** (vorgezogen aus Block 6)
+- [ ] **Mahlzeiten anpassen**: umbenennen, ausblenden, z. B. „Spätsnack“ ergänzen
+- [ ] **Hell/Dunkel** erzwingen statt Systemeinstellung
+- [ ] **Standard-Reiter** beim Eintragen (z. B. direkt „Scannen“)
+
+### Technik
+- [ ] Bibliotheks-Updates (offene Dependabot-PRs) einspielen und testen
+- [ ] App verkleinern (R8/Minify; aktuell gut 25 MB)
+- [ ] Fehlerprotokoll in der App exportierbar machen (hilft bei Problemen auf dem Oppo)
 
 ## Vielleicht (Nutzer plant noch)
 - **Kantinen-Wochenplan**: ganzen Wochenplan fotografieren oder als **PDF** einfügen → App erkennt die Gerichte mit

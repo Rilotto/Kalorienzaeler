@@ -1,5 +1,23 @@
 # Änderungen
 
+## [0.4.0] – Block 3: Scannen, Foto, eigene Lebensmittel
+### Neu
+- Reiter **Scannen**: Barcode mit der Kamera lesen (mit Licht-Knopf) oder Nummer eintippen.
+  Produkte kommen aus Open Food Facts und werden gespeichert – beim nächsten Mal auch ohne Internet.
+  Packungsgrößen wie „1 Dose (330 ml)“ erscheinen als Portionsknopf.
+- Unbekannter Barcode → Formular, die App merkt sich das Produkt samt Barcode
+- Reiter **Foto**: Kantinen-Schild, Monitor oder Nährwerttabelle fotografieren (oder Screenshot aus der Galerie) –
+  Kalorien, Eiweiß, Kohlenhydrate und Fett werden auf dem Handy ausgelesen und vorausgefüllt
+- **Eigenes Lebensmittel anlegen** (Suche → ganz unten): Werte pro 100 g, pro 100 ml oder pro Portion
+- **Rückgängig nach dem Hinzufügen** (Leiste unten), falls man sich vertippt hat
+- Enthält alles aus 0.3.1 (Wischen zum Löschen, Herz im Eintrag)
+### Verbessert
+- Formulare bleiben bei offener Tastatur scrollbar (Knöpfe werden nicht mehr verdeckt)
+- Wischen löscht garantiert nur einmal
+### Technik
+- Datenbank Version 3 (Packungsgröße), Migrationstests 1→2 und 2→3
+- Barcode- und Texterkennung mit Google ML Kit, Modelle in der App enthalten (offline)
+
 ## [0.3.1] – Wünsche aus dem Alltag
 ### Neu
 - Einträge in der Tagesansicht nach links wischen zum Löschen (mit „Rückgängig“)

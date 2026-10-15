@@ -96,6 +96,7 @@ fun TodayScreen(snackbar: SnackbarHostState, vm: TodayViewModel = viewModel(fact
     fun deleteWithUndo(entry: EntryEntity) {
         vm.delete(entry)
         scope.launch {
+            snackbar.currentSnackbarData?.dismiss()
             val result = snackbar.showSnackbar(
                 message = context.getString(R.string.entry_deleted, entry.name),
                 actionLabel = context.getString(R.string.undo),
@@ -141,7 +142,15 @@ fun TodayScreen(snackbar: SnackbarHostState, vm: TodayViewModel = viewModel(fact
             initialMeal = meal,
             date = state.date,
             onDismiss = { addFor = null },
-            onAdded = { msg -> scope.launch { snackbar.showSnackbar(msg) } },
+            onAdded = { msg, entry ->
+                scope.launch {
+                    snackbar.currentSnackbarData?.dismiss()
+                    val result = snackbar.showSnackbar(
+                        message = msg, actionLabel = context.getString(R.string.undo), duration = SnackbarDuration.Short,
+                    )
+                    if (result == SnackbarResult.ActionPerformed) vm.delete(entry)
+                }
+            },
         )
     }
     editing?.let { entry ->
@@ -315,10 +324,15 @@ private fun MealCard(
 @Composable
 private fun SwipeToDelete(onDelete: () -> Unit, content: @Composable () -> Unit) {
     val c = Tokens.colors
+    // Schutz: Material ruft confirmValueChange u. U. mehrfach auf → nur einmal löschen
+    var done by remember { mutableStateOf(false) }
     val state = rememberSwipeToDismissBoxState(
         confirmValueChange = { value ->
             if (value == SwipeToDismissBoxValue.EndToStart) {
-                onDelete()
+                if (!done) {
+                    done = true
+                    onDelete()
+                }
                 true
             } else {
                 false

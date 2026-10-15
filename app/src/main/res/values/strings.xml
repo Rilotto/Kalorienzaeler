@@ -50,6 +50,53 @@
     <!-- Eintragen -->
     <string name="tab_search">Suchen</string>
     <string name="tab_quick">Schnell</string>
+    <string name="tab_scan">Scannen</string>
+    <string name="tab_photo">Foto</string>
+    <string name="source_off">Open Food Facts</string>
+    <string name="one_portion">1 Portion</string>
+
+    <!-- Scannen -->
+    <string name="scan_hint">Barcode in den Rahmen halten – er wird automatisch erkannt.</string>
+    <string name="scan_torch_on">Licht an</string>
+    <string name="scan_torch_off">Licht aus</string>
+    <string name="scan_permission">Zum Scannen braucht die App einmalig Zugriff auf die Kamera. Bilder werden nicht gespeichert oder verschickt.</string>
+    <string name="camera_allow">Kamera erlauben</string>
+    <string name="scan_manual">Oder die Zahlen unter dem Barcode eintippen:</string>
+    <string name="scan_ean">Barcode-Nummer</string>
+    <string name="scan_lookup">Suchen</string>
+    <string name="scan_looking_up">Suche Produkt %1$s …</string>
+
+    <!-- Foto -->
+    <string name="photo_hint">Fotografiere ein Kantinen-Schild, einen Bildschirm oder die Nährwerttabelle einer Packung. Die App liest Kalorien, Eiweiß, Kohlenhydrate und Fett aus – du prüfst danach alles.</string>
+    <string name="photo_tip">Tipp bei Bildschirmen: etwas schräg fotografieren, damit keine Spiegelung auf den Zahlen liegt. Alles läuft auf dem Handy, nichts wird hochgeladen.</string>
+    <string name="photo_take">Foto aufnehmen</string>
+    <string name="photo_gallery">Bild aus der Galerie (z. B. Screenshot)</string>
+    <string name="photo_gallery_short">Aus Galerie</string>
+    <string name="photo_manual">Ohne Foto selbst eingeben</string>
+    <string name="photo_reading">Text wird gelesen …</string>
+
+    <!-- Eigenes Lebensmittel -->
+    <string name="custom_create">Eigenes Lebensmittel anlegen</string>
+    <string name="custom_title">Eigenes Lebensmittel</string>
+    <string name="custom_name">Name</string>
+    <string name="custom_brand">Marke / Ort (optional)</string>
+    <string name="custom_basis">Die Werte gelten …</string>
+    <string name="basis_100g">pro 100 g</string>
+    <string name="basis_100ml">pro 100 ml</string>
+    <string name="basis_portion">pro Portion</string>
+    <string name="custom_kcal">Kalorien (kcal)</string>
+    <string name="custom_serving_g">Packung/Portion in g (optional)</string>
+    <string name="custom_serving_ml">Packung/Portion in ml (optional)</string>
+    <string name="custom_ean">Barcode: %1$s – wird beim nächsten Scan sofort erkannt.</string>
+    <string name="custom_photo">Foto auslesen</string>
+    <string name="custom_favorite">Als Favorit merken</string>
+    <string name="custom_save">Speichern</string>
+    <string name="custom_need">Name und Kalorien sind nötig, der Rest ist freiwillig.</string>
+    <string name="note_barcode_unknown">Dieser Barcode ist noch nicht in Open Food Facts. Trag die Werte von der Packung ein oder fotografiere die Nährwerttabelle – danach kennt die App das Produkt.</string>
+    <string name="note_barcode_incomplete">Open Food Facts kennt das Produkt, aber es fehlen Werte. Bitte ergänzen.</string>
+    <string name="note_photo_read">Werte aus dem Foto übernommen. Bitte kurz prüfen – vor allem, ob sie pro 100 g oder pro Portion gelten.</string>
+    <string name="note_photo_nothing">Im Foto wurden keine Nährwerte gefunden. Versuch es näher, gerader oder ohne Spiegelung – oder trag die Werte selbst ein.</string>
+    <string name="note_offline">Keine Internetverbindung – das Produkt konnte nicht nachgeschlagen werden. Du kannst die Werte selbst eintragen.</string>
     <string name="search_hint">z. B. Haferflocken, Banane, Quark</string>
     <string name="search_empty_start">Tippe oben, was du gegessen hast. Was du einträgst, steht beim nächsten Mal hier unter „Zuletzt verwendet“.</string>
     <string name="search_no_results">Nichts gefunden für „%1$s“. Probier ein anderes Wort oder nutze „Schnell“.</string>
@@ -81,7 +128,7 @@
     <string name="settings_about">Über</string>
     <string name="settings_version">Version</string>
     <string name="settings_sources">Datenquellen</string>
-    <string name="settings_sources_text">Lebensmittel: Bundeslebensmittelschlüssel (BLS) 4.0, Max Rubner-Institut, Lizenz CC BY 4.0 (blsdb.de). Nährwerte je 100 g essbarem Anteil, für die App vereinfacht.</string>
+    <string name="settings_sources_text">Lebensmittel: Bundeslebensmittelschlüssel (BLS) 4.0, Max Rubner-Institut, Lizenz CC BY 4.0 (blsdb.de). Nährwerte je 100 g essbarem Anteil, für die App vereinfacht. Barcodes: Open Food Facts (openfoodfacts.org), Lizenz ODbL. Barcode- und Texterkennung: Google ML Kit, läuft auf dem Gerät.</string>
     <string name="settings_goal_section">Ziel</string>
     <string name="update_title">Updates</string>
     <string name="update_installed">Installiert: %1$s</string>
