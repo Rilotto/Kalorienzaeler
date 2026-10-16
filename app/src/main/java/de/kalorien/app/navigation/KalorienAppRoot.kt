@@ -28,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import de.kalorien.app.R
 import de.kalorien.app.core.ui.theme.Tokens
 import de.kalorien.app.feature.history.HistoryScreen
+import de.kalorien.app.feature.settings.OwnFoodsScreen
 import de.kalorien.app.feature.settings.SettingsScreen
 import de.kalorien.app.feature.today.TodayScreen
 
@@ -38,6 +39,9 @@ enum class TopLevel(val route: String, @StringRes val label: Int, val icon: Imag
     Settings("settings", R.string.nav_settings, Icons.Filled.Settings),
 }
 
+/** Unterseite der Einstellungen (nicht in der Leiste unten). */
+private const val ROUTE_FOODS = "settings/foods"
+
 @Composable
 fun KalorienAppRoot() {
     val nav = rememberNavController()
@@ -46,6 +50,14 @@ fun KalorienAppRoot() {
     val current = backStack?.destination?.route
     val c = Tokens.colors
 
+    fun goTo(dest: TopLevel) {
+        nav.navigate(dest.route) {
+            popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
     Scaffold(
         containerColor = c.bg,
         snackbarHost = { SnackbarHost(snackbar) },
@@ -53,14 +65,8 @@ fun KalorienAppRoot() {
             NavigationBar(containerColor = c.surface) {
                 TopLevel.entries.forEach { dest ->
                     NavigationBarItem(
-                        selected = current == dest.route,
-                        onClick = {
-                            nav.navigate(dest.route) {
-                                popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
+                        selected = current == dest.route || (dest == TopLevel.Settings && current == ROUTE_FOODS),
+                        onClick = { goTo(dest) },
                         icon = { Icon(dest.icon, contentDescription = null) },
                         label = { Text(stringResource(dest.label)) },
                         colors = NavigationBarItemDefaults.colors(
@@ -81,8 +87,11 @@ fun KalorienAppRoot() {
             modifier = Modifier.padding(padding),
         ) {
             composable(TopLevel.Today.route) { TodayScreen(snackbar) }
-            composable(TopLevel.History.route) { HistoryScreen() }
-            composable(TopLevel.Settings.route) { SettingsScreen(snackbar) }
+            composable(TopLevel.History.route) {
+                HistoryScreen(onOpenDay = { goTo(TopLevel.Today) })
+            }
+            composable(TopLevel.Settings.route) { SettingsScreen(snackbar, onOpenFoods = { nav.navigate(ROUTE_FOODS) }) }
+            composable(ROUTE_FOODS) { OwnFoodsScreen(snackbar, onBack = { nav.popBackStack() }) }
         }
     }
 }

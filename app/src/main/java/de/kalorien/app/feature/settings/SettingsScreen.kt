@@ -17,7 +17,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -48,12 +50,19 @@ import de.kalorien.app.core.ui.theme.Tokens
 import kotlinx.coroutines.launch
 
 @Composable
-fun SettingsScreen(snackbar: SnackbarHostState, vm: SettingsViewModel = viewModel(factory = AppViewModels.Factory)) {
+fun SettingsScreen(
+    snackbar: SnackbarHostState,
+    onOpenFoods: () -> Unit,
+    vm: SettingsViewModel = viewModel(factory = AppViewModels.Factory),
+) {
     val c = Tokens.colors
     val settings by vm.settings.collectAsStateWithLifecycle()
     val update by vm.update.collectAsStateWithLifecycle()
     val backupState by vm.backupState.collectAsStateWithLifecycle()
     val sugarRefresh by vm.sugarRefresh.collectAsStateWithLifecycle()
+    val templates by vm.templates.collectAsStateWithLifecycle()
+    val ownFoods by vm.ownFoods.collectAsStateWithLifecycle()
+    val lastCrash by vm.lastCrash.collectAsStateWithLifecycle()
     val s = settings ?: return
     var goalText by remember { mutableStateOf("") }
     LaunchedEffect(s.dailyGoal) { goalText = s.dailyGoal.toString() }
@@ -109,6 +118,11 @@ fun SettingsScreen(snackbar: SnackbarHostState, vm: SettingsViewModel = viewMode
                 )
             }
         }
+        WeekGoalsCard(s) { goals ->
+            vm.setWeekdayGoals(goals)
+            focus.clearFocus()
+            scope.launch { snackbar.showSnackbar(context.getString(R.string.week_goals_saved)) }
+        }
         MacroGoalsCard(
             s = s,
             onSave = { p, c2, f, su ->
@@ -119,6 +133,19 @@ fun SettingsScreen(snackbar: SnackbarHostState, vm: SettingsViewModel = viewMode
             sugarRefresh = sugarRefresh,
             onRefreshSugar = vm::refreshSugar,
         )
+        AppearanceCard(s, onTheme = vm::setThemeMode, onStartTab = vm::setStartTab)
+        TemplatesCard(templates) { t ->
+            vm.deleteTemplate(t)
+            scope.launch {
+                snackbar.currentSnackbarData?.dismiss()
+                val r = snackbar.showSnackbar(
+                    context.getString(R.string.template_deleted, t.template.name), context.getString(R.string.undo),
+                    duration = SnackbarDuration.Short,
+                )
+                if (r == SnackbarResult.ActionPerformed) vm.restoreTemplate(t)
+            }
+        }
+        OwnFoodsCard(ownFoods.size, onOpenFoods)
         BackupCard(
             s = s, state = backupState, onAuto = vm::setAutoBackup, onBackupNow = vm::backupNow,
             onRestore = vm::restore, onCsv = { ready -> vm.exportCsv(ready) },
@@ -130,6 +157,7 @@ fun SettingsScreen(snackbar: SnackbarHostState, vm: SettingsViewModel = viewMode
             onCheck = vm::checkForUpdate,
             onDownload = vm::download,
         )
+        CrashLogCard(lastCrash, shareUri = vm::crashShareUri, onClear = vm::clearCrashLog)
         AppCard {
             Text(stringResource(R.string.settings_about), style = MaterialTheme.typography.titleMedium, color = c.fg)
             Spacer(Modifier.height(8.dp))

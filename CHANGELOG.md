@@ -1,5 +1,22 @@
 # Änderungen
 
+## [0.6.0] – Verlauf, Vorlagen, mehr Einstellungen
+### Neu
+- **Verlauf**: letzte 7, 14 oder 30 Tage als Balken mit Ziellinie, Durchschnitt pro Tag, Tage mit Einträgen und
+  Tage über dem Ziel. Balken oder Tag antippen → diesen Tag öffnen.
+- **Mahlzeit-Vorlagen**: In der Tagesansicht bei einer Mahlzeit auf ⋮ → „Als Vorlage speichern“.
+  Beim Eintragen steht sie oben unter „Vorlagen“ – ein Tipp trägt alles ein (mit „Rückgängig“).
+- **Ziel pro Wochentag** (z. B. am Wochenende mehr) – gilt für die Tagesansicht und den Verlauf
+- **Hell/Dunkel** selbst wählen statt wie das Handy
+- **Start-Reiter beim Eintragen** wählbar (z. B. direkt „Scannen“)
+- **Eigene Lebensmittel verwalten**: Werte ändern oder löschen (alte Einträge bleiben erhalten)
+- **Rechnen im Schnelleintrag**: „250+120+80“ oder „2*150“, und Werte in kJ umrechnen
+- **Fehlerprotokoll**: Stürzt die App ab, lässt sich das Protokoll in den Einstellungen teilen
+### Behoben
+- „Werte pro pro 100 g“ im Korrigieren-Fenster
+### Technik
+- Datenbank Version 5 (Vorlagen), Migrationstest 4→5; Sicherung Format 2 (mit Vorlagen und neuen Einstellungen, alte Sicherungen bleiben lesbar)
+
 ## [0.5.0] – Genauer eintragen, Zucker, Sicherung
 ### Neu
 - **Scheiben und Stück**: Einheit wählen (z. B. „Scheibe“) und Anzahl tippen – ½, 1, 1½, 2, 3 oder eigene Zahl.

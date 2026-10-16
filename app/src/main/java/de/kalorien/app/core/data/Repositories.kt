@@ -7,7 +7,9 @@ import de.kalorien.app.core.domain.Per100
 import de.kalorien.app.core.domain.SearchCandidate
 import de.kalorien.app.core.domain.SearchRanker
 import de.kalorien.app.core.domain.TextNormalizer
+import de.kalorien.app.core.domain.DayTotal
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
 class EntryRepository(private val db: KalorienDatabase) {
@@ -15,6 +17,12 @@ class EntryRepository(private val db: KalorienDatabase) {
     private val foods = db.foodDao()
 
     fun observeDay(date: LocalDate): Flow<List<EntryEntity>> = entries.observeDay(date.toString())
+
+    /** Tagessummen von [from] bis [to] (inklusive) für den Verlauf. */
+    fun observeTotals(from: LocalDate, to: LocalDate): Flow<List<DayTotal>> =
+        entries.observeTotals(from.toString(), to.toString()).map { rows ->
+            rows.map { DayTotal(LocalDate.parse(it.date), it.kcal, it.protein, it.carbs, it.fat, it.entries) }
+        }
 
     suspend fun get(id: Long): EntryEntity? = entries.get(id)
 
@@ -283,6 +291,24 @@ class FoodRepository(private val db: KalorienDatabase) {
         }
         foods.update(updated)
         return updated
+    }
+
+    fun observeOwn(): Flow<List<FoodEntity>> = foods.observeOwn()
+
+    /**
+     * Eigenes oder gescanntes Lebensmittel löschen. Einträge und Vorlagen behalten ihre Werte
+     * (Snapshot), sie verlieren nur die Verknüpfung. BLS-Lebensmittel lassen sich nicht löschen.
+     */
+    suspend fun deleteOwn(food: FoodEntity): Boolean = db.withTransaction {
+        if (food.source == FoodSource.BLS) return@withTransaction false
+        db.entryDao().unlinkFood(food.id)
+        db.templateDao().unlinkFood(food.id)
+        foods.deleteOwn(food.id) > 0
+    }
+
+    /** Gelöschtes Lebensmittel wiederherstellen („Rückgängig“). Verknüpfungen bleiben gelöst. */
+    suspend fun restoreDeleted(food: FoodEntity) {
+        foods.insert(food)
     }
 
     /** Korrektur rückgängig machen (nur BLS/Open Food Facts). */

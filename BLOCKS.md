@@ -8,7 +8,7 @@ Status: offen · in Arbeit · Testversion · fertig
 | 1 Tagebuch | Room, Heute-Ansicht, Schnelleintrag, Bearbeiten, Rückgängig, Tagesziel, Tage wechseln | v0.3.0 (mit 2) | fertig |
 | 2 Lebensmittel | BLS 4.0 eingebaut, Suche, Portions-Chips, Zuletzt/Favoriten, Mahlzeit nach Uhrzeit | v0.3.0 | fertig |
 | 3 Scanner | CameraX + ML Kit, Open Food Facts + Cache, EAN von Hand, Taschenlampe, Produkt anlegen, **Nährwerte per Foto (OCR)** | v0.4.0 | fertig |
-| 4 Verlauf & Sicherung | Verlauf 7/14/30, CSV-Export, automatisches Backup + Wiederherstellen | v0.5.0 | offen |
+| 4 Verlauf & Sicherung | Verlauf 7/14/30, CSV-Export, automatisches Backup + Wiederherstellen | v0.5.0 / v0.6.0 | fertig |
 | 5 Android | Erinnerungen, Oppo-Einrichtung, Widget (mit Getränke-Knöpfen), Shortcuts, Benachrichtigungs-Aktionen | v1.0.0 | offen |
 | 6 Wiederholen | „Wie gestern“, Mahlzeit-Vorlagen, Einträge verschieben, Ziel pro Wochentag | v1.1.0 | offen |
 | 7 Rezepte | Eigene Rezepte, Portionen, Gesamtgewicht gekocht, Reste | v1.2.0 | offen |
@@ -49,7 +49,10 @@ Etappen (mit dem Nutzer abgestimmt): 1+2 zusammen → 3 einzeln (Kamera am Gerä
 
 ## To-do v0.5 / v0.6 – Vorschläge (★ = Empfehlung; [x] = gebaut)
 
-Nächster Schritt v0.6: Verlauf, Mahlzeit-Vorlagen, restliche Einstellungen, Technik-Punkte.
+v0.6 gebaut: Verlauf, Vorlagen, Wochentag-Ziele, Hell/Dunkel, Start-Reiter, eigene Lebensmittel, Rechnen, Fehlerprotokoll.
+**Plan bis 1.0** (mit Nutzer abgestimmt): v0.7 = Nutzerwünsche unten (Verlauf-Diagramme, Farbschemas);
+v1.0 = Block 5 (Erinnerungen + Oppo-Anleitung, Widget, Shortcuts, Ersteinrichtung). Danach Rezepte (Block 7/8).
+Bewusst nicht gemacht: R8/Minify (Größe kommt fast nur von den ML-Kit-Modellen, Risiko für Abstürze, die CI nicht sieht).
 
 ### Weitere Wege, Essen einzutragen
 - [x] (v0.5.0) ★ **Menge in Stück/Scheiben eingeben** (Wunsch des Nutzers): Statt nur Gramm eine Einheit wählen, z. B. „Scheibe (25 g)“,
@@ -59,10 +62,10 @@ Nächster Schritt v0.6: Verlauf, Mahlzeit-Vorlagen, restliche Einstellungen, Tec
 - [x] (v0.5.0) ★ **Mehrere nacheinander**: „Weiter eintragen“-Knopf – das Fenster bleibt offen (Frühstück mit 4 Zutaten ohne 4× öffnen)
 - [x] (v0.5.0) ★ **Mahlzeit kopieren / „Wie gestern“**: ganze Mahlzeit eines anderen Tages mit einem Tipp übernehmen
 - [x] (v0.5.0) ★ **Nochmal**: Eintrag lange drücken → noch einmal eintragen (heute, gleiche Menge)
-- [ ] ★ **Mahlzeit-Vorlagen**: „Mein Frühstück“ = Quark + Banane + Kaffee, ein Tipp trägt alles ein
+- [x] (v0.6.0) ★ **Mahlzeit-Vorlagen**: „Mein Frühstück“ = Quark + Banane + Kaffee, ein Tipp trägt alles ein
 - [ ] **Packungsanteil** bei gescannten Produkten: ¼ / ½ / ganze Packung
 - [ ] **Rest-Wiegen**: Packung vorher/nachher wiegen → gegessene Menge wird berechnet
-- [ ] **Rechnen im Schnelleintrag**: „250+120+80“ und kJ → kcal
+- [x] (v0.6.0) **Rechnen im Schnelleintrag**: „250+120+80“ und kJ → kcal
 - [ ] **Getränke-Knöpfe** in der Tagesansicht (Kaffee, Cola, Bier, Saft) – vorgezogen aus Block 5
 - [ ] **Spracheingabe** („200 Gramm Quark“) über die Android-Spracherkennung
 - [ ] Später: Rezepte (Block 7), Rezept-Import (Block 8), Kantinen-Wochenplan (siehe „Vielleicht“)
@@ -87,23 +90,29 @@ Nächster Schritt v0.6: Verlauf, Mahlzeit-Vorlagen, restliche Einstellungen, Tec
 ### Bedienung
 - [x] (v0.5.0) ★ **Zwischen Tagen wischen** in der Tagesansicht
 - [x] (v0.5.0) ★ **Eintrag verschieben** (anderer Tag / andere Mahlzeit) im Bearbeiten-Fenster
-- [ ] **Eigene Lebensmittel verwalten** (bearbeiten, löschen) in den Einstellungen
+- [x] (v0.6.0) **Eigene Lebensmittel verwalten** (bearbeiten, löschen) in den Einstellungen
 - [ ] Optionale **Uhrzeit** an Einträgen
 
 ### Verlauf & Sicherung (Block 4)
-- [ ] ★ **Verlauf** 7/14/30 Tage mit Ziellinie, Durchschnitt, Tag antippen
+- [x] (v0.6.0) ★ **Verlauf** 7/14/30 Tage mit Ziellinie, Durchschnitt, Tag antippen
 - [x] (v0.5.0) ★ **Automatische Sicherung** + Wiederherstellen (Datei im Download-Ordner), **CSV-Export**
 
 ### Einstellungen
-- [ ] **Ziel pro Wochentag** (vorgezogen aus Block 6)
+- [x] (v0.6.0) **Ziel pro Wochentag** (vorgezogen aus Block 6)
 - [ ] **Mahlzeiten anpassen**: umbenennen, ausblenden, z. B. „Spätsnack“ ergänzen
-- [ ] **Hell/Dunkel** erzwingen statt Systemeinstellung
-- [ ] **Standard-Reiter** beim Eintragen (z. B. direkt „Scannen“)
+- [x] (v0.6.0) **Hell/Dunkel** erzwingen statt Systemeinstellung
+- [x] (v0.6.0) **Standard-Reiter** beim Eintragen (z. B. direkt „Scannen“)
 
 ### Technik
 - [ ] Bibliotheks-Updates (offene Dependabot-PRs) einspielen und testen
 - [ ] App verkleinern (R8/Minify; aktuell gut 25 MB)
-- [ ] Fehlerprotokoll in der App exportierbar machen (hilft bei Problemen auf dem Oppo)
+- [x] (v0.6.0) Fehlerprotokoll in der App exportierbar machen (hilft bei Problemen auf dem Oppo)
+
+## Wünsche des Nutzers – v0.7
+- [ ] **Verlauf schöner und flexibler**: Diagrammart wählbar (Balken, Linie, …) und Ansicht nach Tagen / Wochen / Monaten
+      (Wochen- und Monatswerte als Durchschnitt pro Tag). Baut auf dem einfachen Verlauf aus v0.6 auf.
+- [ ] **Farbschemas zur Auswahl** (Einstellungen): 5 schöne Pastell-Schemas + 2 ausgefallene im 90er-Stil,
+      jeweils hell und dunkel. Farben weiter nur über die Tokens in `Color.kt`.
 
 ## Vielleicht (Nutzer plant noch)
 - **Kantinen-Wochenplan**: ganzen Wochenplan fotografieren oder als **PDF** einfügen → App erkennt die Gerichte mit

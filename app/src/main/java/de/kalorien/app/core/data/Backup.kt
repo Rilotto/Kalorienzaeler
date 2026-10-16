@@ -8,6 +8,7 @@ import androidx.core.content.FileProvider
 import androidx.room.withTransaction
 import de.kalorien.app.BuildConfig
 import de.kalorien.app.core.domain.Meal
+import de.kalorien.app.core.domain.WeekGoals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -17,7 +18,13 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /** Inhalt einer Sicherung. */
-data class BackupData(val settings: Settings, val foods: List<FoodEntity>, val entries: List<EntryEntity>)
+data class BackupData(
+    val settings: Settings,
+    val foods: List<FoodEntity>,
+    val entries: List<EntryEntity>,
+    /** seit Format 2 (v0.6) */
+    val templates: List<TemplateWithItems> = emptyList(),
+)
 
 /**
  * Wandelt die Nutzerdaten in JSON um und zurück. Format-Version [FORMAT] – bei Änderungen erhöhen
@@ -25,7 +32,8 @@ data class BackupData(val settings: Settings, val foods: List<FoodEntity>, val e
  * (die Nährwerte stecken ohnehin in der App).
  */
 object BackupCodec {
-    const val FORMAT = 1
+    /** 1 = v0.5, 2 = v0.6 (Vorlagen, Wochentag-Ziele, Hell/Dunkel, Start-Reiter) */
+    const val FORMAT = 2
 
     fun encode(data: BackupData, createdAt: Long = System.currentTimeMillis()): String {
         val s = data.settings
@@ -38,10 +46,13 @@ object BackupCodec {
                 "settings",
                 JSONObject().put("dailyGoal", s.dailyGoal).put("showMacros", s.showMacros).put("showSugar", s.showSugar)
                     .putOpt("proteinGoal", s.proteinGoal).putOpt("carbsGoal", s.carbsGoal)
-                    .putOpt("fatGoal", s.fatGoal).putOpt("sugarLimit", s.sugarLimit),
+                    .putOpt("fatGoal", s.fatGoal).putOpt("sugarLimit", s.sugarLimit)
+                    .put("weekdayGoals", WeekGoals.format(s.weekdayGoals)).put("themeMode", s.themeMode.name)
+                    .put("startTab", s.startTab),
             )
         root.put("foods", JSONArray().apply { data.foods.forEach { put(food(it)) } })
         root.put("entries", JSONArray().apply { data.entries.forEach { put(entry(it)) } })
+        root.put("templates", JSONArray().apply { data.templates.forEach { put(template(it)) } })
         return root.toString()
     }
 
@@ -56,10 +67,14 @@ object BackupCodec {
             showSugar = st.optBoolean("showSugar", true),
             proteinGoal = st.optIntOrNull("proteinGoal"), carbsGoal = st.optIntOrNull("carbsGoal"),
             fatGoal = st.optIntOrNull("fatGoal"), sugarLimit = st.optIntOrNull("sugarLimit"),
+            weekdayGoals = WeekGoals.parse(st.optStringOrNull("weekdayGoals")),
+            themeMode = st.optStringOrNull("themeMode")?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM,
+            startTab = st.optInt("startTab", 0),
         )
         val foods = root.optJSONArray("foods").objects().map(::food)
         val entries = root.optJSONArray("entries").objects().map(::entry)
-        return BackupData(settings, foods, entries)
+        val templates = root.optJSONArray("templates").objects().map(::template)
+        return BackupData(settings, foods, entries, templates)
     }
 
     private fun food(f: FoodEntity) = JSONObject()
@@ -102,6 +117,39 @@ object BackupCodec {
         isLiquid = o.optBoolean("isLiquid"), kcal = o.optInt("kcal"), protein = o.optDouble("protein", 0.0),
         carbs = o.optDouble("carbs", 0.0), fat = o.optDouble("fat", 0.0), sugar = o.optDoubleOrNull("sugar"),
         createdAt = o.optLong("createdAt"), unitLabel = o.optStringOrNull("unitLabel"), unitCount = o.optDoubleOrNull("unitCount"),
+    )
+
+    private fun template(t: TemplateWithItems) = JSONObject()
+        .put("name", t.template.name).put("meal", t.template.meal).put("createdAt", t.template.createdAt)
+        .put("useCount", t.template.useCount)
+        .put(
+            "items",
+            JSONArray().apply {
+                t.sortedItems.forEach { i ->
+                    put(
+                        JSONObject().put("position", i.position).putOpt("foodId", i.foodId).put("name", i.name)
+                            .putOpt("brand", i.brand).putOpt("grams", i.grams).put("isLiquid", i.isLiquid).put("kcal", i.kcal)
+                            .put("protein", i.protein).put("carbs", i.carbs).put("fat", i.fat).putOpt("sugar", i.sugar)
+                            .putOpt("unitLabel", i.unitLabel).putOpt("unitCount", i.unitCount),
+                    )
+                }
+            },
+        )
+
+    private fun template(o: JSONObject) = TemplateWithItems(
+        template = TemplateEntity(
+            name = o.getString("name"), meal = o.optString("meal", Meal.SNACK.name),
+            createdAt = o.optLong("createdAt"), useCount = o.optInt("useCount"),
+        ),
+        items = o.optJSONArray("items").objects().map { i ->
+            TemplateItemEntity(
+                templateId = 0, position = i.optInt("position"), foodId = i.optLongOrNull("foodId"), name = i.getString("name"),
+                brand = i.optStringOrNull("brand"), grams = i.optDoubleOrNull("grams"), isLiquid = i.optBoolean("isLiquid"),
+                kcal = i.optInt("kcal"), protein = i.optDouble("protein", 0.0), carbs = i.optDouble("carbs", 0.0),
+                fat = i.optDouble("fat", 0.0), sugar = i.optDoubleOrNull("sugar"), unitLabel = i.optStringOrNull("unitLabel"),
+                unitCount = i.optDoubleOrNull("unitCount"),
+            )
+        },
     )
 
     private fun JSONArray?.objects(): List<JSONObject> = if (this == null) emptyList() else (0 until length()).map { getJSONObject(it) }
@@ -188,6 +236,15 @@ class BackupManager(
                 }
             }
             entryDao.insertAll(data.entries.map { e -> e.copy(id = 0, foodId = e.foodId?.let { idMap[it] }) })
+            // ältere Sicherungen (Format 1) enthalten keine Vorlagen → vorhandene bleiben dann erhalten
+            if (data.templates.isNotEmpty()) {
+                val templateDao = db.templateDao()
+                templateDao.deleteAll()
+                data.templates.forEach { t ->
+                    val id = templateDao.insert(t.template.copy(id = 0))
+                    templateDao.insertItems(t.items.map { it.copy(id = 0, templateId = id, foodId = it.foodId?.let { f -> idMap[f] }) })
+                }
+            }
         }
         settings.restore(data.settings)
         data.entries.size
@@ -218,7 +275,8 @@ class BackupManager(
         Meal.BREAKFAST -> "Frühstück"; Meal.LUNCH -> "Mittagessen"; Meal.DINNER -> "Abendessen"; Meal.SNACK -> "Snacks"
     }
 
-    private suspend fun collect() = BackupData(settings.current(), db.foodDao().userRelevant(), db.entryDao().all())
+    private suspend fun collect() =
+        BackupData(settings.current(), db.foodDao().userRelevant(), db.entryDao().all(), db.templateDao().all())
 
     /** Eigene Sicherungsdateien (nur die, die diese App angelegt hat): Name → Uri */
     private fun ownBackups(): List<Pair<String, Uri>> {

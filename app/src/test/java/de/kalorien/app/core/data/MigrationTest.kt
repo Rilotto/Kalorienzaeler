@@ -111,4 +111,34 @@ class MigrationTest {
         }
         db.close()
     }
+
+    @Test
+    fun migrate4To5AddsTemplatesAndKeepsEntries() {
+        val dbName = "migration-4-5.db"
+        helper.createDatabase(dbName, 4).apply {
+            execSQL(
+                "INSERT INTO entry (id, date, meal, foodId, name, grams, isLiquid, kcal, protein, carbs, fat, createdAt, sugar, unitLabel, unitCount) " +
+                    "VALUES (5, '2026-10-16', 'BREAKFAST', NULL, 'Quark', 250, 0, 168, 30.0, 10.0, 0.5, 0, 10.0, 'Becher', 1.0)",
+            )
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate(dbName, 5, true)
+
+        db.query("SELECT kcal, unitLabel FROM entry WHERE id = 5").use { c ->
+            c.moveToFirst()
+            assertEquals(168, c.getInt(0))
+            assertEquals("Becher", c.getString(1))
+        }
+        db.execSQL("INSERT INTO meal_template (id, name, meal, createdAt) VALUES (1, 'Mein Frühstück', 'BREAKFAST', 0)")
+        db.execSQL(
+            "INSERT INTO template_item (templateId, position, foodId, name, grams, isLiquid, kcal, protein, carbs, fat) " +
+                "VALUES (1, 0, NULL, 'Quark', 250, 0, 168, 30, 10, 0.5)",
+        )
+        db.query("SELECT useCount FROM meal_template WHERE id = 1").use { c ->
+            c.moveToFirst()
+            assertEquals(0, c.getInt(0)) // Standardwert
+        }
+        db.close()
+    }
 }
