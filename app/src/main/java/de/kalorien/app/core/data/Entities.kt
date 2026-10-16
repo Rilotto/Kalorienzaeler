@@ -52,8 +52,19 @@ data class FoodEntity(
     val servingGrams: Double? = null,
     /** Bezeichnung dazu, z. B. „1 Dose“; null = „1 Portion“. Seit DB v3. */
     val servingLabel: String? = null,
+    /** Zucker je 100 g/ml (bzw. je Portion bei Portions-Lebensmitteln); null = unbekannt. Seit DB v4. */
+    val sugar100: Double? = null,
+    /** Vom Nutzer korrigiert – Datenbank-Updates (BLS) überschreiben die Werte dann nicht. Seit DB v4. */
+    @ColumnInfo(defaultValue = "0")
+    val isAdjusted: Boolean = false,
+    /** Originalwerte vor der Korrektur (für „Auf Original zurücksetzen“). Seit DB v4. */
+    val origKcal100: Double? = null,
+    val origProtein100: Double? = null,
+    val origCarbs100: Double? = null,
+    val origFat100: Double? = null,
+    val origSugar100: Double? = null,
 ) {
-    val per100: Per100 get() = Per100(kcal100, protein100, carbs100, fat100)
+    val per100: Per100 get() = Per100(kcal100, protein100, carbs100, fat100, sugar100)
 }
 
 /**
@@ -79,4 +90,10 @@ data class EntryEntity(
     val carbs: Double,
     val fat: Double,
     val createdAt: Long,
+    /** Zucker in g; null = unbekannt (Einträge vor v0.5 oder Quelle ohne Zuckerangabe). Seit DB v4. */
+    val sugar: Double? = null,
+    /** Eingegebene Einheit, z. B. „Scheibe“ (null = in Gramm eingegeben). Seit DB v4. */
+    val unitLabel: String? = null,
+    /** Anzahl in dieser Einheit, z. B. 1,5 (bei Portions-Lebensmitteln: Anzahl Portionen). Seit DB v4. */
+    val unitCount: Double? = null,
 )

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Freigegebene Cache-Ordner: Updates (APK an den Installer) und Fotos (Kamera-App schreibt hinein) -->
+<!-- Freigegebene Cache-Ordner: Updates (APK an den Installer), Fotos (Kamera-App schreibt hinein), CSV-Export (Teilen) -->
 <paths>
     <cache-path name="updates" path="updates/" />
     <cache-path name="photos" path="photos/" />
+    <cache-path name="exports" path="exports/" />
 </paths>

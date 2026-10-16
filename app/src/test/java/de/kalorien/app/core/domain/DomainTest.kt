@@ -35,7 +35,7 @@ class AmountTest {
     }
 
     @Test fun macroTargetsFromGoal() {
-        assertEquals(MacroTargets(110, 275, 73), MacroTargets.fromGoal(2200))
+        assertEquals(MacroTargets(110, 275, 73, 55), MacroTargets.fromGoal(2200))
     }
 }
 
@@ -176,5 +176,34 @@ class AppVersionTest {
     @Test fun rejectsGarbage() {
         assertNull(AppVersion.parse("neueste"))
         assertTrue(v("0.3.0-rc.2").isPreRelease)
+    }
+}
+
+class V05DomainTest {
+    @Test fun customMacroTargetsOverrideAuto() {
+        val t = MacroTargets.resolve(2200, protein = 150, carbs = null, fat = null, sugar = 40)
+        assertEquals(MacroTargets(150, 275, 73, 40), t)
+    }
+
+    @Test fun sugarIsSummedAndOptional() {
+        val oats = Per100(348.0, 13.2, 53.3, 6.7, 0.7)
+        assertEquals(0.35, Amount.of(oats, 50.0).sugar!!, 0.0001)
+        assertNull(Amount.of(Per100(100.0, 1.0, 1.0, 1.0), 50.0).sugar)
+        val sum = Amount(10, 0.0, 0.0, 0.0, 2.0) + Amount(10, 0.0, 0.0, 0.0, null)
+        assertEquals(2.0, sum.sugar!!, 0.0)
+        assertNull((Amount(1, 0.0, 0.0, 0.0) + Amount(1, 0.0, 0.0, 0.0)).sugar)
+    }
+
+    @Test fun blsRowWithSugar() {
+        val r = BlsRow.parse("C133000\tHafer Flocken\t348\t13.2\t53.3\t6.7\t0\t0.7")!!
+        assertEquals(0.7, r.per100.sugar!!, 0.0)
+        assertNull(BlsRow.parse("C133000\tHafer Flocken\t348\t13.2\t53.3\t6.7\t0")!!.per100.sugar)
+    }
+
+    @Test fun unitNames() {
+        assertEquals("Scheibe", UnitAmount.unitName("1 Scheibe"))
+        assertEquals("½ Pizza", UnitAmount.unitName("½ Pizza"))
+        assertTrue(UnitAmount.isPlainAmount("100 g"))
+        assertEquals("1,5 × Scheibe (38 g)", UnitAmount.describe(1.5, "Scheibe", 37.5, false))
     }
 }

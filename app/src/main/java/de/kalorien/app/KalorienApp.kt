@@ -1,6 +1,7 @@
 package de.kalorien.app
 
 import android.app.Application
+import de.kalorien.app.core.data.BackupManager
 import de.kalorien.app.core.data.BlsImporter
 import de.kalorien.app.core.data.EntryRepository
 import de.kalorien.app.core.data.FoodRepository
@@ -19,7 +20,13 @@ class KalorienApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
-        container.appScope.launch { container.blsImporter.importIfNeeded() }
+        container.appScope.launch {
+            container.blsImporter.importIfNeeded()
+            // ältere Einträge bekommen ihren Zuckerwert nachträglich (sobald das Lebensmittel ihn kennt)
+            container.database.entryDao().fillMissingSugar()
+            // einmal täglich automatisch sichern (wenn eingeschaltet)
+            container.backup.autoBackupIfDue()
+        }
     }
 }
 
@@ -32,4 +39,5 @@ class AppContainer(app: Application) {
     val foods = FoodRepository(database)
     val blsImporter = BlsImporter(app, database, settings)
     val updates = UpdateRepository(app)
+    val backup = BackupManager(app, database, settings)
 }

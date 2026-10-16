@@ -32,6 +32,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
@@ -90,6 +91,8 @@ import de.kalorien.app.core.domain.NutritionBasis
 import de.kalorien.app.core.domain.Per100
 import de.kalorien.app.core.domain.Portion
 import de.kalorien.app.core.domain.PortionGuesser
+import de.kalorien.app.core.domain.UnitAmount
+import de.kalorien.app.feature.today.CountChips
 import de.kalorien.app.core.ui.AppChip
 import de.kalorien.app.core.ui.AppViewModels
 import de.kalorien.app.core.ui.MealChips
@@ -109,6 +112,7 @@ private sealed interface Screen {
     data class Lookup(val ean: String) : Screen
     data object Reading : Screen
     data class Custom(val prefill: CustomPrefill) : Screen
+    data class EditFood(val food: FoodEntity) : Screen
 }
 
 private const val TAB_SEARCH = 0
@@ -137,6 +141,8 @@ fun AddSheet(
     var lastTab by remember { mutableStateOf(TAB_SEARCH) }
     // Formularstand, in den ein Foto eingelesen wird (z. B. nach unbekanntem Barcode)
     var photoBase by remember { mutableStateOf<CustomPrefill?>(null) }
+    // „Hinzufügen und weiteres“: zuletzt hinzugefügter Eintrag (Bestätigung + Rückgängig oben im Fenster)
+    var lastAdded by remember { mutableStateOf<EntryEntity?>(null) }
 
     LaunchedEffect(Unit) { vm.reset() }
 
@@ -184,9 +190,15 @@ fun AddSheet(
         pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
-    fun added(entry: EntryEntity) {
-        onAdded(context.getString(R.string.added_to, entry.name, context.getString(meal.labelRes())), entry)
-        onDismiss()
+    fun added(entry: EntryEntity, keepOpen: Boolean) {
+        if (keepOpen) {
+            lastAdded = entry
+            vm.reset()
+            screen = Screen.Main(lastTab)
+        } else {
+            onAdded(context.getString(R.string.added_to, entry.name, context.getString(meal.labelRes())), entry)
+            onDismiss()
+        }
     }
 
     ModalBottomSheet(
@@ -206,9 +218,22 @@ fun AddSheet(
                         onMeal = { meal = it },
                         onFavorite = { screen = Screen.Detail(vm.toggleFavorite(s.food)) },
                         onBack = { screen = Screen.Main(lastTab) },
-                        onAdd = { amount ->
-                            if (s.food.isPortionFood) vm.addPortions(s.food, amount, meal, date, ::added)
-                            else vm.addFood(s.food, amount, meal, date, ::added)
+                        onEdit = { screen = Screen.EditFood(s.food) },
+                        onAdd = { amount, unitLabel, unitCount, keepOpen ->
+                            if (s.food.isPortionFood) vm.addPortions(s.food, amount, meal, date) { added(it, keepOpen) }
+                            else vm.addFood(s.food, amount, meal, date, unitLabel, unitCount) { added(it, keepOpen) }
+                        },
+                    )
+                }
+                is Screen.EditFood -> Scrollable {
+                    FoodValuesForm(
+                        food = s.food,
+                        onBack = { screen = Screen.Detail(s.food) },
+                        onSave = { per, name, recalc ->
+                            scope.launch { screen = Screen.Detail(vm.correctFood(s.food, per, name, if (recalc) date else null)) }
+                        },
+                        onReset = { recalc ->
+                            scope.launch { screen = Screen.Detail(vm.resetFood(s.food, if (recalc) date else null)) }
                         },
                     )
                 }
@@ -238,6 +263,18 @@ fun AddSheet(
                 }
                 is Screen.Main -> {
                     Text(stringResource(R.string.add_to_meal, meal.label()), style = MaterialTheme.typography.titleLarge, color = c.fg)
+                    lastAdded?.let { e ->
+                        Row(
+                            Modifier.fillMaxWidth().background(c.accentSoft, RoundedCornerShape(10.dp)).padding(start = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                stringResource(R.string.added_inline, e.name, e.kcal), style = MaterialTheme.typography.bodySmall,
+                                color = c.fg, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis,
+                            )
+                            TextButton(onClick = { vm.undo(e); lastAdded = null }) { Text(stringResource(R.string.undo), color = c.accent) }
+                        }
+                    }
                     val tabs = listOf(R.string.tab_search, R.string.tab_scan, R.string.tab_photo, R.string.tab_quick)
                     TabRow(
                         selectedTabIndex = s.tab, containerColor = c.surface, contentColor = c.accent,
@@ -499,12 +536,14 @@ private fun CustomFoodForm(
     var protein by remember(prefill) { mutableStateOf(fmt(prefill.protein)) }
     var carbs by remember(prefill) { mutableStateOf(fmt(prefill.carbs)) }
     var fat by remember(prefill) { mutableStateOf(fmt(prefill.fat)) }
+    var sugar by remember(prefill) { mutableStateOf(fmt(prefill.sugar)) }
     var serving by remember(prefill) { mutableStateOf(fmt(prefill.servingGrams)) }
     var favorite by remember(prefill) { mutableStateOf(prefill.basis == NutritionBasis.PER_PORTION) }
 
     fun current() = prefill.copy(
         name = name, brand = brand, basis = basis, kcal = NumberInput.parse(kcal), protein = NumberInput.parse(protein),
-        carbs = NumberInput.parse(carbs), fat = NumberInput.parse(fat), servingGrams = NumberInput.parse(serving),
+        carbs = NumberInput.parse(carbs), fat = NumberInput.parse(fat), sugar = NumberInput.parse(sugar),
+        servingGrams = NumberInput.parse(serving),
     )
 
     Text(stringResource(R.string.custom_title), style = MaterialTheme.typography.titleLarge, color = c.fg)
@@ -541,6 +580,7 @@ private fun CustomFoodForm(
         NumberField(carbs, { carbs = it }, stringResource(R.string.carbs_short), Modifier.weight(1f))
         NumberField(fat, { fat = it }, stringResource(R.string.fat), Modifier.weight(1f))
     }
+    NumberField(sugar, { sugar = it }, stringResource(R.string.sugar_optional))
     if (basis != NutritionBasis.PER_PORTION) {
         NumberField(
             serving, { serving = it },
@@ -573,7 +613,10 @@ private fun CustomFoodForm(
             onClick = {
                 onSave(
                     name.trim(), brand.trim(), basis,
-                    Per100(k ?: 0.0, NumberInput.parse(protein) ?: 0.0, NumberInput.parse(carbs) ?: 0.0, NumberInput.parse(fat) ?: 0.0),
+                    Per100(
+                        k ?: 0.0, NumberInput.parse(protein) ?: 0.0, NumberInput.parse(carbs) ?: 0.0, NumberInput.parse(fat) ?: 0.0,
+                        NumberInput.parse(sugar),
+                    ),
                     NumberInput.parse(serving)?.takeIf { it > 0 }, favorite,
                 )
             },
@@ -599,11 +642,6 @@ private fun NumberField(
 
 // ---------------------------------------------------------------- Menge wählen
 
-/** Für Portions-Lebensmittel: Anzahl Portionen statt Gramm. */
-private val portionCounts = listOf(0.5, 1.0, 1.5, 2.0)
-
-private val plainAmount = Regex("""\d+ (g|ml)""")
-
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FoodDetail(
@@ -612,17 +650,31 @@ private fun FoodDetail(
     onMeal: (Meal) -> Unit,
     onFavorite: () -> Unit,
     onBack: () -> Unit,
-    onAdd: (Double) -> Unit,
+    onEdit: () -> Unit,
+    onAdd: (amount: Double, unitLabel: String?, unitCount: Double?, keepOpen: Boolean) -> Unit,
 ) {
     val c = Tokens.colors
     val byPortion = food.isPortionFood
     val serving = food.servingGrams?.takeIf { it > 0 }?.let { Portion(food.servingLabel ?: stringResource(R.string.one_portion), it) }
     val portions = remember(food.id, serving) { PortionGuesser.portionsFor(food.name, food.isLiquid, serving) }
-    var gramsText by remember(food.id) { mutableStateOf(if (byPortion) "1" else NumberInput.format(portions.first().grams)) }
-    // bei Portions-Lebensmitteln ist das die Anzahl Portionen, sonst Gramm/ml
-    val grams = NumberInput.parse(gramsText)
-    val amount = grams?.let { Amount.of(food.per100, if (byPortion) it * 100.0 else it) }
+    // Einheiten zum Zählen („Scheibe“, „EL“ …); reine Grammangaben wie „100 g“ sind keine Einheit
+    val units = remember(portions) {
+        portions.filterNot { UnitAmount.isPlainAmount(it.label) }.map { Portion(UnitAmount.unitName(it.label), it.grams) }
+    }
     val unit = stringResource(if (food.isLiquid) R.string.unit_ml else R.string.unit_g)
+    // Standard: erste Einheit (z. B. „Scheibe“) mit Anzahl 1; ohne Einheit Gramm
+    var selectedUnit by remember(food.id) { mutableStateOf(units.firstOrNull()) }
+    var countText by remember(food.id) { mutableStateOf("1") }
+    var gramsText by remember(food.id) { mutableStateOf(NumberInput.format(portions.first().grams)) }
+
+    val count = NumberInput.parse(countText)
+    // bei Portions-Lebensmitteln: Anzahl Portionen; sonst Gramm/ml
+    val amountValue: Double? = when {
+        byPortion -> count
+        selectedUnit != null -> count?.let { it * selectedUnit!!.grams }
+        else -> NumberInput.parse(gramsText)
+    }
+    val amount = amountValue?.let { Amount.of(food.per100, if (byPortion) it * 100.0 else it) }
 
     Row(verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
@@ -632,6 +684,9 @@ private fun FoodDetail(
                 style = MaterialTheme.typography.bodySmall, color = c.muted,
             )
         }
+        IconButton(onClick = onEdit) {
+            Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.food_edit), tint = c.muted)
+        }
         IconButton(onClick = onFavorite) {
             Icon(
                 if (food.favorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
@@ -640,45 +695,164 @@ private fun FoodDetail(
             )
         }
     }
+    Text(sourceHint(food), style = MaterialTheme.typography.bodySmall, color = c.muted)
     Row(verticalAlignment = Alignment.Bottom) {
         Text(amount?.let { Nutrition.format(it.kcal) } ?: "–", style = MaterialTheme.typography.displaySmall, color = c.fg)
         Text(" kcal", style = MaterialTheme.typography.bodyLarge, color = c.muted)
+        if (!byPortion && selectedUnit != null && amountValue != null) {
+            Text("  · ${NumberInput.format(amountValue)} $unit", style = MaterialTheme.typography.bodyLarge, color = c.muted)
+        }
     }
     if (amount != null && (amount.protein + amount.carbs + amount.fat) > 0) {
+        val sugarText = amount.sugar?.let { " · " + stringResource(R.string.sugar_value, it.roundToInt()) }.orEmpty()
         Text(
-            stringResource(R.string.macros_line, amount.protein.roundToInt(), amount.carbs.roundToInt(), amount.fat.roundToInt()),
+            stringResource(R.string.macros_line, amount.protein.roundToInt(), amount.carbs.roundToInt(), amount.fat.roundToInt()) + sugarText,
             style = MaterialTheme.typography.bodySmall, color = c.muted,
         )
     }
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        if (byPortion) {
-            portionCounts.forEach { n ->
-                AppChip(stringResource(R.string.portion_count, NumberInput.format(n)), grams == n) { gramsText = NumberInput.format(n) }
+    if (byPortion) {
+        CountChips(count) { countText = NumberInput.format(it) }
+        NumberField(countText, { countText = it }, stringResource(R.string.portions_amount))
+    } else {
+        Text(stringResource(R.string.unit_choose), style = MaterialTheme.typography.bodySmall, color = c.muted)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            AppChip(unit, selectedUnit == null) {
+                amountValue?.let { gramsText = NumberInput.format(it) }
+                selectedUnit = null
             }
-        } else {
-            portions.forEach { p ->
-                // „50 g“ steht für sich, „1 EL“ bekommt die Menge dazu: „1 EL (10 g)“
-                val label = if (p.label.matches(plainAmount)) p.label else "${p.label} (${NumberInput.format(p.grams)} $unit)"
-                AppChip(label, grams == p.grams) { gramsText = NumberInput.format(p.grams) }
+            units.forEach { u ->
+                AppChip("${u.label} (${NumberInput.format(u.grams)} $unit)", selectedUnit == u) {
+                    selectedUnit = u
+                    countText = "1"
+                }
             }
         }
+        if (selectedUnit != null) {
+            CountChips(count) { countText = NumberInput.format(it) }
+            NumberField(countText, { countText = it }, stringResource(R.string.unit_count, selectedUnit!!.label))
+        } else {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf(50.0, 100.0, 150.0, 200.0, 250.0).forEach { g ->
+                    AppChip("${NumberInput.format(g)} $unit", NumberInput.parse(gramsText) == g) { gramsText = NumberInput.format(g) }
+                }
+            }
+            NumberField(gramsText, { gramsText = it }, stringResource(R.string.amount_in, unit))
+        }
     }
-    OutlinedTextField(
-        value = gramsText, onValueChange = { gramsText = it },
-        label = { Text(if (byPortion) stringResource(R.string.portions_amount) else stringResource(R.string.amount_in, unit)) }, singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), modifier = Modifier.fillMaxWidth(),
-    )
     Text(stringResource(R.string.meal), style = MaterialTheme.typography.bodySmall, color = c.muted)
     MealChips(meal, onMeal)
+    val ok = (amountValue ?: 0.0) > 0
+    fun add(keepOpen: Boolean) {
+        val v = amountValue ?: return
+        if (byPortion) onAdd(v, null, null, keepOpen)
+        else onAdd(v, selectedUnit?.label, if (selectedUnit != null) count else null, keepOpen)
+    }
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
         FilledTonalButton(
             onClick = onBack, modifier = Modifier.weight(1f),
             colors = ButtonDefaults.filledTonalButtonColors(containerColor = c.accentSoft, contentColor = c.accent),
         ) { Text(stringResource(R.string.back)) }
         Button(
-            onClick = { grams?.let(onAdd) }, enabled = (grams ?: 0.0) > 0, modifier = Modifier.weight(1f),
+            onClick = { add(false) }, enabled = ok, modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(containerColor = c.accent, contentColor = c.surface),
         ) { Text(stringResource(R.string.add)) }
+    }
+    TextButton(onClick = { add(true) }, enabled = ok, modifier = Modifier.fillMaxWidth()) {
+        Text(stringResource(R.string.add_and_more), color = if (ok) c.accent else c.muted)
+    }
+}
+
+@Composable
+private fun sourceHint(food: FoodEntity): String = when {
+    food.isAdjusted -> stringResource(R.string.hint_adjusted)
+    food.source == FoodSource.BLS -> stringResource(R.string.hint_bls)
+    food.source == FoodSource.OFF -> stringResource(R.string.hint_off)
+    else -> stringResource(R.string.hint_custom)
+}
+
+/** Nährwerte eines Lebensmittels korrigieren (Stift im Lebensmittel). */
+@Composable
+private fun FoodValuesForm(
+    food: FoodEntity,
+    onBack: () -> Unit,
+    onSave: (per: Per100, name: String, recalcToday: Boolean) -> Unit,
+    onReset: (recalcToday: Boolean) -> Unit,
+) {
+    val c = Tokens.colors
+    fun fmt(d: Double?) = d?.let(NumberInput::format).orEmpty()
+    val isCustom = food.source == FoodSource.CUSTOM
+    var name by remember(food.id) { mutableStateOf(food.name) }
+    var kcal by remember(food.id) { mutableStateOf(food.kcal100.roundToInt().toString()) }
+    var protein by remember(food.id) { mutableStateOf(fmt(food.protein100)) }
+    var carbs by remember(food.id) { mutableStateOf(fmt(food.carbs100)) }
+    var fat by remember(food.id) { mutableStateOf(fmt(food.fat100)) }
+    var sugar by remember(food.id) { mutableStateOf(fmt(food.sugar100)) }
+    var recalc by remember { mutableStateOf(true) }
+    val basis = stringResource(
+        when {
+            food.isPortionFood -> R.string.basis_portion
+            food.isLiquid -> R.string.basis_100ml
+            else -> R.string.basis_100g
+        },
+    )
+
+    Text(stringResource(R.string.food_edit_title), style = MaterialTheme.typography.titleLarge, color = c.fg)
+    Text(
+        if (isCustom) food.name else "${food.name} · ${sourceLabel(food)}",
+        style = MaterialTheme.typography.bodyMedium, color = c.muted,
+    )
+    Text(
+        stringResource(if (isCustom) R.string.food_edit_hint_custom else R.string.food_edit_hint),
+        style = MaterialTheme.typography.bodySmall, color = c.fg,
+        modifier = Modifier.fillMaxWidth().background(c.accentSoft, RoundedCornerShape(10.dp)).padding(12.dp),
+    )
+    if (isCustom) {
+        OutlinedTextField(
+            value = name, onValueChange = { name = it.take(80) }, label = { Text(stringResource(R.string.custom_name)) },
+            singleLine = true, modifier = Modifier.fillMaxWidth(),
+        )
+    }
+    Text(stringResource(R.string.values_per, basis), style = MaterialTheme.typography.bodySmall, color = c.muted)
+    NumberField(kcal, { kcal = it }, stringResource(R.string.custom_kcal), integer = true)
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        NumberField(protein, { protein = it }, stringResource(R.string.protein), Modifier.weight(1f))
+        NumberField(carbs, { carbs = it }, stringResource(R.string.carbs_short), Modifier.weight(1f))
+    }
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        NumberField(fat, { fat = it }, stringResource(R.string.fat), Modifier.weight(1f))
+        NumberField(sugar, { sugar = it }, stringResource(R.string.sugar), Modifier.weight(1f))
+    }
+    if (food.isAdjusted && food.origKcal100 != null) {
+        Text(
+            stringResource(R.string.food_original, food.origKcal100.roundToInt()),
+            style = MaterialTheme.typography.bodySmall, color = c.muted,
+        )
+    }
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.clickable { recalc = !recalc }) {
+        Checkbox(checked = recalc, onCheckedChange = { recalc = it }, colors = CheckboxDefaults.colors(checkedColor = c.accent))
+        Text(stringResource(R.string.food_recalc), style = MaterialTheme.typography.bodyMedium, color = c.fg)
+    }
+    val k = NumberInput.parse(kcal)
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        FilledTonalButton(
+            onClick = onBack, modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.filledTonalButtonColors(containerColor = c.accentSoft, contentColor = c.accent),
+        ) { Text(stringResource(R.string.back)) }
+        Button(
+            onClick = {
+                onSave(
+                    Per100(k ?: 0.0, NumberInput.parse(protein) ?: 0.0, NumberInput.parse(carbs) ?: 0.0, NumberInput.parse(fat) ?: 0.0, NumberInput.parse(sugar)),
+                    name, recalc,
+                )
+            },
+            enabled = k != null && k >= 0, modifier = Modifier.weight(1f),
+            colors = ButtonDefaults.buttonColors(containerColor = c.accent, contentColor = c.surface),
+        ) { Text(stringResource(R.string.save)) }
+    }
+    if (food.isAdjusted) {
+        TextButton(onClick = { onReset(recalc) }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.food_reset), color = c.over)
+        }
     }
 }
 

@@ -11,6 +11,7 @@ data class ParsedNutrition(
     val carbs: Double?,
     val fat: Double?,
     val basis: NutritionBasis,
+    val sugar: Double? = null,
 ) {
     val hasAnyValue: Boolean get() = kcal != null || protein != null || carbs != null || fat != null
 }
@@ -29,6 +30,7 @@ object NutritionTextParser {
 
     private val proteinWords = Regex("""eiwei(ß|ss|b)|protein""", RegexOption.IGNORE_CASE)
     private val carbWords = Regex("""kohlen\s?hydrat|kohlenh\.|carbohydrate|\bkh\b""", RegexOption.IGNORE_CASE)
+    private val sugarWords = Regex("""zucker|sugars?\b""", RegexOption.IGNORE_CASE)
     private val fatWords = Regex("""\bfett\b|\bfat\b""", RegexOption.IGNORE_CASE)
     private val subLine = Regex("""davon|fettsäure|fettsaure|ges[äa]ttigt|zucker|sugar|saturat""", RegexOption.IGNORE_CASE)
     private val nutritionWords = Regex(
@@ -53,6 +55,7 @@ object NutritionTextParser {
             carbs = valueAfter(lines, carbWords),
             fat = valueAfter(lines, fatWords),
             basis = basis(text),
+            sugar = valueAfter(lines, sugarWords),
         )
     }
 

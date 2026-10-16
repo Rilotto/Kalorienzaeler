@@ -1,5 +1,27 @@
 # Änderungen
 
+## [0.5.0] – Genauer eintragen, Zucker, Sicherung
+### Neu
+- **Scheiben und Stück**: Einheit wählen (z. B. „Scheibe“) und Anzahl tippen – ½, 1, 1½, 2, 3 oder eigene Zahl.
+  Der Eintrag zeigt dann z. B. „1,5 × Scheibe (38 g)“.
+- **Werte korrigieren**: Im Lebensmittel auf den Stift tippen und kcal, Eiweiß, Kohlenhydrate, Fett, Zucker ändern.
+  „Auf Original zurücksetzen“ holt die alten Werte zurück. Alte Tage bleiben unverändert.
+- **Werte nur für einen Eintrag ändern** im Fenster „Eintrag bearbeiten“
+- **Eigene Makro-Ziele** in Gramm und ein **Zucker-Limit** (Einstellungen; leer = automatisch)
+- **Zucker** als vierter Balken (abschaltbar), aus BLS, Open Food Facts, Foto und eigenen Lebensmitteln
+  – auch ältere Einträge bekommen ihren Zuckerwert nachträglich, wenn das Lebensmittel ihn kennt
+  – früher gescannte Produkte holen sich den Zucker beim nächsten Scan, oder alle auf einmal per Knopf in den Einstellungen
+- Hinweis, woher die Werte stammen (BLS = Durchschnitt, Open Food Facts = Packung)
+- **Hinzufügen und weiteres**: Das Fenster bleibt offen für die nächste Zutat
+- **Wie gestern**: Mahlzeit vom Vortag mit einem Tipp übernehmen
+- **Nochmal**: Eintrag lange drücken → heute erneut eintragen
+- **Tage wischen**: Auf der Kopfzeile oder der Tagesübersicht nach links/rechts wischen
+- **Verschieben**: Im Bearbeiten-Fenster Tag und Mahlzeit ändern
+- **Sicherung**: täglich automatisch in „Download/Kalorienzaehler“ (die letzten 7), „Jetzt sichern“, „Wiederherstellen“, „Als CSV teilen“
+### Technik
+- Datenbank Version 4 (Zucker, Einheiten, korrigierte Werte), Migrationstest 3→4
+- BLS-Tabelle neu mit Zuckerwerten
+
 ## [0.4.1] – Kleinere App
 ### Verbessert
 - Download deutlich kleiner: Die App enthält nur noch den Teil für 64-Bit-Handys (wie das Oppo Reno 2 Z) statt für vier Prozessortypen.

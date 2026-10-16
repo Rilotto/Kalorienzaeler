@@ -2,6 +2,9 @@ package de.kalorien.app.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import android.net.Uri
+import de.kalorien.app.core.data.BackupManager
+import de.kalorien.app.core.data.FoodRepository
 import de.kalorien.app.core.data.Settings
 import de.kalorien.app.core.data.SettingsRepository
 import de.kalorien.app.core.update.ReleaseInfo
@@ -26,10 +29,68 @@ sealed interface UpdateState {
     data class Failed(val message: String) : UpdateState
 }
 
+/** Zustand von „Zucker nachladen“. */
+sealed interface SugarRefresh {
+    data object Idle : SugarRefresh
+    data object Working : SugarRefresh
+    data object Offline : SugarRefresh
+    data class Done(val found: Int) : SugarRefresh
+}
+
+/** Zustand der Sicherungs-Karte. */
+sealed interface BackupState {
+    data object Idle : BackupState
+    data object Working : BackupState
+    data class Saved(val fileName: String) : BackupState
+    data class Restored(val entries: Int) : BackupState
+    data class Failed(val message: String) : BackupState
+}
+
 class SettingsViewModel(
     private val repo: SettingsRepository,
     private val updates: UpdateRepository,
+    private val backup: BackupManager,
+    private val foods: FoodRepository,
 ) : ViewModel() {
+    private val _sugar = MutableStateFlow<SugarRefresh>(SugarRefresh.Idle)
+    val sugarRefresh: StateFlow<SugarRefresh> = _sugar
+
+    /** Zucker für früher gescannte Produkte bei Open Food Facts nachladen (nur auf Knopfdruck). */
+    fun refreshSugar() {
+        if (_sugar.value == SugarRefresh.Working) return
+        _sugar.value = SugarRefresh.Working
+        viewModelScope.launch {
+            _sugar.value = try { SugarRefresh.Done(foods.refreshOffSugar()) } catch (e: Exception) { SugarRefresh.Offline }
+        }
+    }
+
+    private val _backup = MutableStateFlow<BackupState>(BackupState.Idle)
+    val backupState: StateFlow<BackupState> = _backup
+
+    fun setShowSugar(show: Boolean) = viewModelScope.launch { repo.setShowSugar(show) }
+    fun setMacroGoals(protein: Int?, carbs: Int?, fat: Int?, sugar: Int?) =
+        viewModelScope.launch { repo.setMacroGoals(protein, carbs, fat, sugar) }
+    fun setAutoBackup(on: Boolean) = viewModelScope.launch { repo.setAutoBackup(on) }
+
+    fun backupNow() = runBackup { BackupState.Saved(backup.backupNow()) }
+    fun restore(uri: Uri) = runBackup { BackupState.Restored(backup.restore(uri)) }
+
+    /** CSV erzeugen und an [onReady] (Teilen-Dialog) übergeben. */
+    fun exportCsv(onReady: (Uri) -> Unit) = viewModelScope.launch {
+        try {
+            onReady(backup.exportCsv())
+        } catch (e: Exception) {
+            _backup.value = BackupState.Failed(e.message ?: e.javaClass.simpleName)
+        }
+    }
+
+    private fun runBackup(block: suspend () -> BackupState) {
+        if (_backup.value is BackupState.Working) return
+        _backup.value = BackupState.Working
+        viewModelScope.launch {
+            _backup.value = try { block() } catch (e: Exception) { BackupState.Failed(e.message ?: e.javaClass.simpleName) }
+        }
+    }
     val settings: StateFlow<Settings?> = repo.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 

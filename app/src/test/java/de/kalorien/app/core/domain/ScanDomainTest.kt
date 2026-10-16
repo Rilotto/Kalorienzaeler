@@ -51,6 +51,7 @@ class NutritionTextParserTest {
         assertEquals(348.0, p.kcal!!, 0.0)
         assertEquals(6.7, p.fat!!, 0.0)
         assertEquals(53.0, p.carbs!!, 0.0)
+        assertEquals(0.7, p.sugar!!, 0.0)
         assertEquals(NutritionBasis.PER_100G, p.basis)
     }
 

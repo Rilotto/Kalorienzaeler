@@ -77,4 +77,38 @@ class MigrationTest {
         }
         db.close()
     }
+
+    @Test
+    fun migrate3To4AddsSugarAndKeepsData() {
+        val dbName = "migration-3-4.db"
+        helper.createDatabase(dbName, 3).apply {
+            execSQL(
+                "INSERT INTO food (id, name, source, kcal100, protein100, carbs100, fat100, isLiquid, favorite, useCount, searchKey, isPortionFood) " +
+                    "VALUES (2, 'Gouda', 'BLS', 356, 24.9, 0.1, 28.6, 0, 1, 4, 'gouda', 0)",
+            )
+            execSQL(
+                "INSERT INTO entry (id, date, meal, foodId, name, grams, isLiquid, kcal, protein, carbs, fat, createdAt) " +
+                    "VALUES (3, '2026-10-15', 'LUNCH', 2, 'Gouda', 30, 0, 107, 7.5, 0.0, 8.6, 0)",
+            )
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate(dbName, 4, true)
+
+        db.query("SELECT favorite, sugar100, isAdjusted, origKcal100 FROM food WHERE id = 2").use { c ->
+            c.moveToFirst()
+            assertEquals(1, c.getInt(0))
+            assertEquals(true, c.isNull(1))
+            assertEquals(0, c.getInt(2))
+            assertEquals(true, c.isNull(3))
+        }
+        db.query("SELECT kcal, sugar, unitLabel, unitCount FROM entry WHERE id = 3").use { c ->
+            c.moveToFirst()
+            assertEquals(107, c.getInt(0))
+            assertEquals(true, c.isNull(1))
+            assertEquals(true, c.isNull(2))
+            assertEquals(true, c.isNull(3))
+        }
+        db.close()
+    }
 }

@@ -7,15 +7,15 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 /**
- * Version 1 (Block 1/2), Version 2 (v0.3.1: food.isPortionFood), Version 3 (v0.4.0: food.servingGrams/servingLabel). Jede Änderung: version + 1, Migration in [MIGRATIONS] oder
+ * Version 1 (Block 1/2), Version 2 (v0.3.1: food.isPortionFood), Version 3 (v0.4.0: food.servingGrams/servingLabel), Version 4 (v0.5.0: Zucker, Einheiten, Korrekturen). Jede Änderung: version + 1, Migration in [MIGRATIONS] oder
  * `autoMigrations`, Schema-Datei in app/schemas wird von CI eingecheckt.
  * NIEMALS fallbackToDestructiveMigration – das würde Nutzerdaten löschen.
  */
 @Database(
     entities = [FoodEntity::class, EntryEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3)],
+    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4)],
 )
 abstract class KalorienDatabase : RoomDatabase() {
     abstract fun entryDao(): EntryDao

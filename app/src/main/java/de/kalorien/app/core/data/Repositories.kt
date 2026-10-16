@@ -18,37 +18,42 @@ class EntryRepository(private val db: KalorienDatabase) {
 
     suspend fun get(id: Long): EntryEntity? = entries.get(id)
 
-    /** Gibt den gespeicherten Eintrag zurück (für „Rückgängig“). */
-    suspend fun addFood(food: FoodEntity, grams: Double, meal: Meal, date: LocalDate): EntryEntity {
+    /**
+     * Lebensmittel in Gramm/ml eintragen. Optional mit Einheit („Scheibe“) und Anzahl (1,5),
+     * damit der Eintrag „1,5 × Scheibe (38 g)“ zeigen kann. Gibt den gespeicherten Eintrag zurück (für „Rückgängig“).
+     */
+    suspend fun addFood(
+        food: FoodEntity, grams: Double, meal: Meal, date: LocalDate,
+        unitLabel: String? = null, unitCount: Double? = null,
+    ): EntryEntity {
         val now = System.currentTimeMillis()
         val a = Amount.of(food.per100, grams)
         val entry = EntryEntity(
             date = date.toString(), meal = meal.name, foodId = food.id, name = food.name, brand = food.brand,
             grams = grams, isLiquid = food.isLiquid, kcal = a.kcal, protein = a.protein, carbs = a.carbs,
-            fat = a.fat, createdAt = now,
+            fat = a.fat, sugar = a.sugar, createdAt = now, unitLabel = unitLabel, unitCount = unitCount,
         )
-        return db.withTransaction {
-            val id = entries.insert(entry)
-            foods.markUsed(food.id, now)
-            entry.copy(id = id)
-        }
+        return insertAndMarkUsed(entry, food.id, now)
     }
 
-    /** Portions-Lebensmittel (gemerkter Schnelleintrag): Anzahl Portionen statt Gramm. */
+    /** Portions-Lebensmittel (z. B. gemerkter Kantinen-Eintrag): Anzahl Portionen statt Gramm. */
     suspend fun addPortions(food: FoodEntity, portions: Double, meal: Meal, date: LocalDate): EntryEntity {
         val now = System.currentTimeMillis()
         val a = Amount.of(food.per100, portions * 100.0)
-        val name = if (portions == 1.0) food.name else "${food.name} (${de.kalorien.app.core.domain.NumberInput.format(portions)}×)"
         val entry = EntryEntity(
-            date = date.toString(), meal = meal.name, foodId = food.id, name = name, brand = food.brand,
-            grams = null, kcal = a.kcal, protein = a.protein, carbs = a.carbs, fat = a.fat, createdAt = now,
+            date = date.toString(), meal = meal.name, foodId = food.id, name = food.name, brand = food.brand,
+            grams = null, kcal = a.kcal, protein = a.protein, carbs = a.carbs, fat = a.fat, sugar = a.sugar,
+            createdAt = now, unitLabel = PORTION_UNIT, unitCount = portions,
         )
-        return db.withTransaction {
+        return insertAndMarkUsed(entry, food.id, now)
+    }
+
+    private suspend fun insertAndMarkUsed(entry: EntryEntity, foodId: Long, now: Long): EntryEntity =
+        db.withTransaction {
             val id = entries.insert(entry)
-            foods.markUsed(food.id, now)
+            foods.markUsed(foodId, now)
             entry.copy(id = id)
         }
-    }
 
     suspend fun addQuick(name: String, kcal: Int, meal: Meal, date: LocalDate): EntryEntity {
         val entry = EntryEntity(
@@ -58,15 +63,45 @@ class EntryRepository(private val db: KalorienDatabase) {
         return entry.copy(id = entries.insert(entry))
     }
 
-    /** Menge/Mahlzeit eines Lebensmittel-Eintrags ändern; Nährwerte werden neu berechnet. */
-    suspend fun updateFoodEntry(entry: EntryEntity, grams: Double, meal: Meal) {
-        val per100 = entry.foodId?.let { foods.get(it) }?.per100 ?: snapshotPer100(entry)
+    /** Menge/Mahlzeit/Tag eines Lebensmittel-Eintrags ändern; Nährwerte werden neu berechnet. */
+    suspend fun updateFoodEntry(
+        entry: EntryEntity, grams: Double, meal: Meal, date: LocalDate,
+        unitLabel: String? = entry.unitLabel, unitCount: Double? = entry.unitCount,
+    ) {
+        val per100 = entry.foodId?.let { foods.get(it) }?.takeIf { !it.isPortionFood }?.per100 ?: snapshotPer100(entry)
         val a = Amount.of(per100, grams)
-        entries.update(entry.copy(grams = grams, meal = meal.name, kcal = a.kcal, protein = a.protein, carbs = a.carbs, fat = a.fat))
+        entries.update(
+            entry.copy(
+                grams = grams, meal = meal.name, date = date.toString(), kcal = a.kcal, protein = a.protein,
+                carbs = a.carbs, fat = a.fat, sugar = a.sugar, unitLabel = unitLabel, unitCount = unitCount,
+            ),
+        )
     }
 
-    suspend fun updateQuickEntry(entry: EntryEntity, name: String, kcal: Int, meal: Meal) {
-        entries.update(entry.copy(name = name, kcal = kcal, meal = meal.name))
+    /** Portions-Eintrag: Anzahl Portionen ändern. */
+    suspend fun updatePortionEntry(entry: EntryEntity, portions: Double, meal: Meal, date: LocalDate) {
+        val food = entry.foodId?.let { foods.get(it) }
+        val per = food?.per100 ?: run {
+            val old = entry.unitCount?.takeIf { it > 0 } ?: 1.0
+            Per100(entry.kcal / old, entry.protein / old, entry.carbs / old, entry.fat / old, entry.sugar?.let { it / old })
+        }
+        val a = Amount.of(per, portions * 100.0)
+        entries.update(
+            entry.copy(
+                meal = meal.name, date = date.toString(), kcal = a.kcal, protein = a.protein, carbs = a.carbs,
+                fat = a.fat, sugar = a.sugar, unitLabel = PORTION_UNIT, unitCount = portions,
+            ),
+        )
+    }
+
+    /** Schnelleintrag (Name + kcal) ändern, auch Tag und Mahlzeit. */
+    suspend fun updateQuickEntry(entry: EntryEntity, name: String, kcal: Int, meal: Meal, date: LocalDate) {
+        entries.update(entry.copy(name = name, kcal = kcal, meal = meal.name, date = date.toString()))
+    }
+
+    /** Werte nur dieses Eintrags von Hand überschreiben. */
+    suspend fun overrideValues(entry: EntryEntity, kcal: Int, protein: Double, carbs: Double, fat: Double, sugar: Double?) {
+        entries.update(entry.copy(kcal = kcal, protein = protein, carbs = carbs, fat = fat, sugar = sugar))
     }
 
     suspend fun delete(entry: EntryEntity) = entries.delete(entry)
@@ -76,10 +111,53 @@ class EntryRepository(private val db: KalorienDatabase) {
         entries.insert(entry)
     }
 
+    /** „Nochmal“: Eintrag mit gleicher Menge an einem Tag erneut eintragen. */
+    suspend fun duplicate(entry: EntryEntity, date: LocalDate): EntryEntity {
+        val now = System.currentTimeMillis()
+        val copy = entry.copy(id = 0, date = date.toString(), createdAt = now)
+        return db.withTransaction {
+            val id = entries.insert(copy)
+            entry.foodId?.let { foods.markUsed(it, now) }
+            copy.copy(id = id)
+        }
+    }
+
+    /** „Wie gestern“: alle Einträge einer Mahlzeit von [from] nach [to] kopieren. Gibt die neuen IDs zurück. */
+    suspend fun copyMeal(meal: Meal, from: LocalDate, to: LocalDate): List<Long> {
+        val source = entries.getMeal(from.toString(), meal.name)
+        if (source.isEmpty()) return emptyList()
+        var now = System.currentTimeMillis()
+        val copies = source.map { it.copy(id = 0, date = to.toString(), createdAt = now++) }
+        return entries.insertAll(copies)
+    }
+
+    suspend fun mealEntries(meal: Meal, date: LocalDate): List<EntryEntity> = entries.getMeal(date.toString(), meal.name)
+
+    suspend fun deleteIds(ids: List<Long>) = entries.deleteIds(ids)
+
+    /** Nach einer Korrektur am Lebensmittel: die Einträge dieses Tages neu berechnen. */
+    suspend fun recalcForFood(food: FoodEntity, date: LocalDate) {
+        entries.getForFoodOnDay(food.id, date.toString()).forEach { e ->
+            if (food.isPortionFood || e.grams == null) {
+                val count = e.unitCount ?: 1.0
+                val a = Amount.of(food.per100, count * 100.0)
+                entries.update(e.copy(kcal = a.kcal, protein = a.protein, carbs = a.carbs, fat = a.fat, sugar = a.sugar))
+            } else {
+                val a = Amount.of(food.per100, e.grams)
+                entries.update(e.copy(kcal = a.kcal, protein = a.protein, carbs = a.carbs, fat = a.fat, sugar = a.sugar))
+            }
+        }
+    }
+
     private fun snapshotPer100(e: EntryEntity): Per100 {
         val g = e.grams?.takeIf { it > 0 } ?: 100.0
         val f = 100.0 / g
-        return Per100(e.kcal * f, e.protein * f, e.carbs * f, e.fat * f)
+        return Per100(e.kcal * f, e.protein * f, e.carbs * f, e.fat * f, e.sugar?.let { it * f })
+    }
+
+    companion object {
+        /** Einheit für Portions-Lebensmittel */
+        const val PORTION_UNIT = "Portion"
     }
 }
 
@@ -115,13 +193,46 @@ class FoodRepository(private val db: KalorienDatabase) {
     suspend fun findByEan(ean: String): FoodEntity? = foods.findByEan(ean)
 
     /** Produkt von Open Food Facts speichern (bzw. aktualisieren) – danach ohne Internet verfügbar. */
+    /** Muss das gespeicherte Produkt beim Scannen neu bei Open Food Facts abgefragt werden (Zucker fehlt)? */
+    fun needsSugarRefresh(f: FoodEntity) = f.source == FoodSource.OFF && f.sugar100 == null && !f.isAdjusted
+
+    /**
+     * Alle gespeicherten Open-Food-Facts-Produkte ohne Zucker neu abfragen (nur per Knopf, braucht Internet).
+     * Danach bekommen auch die Einträge den Zucker. Rückgabe: Anzahl Produkte mit neuem Zuckerwert.
+     * Ohne Internet (alle Abfragen scheitern) wird der Fehler weitergegeben.
+     */
+    suspend fun refreshOffSugar(): Int {
+        val todo = db.foodDao().offWithoutSugar()
+        var found = 0
+        var failed = 0
+        var lastError: Exception? = null
+        for (f in todo) {
+            val ean = f.ean ?: f.sourceId ?: continue
+            val p = try {
+                de.kalorien.app.core.food.OpenFoodFacts.lookup(ean)
+            } catch (e: Exception) {
+                failed++; lastError = e; null
+            } ?: continue
+            if (p.sugar100 != null && p.isComplete) {
+                saveFromOff(p)
+                found++
+            }
+        }
+        if (todo.isNotEmpty() && failed == todo.size) throw lastError!!
+        db.entryDao().fillMissingSugar()
+        return found
+    }
+
+    suspend fun fillMissingSugar() = db.entryDao().fillMissingSugar()
+
     suspend fun saveFromOff(p: de.kalorien.app.core.food.OffProduct): FoodEntity {
         val existing = foods.findBySource(FoodSource.OFF, p.ean)
+        if (existing != null && existing.isAdjusted) return existing // eigene Korrektur nicht überschreiben
         val name = p.name ?: p.ean
         val entity = FoodEntity(
             id = existing?.id ?: 0, name = name, brand = p.brand, source = FoodSource.OFF, sourceId = p.ean, ean = p.ean,
             kcal100 = p.kcal100 ?: 0.0, protein100 = p.protein100 ?: 0.0, carbs100 = p.carbs100 ?: 0.0, fat100 = p.fat100 ?: 0.0,
-            isLiquid = p.isLiquid, favorite = existing?.favorite ?: false, lastUsedAt = existing?.lastUsedAt,
+            sugar100 = p.sugar100, isLiquid = p.isLiquid, favorite = existing?.favorite ?: false, lastUsedAt = existing?.lastUsedAt,
             useCount = existing?.useCount ?: 0, searchKey = searchKey(name, p.brand),
             servingGrams = p.servingGrams, servingLabel = p.servingLabel,
         )
@@ -142,14 +253,51 @@ class FoodRepository(private val db: KalorienDatabase) {
     ): FoodEntity {
         val entity = FoodEntity(
             name = name.trim(), brand = brand?.trim()?.ifEmpty { null }, source = FoodSource.CUSTOM, ean = ean,
-            kcal100 = per.kcal, protein100 = per.protein, carbs100 = per.carbs, fat100 = per.fat,
+            kcal100 = per.kcal, protein100 = per.protein, carbs100 = per.carbs, fat100 = per.fat, sugar100 = per.sugar,
             isLiquid = isLiquid, favorite = favorite, searchKey = searchKey(name, brand),
             isPortionFood = perPortion, servingGrams = if (perPortion) null else servingGrams,
         )
         return entity.copy(id = foods.insert(entity))
     }
 
-    /** Eigenes Lebensmittel anlegen (z. B. aus dem Schnelleintrag „als Lebensmittel merken“). */
+    /**
+     * Nährwerte korrigieren. Bei BLS/Open Food Facts werden beim ersten Mal die Originalwerte gemerkt
+     * (für „Auf Original zurücksetzen“) und das Lebensmittel als „angepasst“ markiert.
+     * Eigene Lebensmittel werden einfach geändert (inkl. Name).
+     */
+    suspend fun correct(food: FoodEntity, per: Per100, name: String = food.name): FoodEntity {
+        val updated = if (food.source == FoodSource.CUSTOM) {
+            food.copy(
+                name = name.trim().ifEmpty { food.name }, searchKey = searchKey(name.ifBlank { food.name }, food.brand),
+                kcal100 = per.kcal, protein100 = per.protein, carbs100 = per.carbs, fat100 = per.fat, sugar100 = per.sugar,
+            )
+        } else {
+            val withOrig = if (food.isAdjusted) food else food.copy(
+                origKcal100 = food.kcal100, origProtein100 = food.protein100, origCarbs100 = food.carbs100,
+                origFat100 = food.fat100, origSugar100 = food.sugar100,
+            )
+            withOrig.copy(
+                isAdjusted = true, kcal100 = per.kcal, protein100 = per.protein, carbs100 = per.carbs, fat100 = per.fat,
+                sugar100 = per.sugar,
+            )
+        }
+        foods.update(updated)
+        return updated
+    }
+
+    /** Korrektur rückgängig machen (nur BLS/Open Food Facts). */
+    suspend fun resetToOriginal(food: FoodEntity): FoodEntity {
+        if (!food.isAdjusted) return food
+        val reset = food.copy(
+            kcal100 = food.origKcal100 ?: food.kcal100, protein100 = food.origProtein100 ?: food.protein100,
+            carbs100 = food.origCarbs100 ?: food.carbs100, fat100 = food.origFat100 ?: food.fat100,
+            sugar100 = food.origSugar100, isAdjusted = false,
+            origKcal100 = null, origProtein100 = null, origCarbs100 = null, origFat100 = null, origSugar100 = null,
+        )
+        foods.update(reset)
+        return reset
+    }
+
     /**
      * Herz bei einem Schnelleintrag: legt ein Portions-Lebensmittel mit Name + kcal als Favorit an
      * und verknüpft den Eintrag damit (damit das Herz im Eintrag gefüllt bleibt).
@@ -158,7 +306,7 @@ class FoodRepository(private val db: KalorienDatabase) {
         val entity = FoodEntity(
             name = entry.name.trim(), source = FoodSource.CUSTOM,
             kcal100 = entry.kcal.toDouble(), protein100 = entry.protein, carbs100 = entry.carbs, fat100 = entry.fat,
-            favorite = true, lastUsedAt = System.currentTimeMillis(), useCount = 1,
+            sugar100 = entry.sugar, favorite = true, lastUsedAt = System.currentTimeMillis(), useCount = 1,
             searchKey = searchKey(entry.name, null), isPortionFood = true,
         )
         return db.withTransaction {
@@ -166,16 +314,6 @@ class FoodRepository(private val db: KalorienDatabase) {
             foods.linkEntry(entry.id, id)
             entity.copy(id = id)
         }
-    }
-
-    suspend fun addCustom(name: String, brand: String?, per100: Per100, isLiquid: Boolean): FoodEntity {
-        val entity = FoodEntity(
-            name = name.trim(), brand = brand?.trim()?.ifEmpty { null }, source = FoodSource.CUSTOM,
-            kcal100 = per100.kcal, protein100 = per100.protein, carbs100 = per100.carbs, fat100 = per100.fat,
-            isLiquid = isLiquid, searchKey = searchKey(name, brand),
-        )
-        val id = foods.insert(entity)
-        return entity.copy(id = id)
     }
 
     companion object {

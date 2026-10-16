@@ -2,12 +2,15 @@ package de.kalorien.app.core.domain
 
 import kotlin.math.roundToInt
 
-/** Nährwerte je 100 g bzw. 100 ml. */
-data class Per100(val kcal: Double, val protein: Double, val carbs: Double, val fat: Double)
+/** Nährwerte je 100 g bzw. 100 ml. Zucker ist optional (ältere Daten haben keinen Wert). */
+data class Per100(val kcal: Double, val protein: Double, val carbs: Double, val fat: Double, val sugar: Double? = null)
 
 /** Nährwerte für eine konkrete Menge (Snapshot, der im Eintrag gespeichert wird). */
-data class Amount(val kcal: Int, val protein: Double, val carbs: Double, val fat: Double) {
-    operator fun plus(o: Amount) = Amount(kcal + o.kcal, protein + o.protein, carbs + o.carbs, fat + o.fat)
+data class Amount(val kcal: Int, val protein: Double, val carbs: Double, val fat: Double, val sugar: Double? = null) {
+    operator fun plus(o: Amount) = Amount(
+        kcal + o.kcal, protein + o.protein, carbs + o.carbs, fat + o.fat,
+        if (sugar == null && o.sugar == null) null else (sugar ?: 0.0) + (o.sugar ?: 0.0),
+    )
 
     companion object {
         val ZERO = Amount(0, 0.0, 0.0, 0.0)
@@ -20,6 +23,7 @@ data class Amount(val kcal: Int, val protein: Double, val carbs: Double, val fat
                 protein = per100.protein * f,
                 carbs = per100.carbs * f,
                 fat = per100.fat * f,
+                sugar = per100.sugar?.let { it * f },
             )
         }
     }

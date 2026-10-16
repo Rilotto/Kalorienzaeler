@@ -10,6 +10,22 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface EntryDao {
+    /**
+     * Zucker für ältere Einträge nachtragen (vor v0.5 gab es keinen Zuckerwert).
+     * Nur Einträge mit Lebensmittel, dessen Zucker bekannt ist. kcal & Co. bleiben unverändert.
+     * Mit Gramm: anteilig; Portions-Einträge ohne Gramm: über das kcal-Verhältnis (= Anzahl Portionen).
+     */
+    @Query(
+        """UPDATE entry SET sugar = (
+            SELECT CASE WHEN entry.grams IS NOT NULL THEN f.sugar100 * entry.grams / 100.0
+                        ELSE f.sugar100 * entry.kcal / f.kcal100 END
+            FROM food f WHERE f.id = entry.foodId)
+        WHERE sugar IS NULL AND foodId IS NOT NULL AND EXISTS (
+            SELECT 1 FROM food f WHERE f.id = entry.foodId AND f.sugar100 IS NOT NULL
+              AND (entry.grams IS NOT NULL OR f.kcal100 > 0))""",
+    )
+    suspend fun fillMissingSugar(): Int
+
     @Query("SELECT * FROM entry WHERE date = :date ORDER BY createdAt")
     fun observeDay(date: String): Flow<List<EntryEntity>>
 
@@ -24,6 +40,25 @@ interface EntryDao {
 
     @Delete
     suspend fun delete(entry: EntryEntity)
+
+    @Query("SELECT * FROM entry WHERE date = :date AND meal = :meal ORDER BY createdAt")
+    suspend fun getMeal(date: String, meal: String): List<EntryEntity>
+
+    @Query("SELECT * FROM entry WHERE foodId = :foodId AND date = :date")
+    suspend fun getForFoodOnDay(foodId: Long, date: String): List<EntryEntity>
+
+    @Insert
+    suspend fun insertAll(entries: List<EntryEntity>): List<Long>
+
+    @Query("DELETE FROM entry WHERE id IN (:ids)")
+    suspend fun deleteIds(ids: List<Long>)
+
+    // --- Sicherung
+    @Query("SELECT * FROM entry ORDER BY date, createdAt")
+    suspend fun all(): List<EntryEntity>
+
+    @Query("DELETE FROM entry")
+    suspend fun deleteAll()
 }
 
 @Dao
@@ -45,6 +80,10 @@ interface FoodDao {
     @Query("SELECT * FROM food WHERE ean = :ean ORDER BY id DESC LIMIT 1")
     suspend fun findByEan(ean: String): FoodEntity?
 
+    /** Gescannte Produkte ohne Zuckerwert (vor v0.5 gespeichert), nicht vom Nutzer korrigiert. */
+    @Query("SELECT * FROM food WHERE source = 'OFF' AND sugar100 IS NULL AND isAdjusted = 0")
+    suspend fun offWithoutSugar(): List<FoodEntity>
+
     @Query("SELECT * FROM food WHERE source = :source AND sourceId = :sourceId LIMIT 1")
     suspend fun findBySource(source: String, sourceId: String): FoodEntity?
 
@@ -62,13 +101,36 @@ interface FoodDao {
 
     @Query(
         """UPDATE food SET name = :name, kcal100 = :kcal, protein100 = :protein, carbs100 = :carbs,
-           fat100 = :fat, isLiquid = :isLiquid, searchKey = :searchKey
-           WHERE source = 'BLS' AND sourceId = :code""",
+           fat100 = :fat, sugar100 = :sugar, isLiquid = :isLiquid, searchKey = :searchKey
+           WHERE source = 'BLS' AND sourceId = :code AND isAdjusted = 0""",
     )
     suspend fun updateBls(
-        code: String, name: String, kcal: Double, protein: Double, carbs: Double, fat: Double,
+        code: String, name: String, kcal: Double, protein: Double, carbs: Double, fat: Double, sugar: Double?,
         isLiquid: Boolean, searchKey: String,
     ): Int
+
+    /** Korrigierte BLS-Einträge: nur die Originalwerte auf den neuen Stand bringen. */
+    @Query(
+        """UPDATE food SET origKcal100 = :kcal, origProtein100 = :protein, origCarbs100 = :carbs,
+           origFat100 = :fat, origSugar100 = :sugar
+           WHERE source = 'BLS' AND sourceId = :code AND isAdjusted = 1""",
+    )
+    suspend fun updateBlsOriginal(code: String, kcal: Double, protein: Double, carbs: Double, fat: Double, sugar: Double?): Int
+
+    // --- Sicherung: alles, was nicht aus der eingebauten BLS-Tabelle neu erzeugt werden kann
+    @Query("SELECT * FROM food WHERE source != 'BLS' OR favorite = 1 OR useCount > 0 OR isAdjusted = 1")
+    suspend fun userRelevant(): List<FoodEntity>
+
+    @Query("DELETE FROM food WHERE source != 'BLS'")
+    suspend fun deleteNonBls()
+
+    @Query(
+        """UPDATE food SET favorite = 0, useCount = 0, lastUsedAt = NULL WHERE source = 'BLS'""",
+    )
+    suspend fun resetBlsUsage()
+
+    @Query("SELECT * FROM food WHERE source = 'BLS' AND sourceId = :code LIMIT 1")
+    suspend fun findBls(code: String): FoodEntity?
 
     @Query("UPDATE entry SET foodId = :foodId WHERE id = :entryId")
     suspend fun linkEntry(entryId: Long, foodId: Long)

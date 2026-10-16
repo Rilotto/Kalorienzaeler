@@ -21,6 +21,7 @@ data class KalorienColors(
     val protein: Color,
     val carbs: Color,
     val fat: Color,
+    val sugar: Color,
 )
 
 val LightTokens = KalorienColors(
@@ -36,6 +37,7 @@ val LightTokens = KalorienColors(
     protein = Color(0xFF3C6FA8),
     carbs = Color(0xFFC08A1E),
     fat = Color(0xFF8A4F9E),
+    sugar = Color(0xFFC2577A),
 )
 
 val DarkTokens = KalorienColors(
@@ -51,6 +53,7 @@ val DarkTokens = KalorienColors(
     protein = Color(0xFF7FA9DA),
     carbs = Color(0xFFE0B456),
     fat = Color(0xFFC595D6),
+    sugar = Color(0xFFE58FAE),
 )
 
 val LocalKalorienColors = staticCompositionLocalOf { LightTokens }
