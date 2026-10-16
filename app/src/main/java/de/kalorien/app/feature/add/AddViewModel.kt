@@ -107,7 +107,8 @@ class AddViewModel(
      */
     suspend fun lookupBarcode(ean: String): BarcodeResult {
         val local = foods.findByEan(ean)
-        if (local != null && local.kcal100 > 0) return BarcodeResult.Found(local)
+        // vor v0.5 gespeicherte Produkte haben keinen Zucker → einmal neu abfragen (ohne Internet: gespeicherte Version)
+        if (local != null && local.kcal100 > 0 && !foods.needsSugarRefresh(local)) return BarcodeResult.Found(local)
         val product = try {
             OpenFoodFacts.lookup(ean)
         } catch (e: Exception) {
@@ -115,8 +116,10 @@ class AddViewModel(
             else BarcodeResult.NeedsData(CustomPrefill(ean = ean, note = CustomPrefill.Note.Offline))
         }
         return when {
+            // schon gespeichert, Neuabfrage brachte nichts Besseres → gespeicherte Version nehmen
+            local != null && local.kcal100 > 0 && (product == null || !product.isComplete) -> BarcodeResult.Found(local)
             product == null -> BarcodeResult.NeedsData(CustomPrefill(ean = ean, note = CustomPrefill.Note.BarcodeUnknown))
-            product.isComplete -> BarcodeResult.Found(foods.saveFromOff(product))
+            product.isComplete -> BarcodeResult.Found(foods.saveFromOff(product).also { foods.fillMissingSugar() })
             else -> BarcodeResult.NeedsData(
                 CustomPrefill(
                     name = product.name.orEmpty(), brand = product.brand.orEmpty(), ean = ean,

@@ -14,7 +14,7 @@ object AppViewModels {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
         initializer { val c = app().container; TodayViewModel(c.entries, c.foods, c.settings) }
         initializer { val c = app().container; AddViewModel(c.foods, c.entries, c.blsImporter) }
-        initializer { val c = app().container; SettingsViewModel(c.settings, c.updates, c.backup) }
+        initializer { val c = app().container; SettingsViewModel(c.settings, c.updates, c.backup, c.foods) }
     }
 
     private fun CreationExtras.app(): KalorienApp =

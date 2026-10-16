@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.kalorien.app.R
@@ -40,7 +41,13 @@ import java.time.LocalDate
 
 /** Eigene Tagesziele für Eiweiß, Kohlenhydrate, Fett und Zucker-Limit (leer = automatisch). */
 @Composable
-fun MacroGoalsCard(s: Settings, onSave: (Int?, Int?, Int?, Int?) -> Unit, onShowSugar: (Boolean) -> Unit) {
+fun MacroGoalsCard(
+    s: Settings,
+    onSave: (Int?, Int?, Int?, Int?) -> Unit,
+    onShowSugar: (Boolean) -> Unit,
+    sugarRefresh: SugarRefresh,
+    onRefreshSugar: () -> Unit,
+) {
     val c = Tokens.colors
     val auto = MacroTargets.fromGoal(s.dailyGoal)
     var protein by remember(s.proteinGoal) { mutableStateOf(s.proteinGoal?.toString().orEmpty()) }
@@ -87,6 +94,21 @@ fun MacroGoalsCard(s: Settings, onSave: (Int?, Int?, Int?, Int?) -> Unit, onShow
                 checked = s.showSugar, onCheckedChange = onShowSugar,
                 colors = SwitchDefaults.colors(checkedTrackColor = c.accent, checkedThumbColor = c.surface),
             )
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(stringResource(R.string.sugar_refresh_hint), style = MaterialTheme.typography.bodySmall, color = c.muted)
+        FilledTonalButton(
+            onClick = onRefreshSugar, enabled = sugarRefresh != SugarRefresh.Working, modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.filledTonalButtonColors(containerColor = c.accentSoft, contentColor = c.accent),
+        ) { Text(stringResource(R.string.sugar_refresh)) }
+        when (sugarRefresh) {
+            SugarRefresh.Working -> Text(stringResource(R.string.backup_working), style = MaterialTheme.typography.bodySmall, color = c.muted)
+            SugarRefresh.Offline -> Text(stringResource(R.string.sugar_refresh_offline), style = MaterialTheme.typography.bodySmall, color = c.over)
+            is SugarRefresh.Done -> Text(
+                pluralStringResource(R.plurals.sugar_refresh_done, sugarRefresh.found, sugarRefresh.found),
+                style = MaterialTheme.typography.bodySmall, color = c.accent,
+            )
+            SugarRefresh.Idle -> {}
         }
     }
 }

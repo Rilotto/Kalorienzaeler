@@ -193,6 +193,38 @@ class FoodRepository(private val db: KalorienDatabase) {
     suspend fun findByEan(ean: String): FoodEntity? = foods.findByEan(ean)
 
     /** Produkt von Open Food Facts speichern (bzw. aktualisieren) – danach ohne Internet verfügbar. */
+    /** Muss das gespeicherte Produkt beim Scannen neu bei Open Food Facts abgefragt werden (Zucker fehlt)? */
+    fun needsSugarRefresh(f: FoodEntity) = f.source == FoodSource.OFF && f.sugar100 == null && !f.isAdjusted
+
+    /**
+     * Alle gespeicherten Open-Food-Facts-Produkte ohne Zucker neu abfragen (nur per Knopf, braucht Internet).
+     * Danach bekommen auch die Einträge den Zucker. Rückgabe: Anzahl Produkte mit neuem Zuckerwert.
+     * Ohne Internet (alle Abfragen scheitern) wird der Fehler weitergegeben.
+     */
+    suspend fun refreshOffSugar(): Int {
+        val todo = db.foodDao().offWithoutSugar()
+        var found = 0
+        var failed = 0
+        var lastError: Exception? = null
+        for (f in todo) {
+            val ean = f.ean ?: f.sourceId ?: continue
+            val p = try {
+                de.kalorien.app.core.food.OpenFoodFacts.lookup(ean)
+            } catch (e: Exception) {
+                failed++; lastError = e; null
+            } ?: continue
+            if (p.sugar100 != null && p.isComplete) {
+                saveFromOff(p)
+                found++
+            }
+        }
+        if (todo.isNotEmpty() && failed == todo.size) throw lastError!!
+        db.entryDao().fillMissingSugar()
+        return found
+    }
+
+    suspend fun fillMissingSugar() = db.entryDao().fillMissingSugar()
+
     suspend fun saveFromOff(p: de.kalorien.app.core.food.OffProduct): FoodEntity {
         val existing = foods.findBySource(FoodSource.OFF, p.ean)
         if (existing != null && existing.isAdjusted) return existing // eigene Korrektur nicht überschreiben

@@ -80,6 +80,10 @@ interface FoodDao {
     @Query("SELECT * FROM food WHERE ean = :ean ORDER BY id DESC LIMIT 1")
     suspend fun findByEan(ean: String): FoodEntity?
 
+    /** Gescannte Produkte ohne Zuckerwert (vor v0.5 gespeichert), nicht vom Nutzer korrigiert. */
+    @Query("SELECT * FROM food WHERE source = 'OFF' AND sugar100 IS NULL AND isAdjusted = 0")
+    suspend fun offWithoutSugar(): List<FoodEntity>
+
     @Query("SELECT * FROM food WHERE source = :source AND sourceId = :sourceId LIMIT 1")
     suspend fun findBySource(source: String, sourceId: String): FoodEntity?
 

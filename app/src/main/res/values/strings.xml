@@ -213,4 +213,11 @@
     <string name="backup_restore_confirm">Ja, ersetzen</string>
     <string name="csv_export">Als CSV teilen</string>
     <string name="csv_share">Einträge teilen</string>
+    <string name="sugar_refresh">Zucker für gescannte Produkte nachladen</string>
+    <string name="sugar_refresh_hint">Produkte, die du vor dieser Version gescannt hast, haben noch keinen Zuckerwert. Fragt einmalig Open Food Facts (Internet).</string>
+    <string name="sugar_refresh_offline">Keine Verbindung zu Open Food Facts – bitte später nochmal.</string>
+    <plurals name="sugar_refresh_done">
+        <item quantity="one">%1$d Produkt hat jetzt einen Zuckerwert</item>
+        <item quantity="other">%1$d Produkte haben jetzt einen Zuckerwert</item>
+    </plurals>
 </resources>

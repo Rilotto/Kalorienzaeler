@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.net.Uri
 import de.kalorien.app.core.data.BackupManager
+import de.kalorien.app.core.data.FoodRepository
 import de.kalorien.app.core.data.Settings
 import de.kalorien.app.core.data.SettingsRepository
 import de.kalorien.app.core.update.ReleaseInfo
@@ -28,6 +29,14 @@ sealed interface UpdateState {
     data class Failed(val message: String) : UpdateState
 }
 
+/** Zustand von „Zucker nachladen“. */
+sealed interface SugarRefresh {
+    data object Idle : SugarRefresh
+    data object Working : SugarRefresh
+    data object Offline : SugarRefresh
+    data class Done(val found: Int) : SugarRefresh
+}
+
 /** Zustand der Sicherungs-Karte. */
 sealed interface BackupState {
     data object Idle : BackupState
@@ -41,7 +50,20 @@ class SettingsViewModel(
     private val repo: SettingsRepository,
     private val updates: UpdateRepository,
     private val backup: BackupManager,
+    private val foods: FoodRepository,
 ) : ViewModel() {
+    private val _sugar = MutableStateFlow<SugarRefresh>(SugarRefresh.Idle)
+    val sugarRefresh: StateFlow<SugarRefresh> = _sugar
+
+    /** Zucker für früher gescannte Produkte bei Open Food Facts nachladen (nur auf Knopfdruck). */
+    fun refreshSugar() {
+        if (_sugar.value == SugarRefresh.Working) return
+        _sugar.value = SugarRefresh.Working
+        viewModelScope.launch {
+            _sugar.value = try { SugarRefresh.Done(foods.refreshOffSugar()) } catch (e: Exception) { SugarRefresh.Offline }
+        }
+    }
+
     private val _backup = MutableStateFlow<BackupState>(BackupState.Idle)
     val backupState: StateFlow<BackupState> = _backup
 
