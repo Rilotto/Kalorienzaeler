@@ -39,6 +39,10 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import de.kalorien.app.core.ui.labelRes
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -100,6 +104,7 @@ fun TodayScreen(snackbar: SnackbarHostState, vm: TodayViewModel = viewModel(fact
 
     var addFor by remember { mutableStateOf<Meal?>(null) }
     var editing by remember { mutableStateOf<EntryEntity?>(null) }
+    var templateFor by remember { mutableStateOf<Meal?>(null) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { vm.refreshToday(state.isToday) }
 
@@ -139,6 +144,7 @@ fun TodayScreen(snackbar: SnackbarHostState, vm: TodayViewModel = viewModel(fact
                     entries = state.byMeal[meal].orEmpty(),
                     canCopyYesterday = meal in state.yesterdayMeals,
                     onAdd = { addFor = meal },
+                    onSaveTemplate = { templateFor = meal },
                     onEdit = { editing = it },
                     onDelete = { deleteWithUndo(it) },
                     onAgain = { e ->
@@ -190,6 +196,30 @@ fun TodayScreen(snackbar: SnackbarHostState, vm: TodayViewModel = viewModel(fact
                         message = msg, actionLabel = context.getString(R.string.undo), duration = SnackbarDuration.Short,
                     )
                     if (result == SnackbarResult.ActionPerformed) vm.delete(entry)
+                }
+            },
+            onTemplateAdded = { msg, ids ->
+                scope.launch {
+                    snackbar.currentSnackbarData?.dismiss()
+                    val result = snackbar.showSnackbar(
+                        message = msg, actionLabel = context.getString(R.string.undo), duration = SnackbarDuration.Short,
+                    )
+                    if (result == SnackbarResult.ActionPerformed) vm.undoCopy(ids)
+                }
+            },
+        )
+    }
+    templateFor?.let { meal ->
+        SaveTemplateDialog(
+            suggestion = context.getString(R.string.template_default_name, context.getString(meal.labelRes())),
+            onDismiss = { templateFor = null },
+            onSave = { name ->
+                templateFor = null
+                vm.saveTemplate(name, meal) { ok ->
+                    scope.launch {
+                        snackbar.currentSnackbarData?.dismiss()
+                        snackbar.showSnackbar(context.getString(if (ok) R.string.template_saved else R.string.template_empty, name))
+                    }
                 }
             },
         )
@@ -250,7 +280,7 @@ private fun DayHeader(
 @Composable
 private fun Summary(state: TodayUiState) {
     val c = Tokens.colors
-    val goal = state.settings.dailyGoal
+    val goal = state.goal
     val eaten = state.total.kcal
     val rest = Nutrition.remaining(goal, eaten)
     val over = rest < 0
@@ -338,6 +368,7 @@ private fun MealCard(
     entries: List<EntryEntity>,
     canCopyYesterday: Boolean,
     onAdd: () -> Unit,
+    onSaveTemplate: () -> Unit,
     onEdit: (EntryEntity) -> Unit,
     onDelete: (EntryEntity) -> Unit,
     onAgain: (EntryEntity) -> Unit,
@@ -350,7 +381,16 @@ private fun MealCard(
             Text(meal.label(), style = MaterialTheme.typography.titleMedium, color = c.fg, modifier = Modifier.weight(1f))
             if (sum > 0) {
                 Text(stringResource(R.string.kcal_value, Nutrition.format(sum)), style = MaterialTheme.typography.bodyMedium, color = c.muted)
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(2.dp))
+                var more by remember { mutableStateOf(false) }
+                Box {
+                    IconButton(onClick = { more = true }) {
+                        Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.more_options), tint = c.muted)
+                    }
+                    DropdownMenu(expanded = more, onDismissRequest = { more = false }) {
+                        DropdownMenuItem(text = { Text(stringResource(R.string.template_save)) }, onClick = { more = false; onSaveTemplate() })
+                    }
+                }
             }
             FilledTonalIconButton(
                 onClick = onAdd, shape = CircleShape,
@@ -460,4 +500,26 @@ private fun SwipeToDelete(onDelete: () -> Unit, content: @Composable () -> Unit)
             }
         },
     ) { content() }
+}
+
+/** Name für eine neue Vorlage abfragen. */
+@Composable
+private fun SaveTemplateDialog(suggestion: String, onDismiss: () -> Unit, onSave: (String) -> Unit) {
+    val c = Tokens.colors
+    var name by remember { mutableStateOf(suggestion) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.template_save)) },
+        text = {
+            Column {
+                Text(stringResource(R.string.template_save_hint), style = MaterialTheme.typography.bodySmall, color = c.muted)
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(value = name, onValueChange = { name = it.take(40) }, singleLine = true, label = { Text(stringResource(R.string.template_name)) })
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onSave(name.trim()) }, enabled = name.isNotBlank()) { Text(stringResource(R.string.save), color = c.accent) }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel), color = c.muted) } },
+    )
 }

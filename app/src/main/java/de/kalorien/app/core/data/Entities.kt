@@ -1,9 +1,12 @@
 package de.kalorien.app.core.data
 
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import androidx.room.Relation
 import de.kalorien.app.core.domain.Per100
 
 /** Herkunft eines Lebensmittels. Werte werden als Text gespeichert – nicht umbenennen. */
@@ -97,3 +100,51 @@ data class EntryEntity(
     /** Anzahl in dieser Einheit, z. B. 1,5 (bei Portions-Lebensmitteln: Anzahl Portionen). Seit DB v4. */
     val unitCount: Double? = null,
 )
+
+/** Mahlzeit-Vorlage, z. B. „Mein Frühstück“. Seit DB v5. */
+@Entity(tableName = "meal_template")
+data class TemplateEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    /** Mahlzeit, aus der die Vorlage entstand ([de.kalorien.app.core.domain.Meal.name]) */
+    val meal: String,
+    val createdAt: Long,
+    @ColumnInfo(defaultValue = "0")
+    val useCount: Int = 0,
+)
+
+/** Ein Teil einer Vorlage – eine Kopie des Eintrags (Nährwert-Snapshot wie bei Einträgen). Seit DB v5. */
+@Entity(
+    tableName = "template_item",
+    foreignKeys = [
+        ForeignKey(entity = TemplateEntity::class, parentColumns = ["id"], childColumns = ["templateId"], onDelete = ForeignKey.CASCADE),
+    ],
+    indices = [Index("templateId")],
+)
+data class TemplateItemEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val templateId: Long,
+    val position: Int,
+    val foodId: Long?,
+    val name: String,
+    val brand: String? = null,
+    val grams: Double?,
+    val isLiquid: Boolean = false,
+    val kcal: Int,
+    val protein: Double,
+    val carbs: Double,
+    val fat: Double,
+    val sugar: Double? = null,
+    val unitLabel: String? = null,
+    val unitCount: Double? = null,
+)
+
+/** Vorlage mit ihren Teilen. */
+data class TemplateWithItems(
+    @Embedded val template: TemplateEntity,
+    @Relation(parentColumn = "id", entityColumn = "templateId")
+    val items: List<TemplateItemEntity>,
+) {
+    val kcal: Int get() = items.sumOf { it.kcal }
+    val sortedItems: List<TemplateItemEntity> get() = items.sortedBy { it.position }
+}

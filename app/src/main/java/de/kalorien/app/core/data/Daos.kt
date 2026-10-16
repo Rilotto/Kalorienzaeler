@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -59,6 +60,56 @@ interface EntryDao {
 
     @Query("DELETE FROM entry")
     suspend fun deleteAll()
+
+    /** Tagessummen für den Verlauf (Datum als yyyy-MM-dd, Grenzen inklusive). */
+    @Query(
+        """SELECT date, SUM(kcal) AS kcal, SUM(protein) AS protein, SUM(carbs) AS carbs, SUM(fat) AS fat,
+           COUNT(*) AS entries FROM entry WHERE date BETWEEN :from AND :to GROUP BY date""",
+    )
+    fun observeTotals(from: String, to: String): Flow<List<DayTotalRow>>
+
+    /** Lebensmittel wurde gelöscht: Einträge behalten ihre Werte, verlieren nur die Verknüpfung. */
+    @Query("UPDATE entry SET foodId = NULL WHERE foodId = :foodId")
+    suspend fun unlinkFood(foodId: Long)
+}
+
+/** Ergebnis von [EntryDao.observeTotals]. */
+data class DayTotalRow(val date: String, val kcal: Int, val protein: Double, val carbs: Double, val fat: Double, val entries: Int)
+
+@Dao
+interface TemplateDao {
+    @Transaction
+    @Query("SELECT * FROM meal_template ORDER BY useCount DESC, name COLLATE NOCASE")
+    fun observeAll(): Flow<List<TemplateWithItems>>
+
+    @Transaction
+    @Query("SELECT * FROM meal_template ORDER BY id")
+    suspend fun all(): List<TemplateWithItems>
+
+    @Transaction
+    @Query("SELECT * FROM meal_template WHERE id = :id")
+    suspend fun get(id: Long): TemplateWithItems?
+
+    @Insert
+    suspend fun insert(template: TemplateEntity): Long
+
+    @Insert
+    suspend fun insertItems(items: List<TemplateItemEntity>)
+
+    @Query("UPDATE meal_template SET name = :name WHERE id = :id")
+    suspend fun rename(id: Long, name: String)
+
+    @Query("UPDATE meal_template SET useCount = useCount + 1 WHERE id = :id")
+    suspend fun markUsed(id: Long)
+
+    @Query("DELETE FROM meal_template WHERE id = :id")
+    suspend fun delete(id: Long)
+
+    @Query("DELETE FROM meal_template")
+    suspend fun deleteAll()
+
+    @Query("UPDATE template_item SET foodId = NULL WHERE foodId = :foodId")
+    suspend fun unlinkFood(foodId: Long)
 }
 
 @Dao
@@ -134,6 +185,13 @@ interface FoodDao {
 
     @Query("UPDATE entry SET foodId = :foodId WHERE id = :entryId")
     suspend fun linkEntry(entryId: Long, foodId: Long)
+
+    /** Eigene und gescannte Lebensmittel (für „Eigene Lebensmittel verwalten“). */
+    @Query("SELECT * FROM food WHERE source IN ('CUSTOM', 'OFF', 'QUICK') OR isAdjusted = 1 ORDER BY name COLLATE NOCASE")
+    fun observeOwn(): Flow<List<FoodEntity>>
+
+    @Query("DELETE FROM food WHERE id = :id AND source != 'BLS'")
+    suspend fun deleteOwn(id: Long): Int
 
     @Query("SELECT COUNT(*) FROM food WHERE source = 'BLS'")
     suspend fun countBls(): Int

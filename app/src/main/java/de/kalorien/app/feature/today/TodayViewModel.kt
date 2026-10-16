@@ -7,6 +7,7 @@ import de.kalorien.app.core.data.EntryRepository
 import de.kalorien.app.core.data.FoodRepository
 import de.kalorien.app.core.data.Settings
 import de.kalorien.app.core.data.SettingsRepository
+import de.kalorien.app.core.data.TemplateRepository
 import de.kalorien.app.core.domain.Amount
 import de.kalorien.app.core.domain.MacroTargets
 import de.kalorien.app.core.domain.Meal
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -34,8 +36,10 @@ data class TodayUiState(
     val loaded: Boolean = false,
 ) {
     val isToday: Boolean get() = date == LocalDate.now()
+    /** Ziel für den angezeigten Tag (Wochentag-Ziel oder Standard) */
+    val goal: Int get() = settings.goalFor(date)
     val targets: MacroTargets
-        get() = MacroTargets.resolve(settings.dailyGoal, settings.proteinGoal, settings.carbsGoal, settings.fatGoal, settings.sugarLimit)
+        get() = MacroTargets.resolve(goal, settings.proteinGoal, settings.carbsGoal, settings.fatGoal, settings.sugarLimit)
 }
 
 /** Ergebnis des Bearbeiten-Fensters. */
@@ -59,8 +63,25 @@ class TodayViewModel(
     private val entries: EntryRepository,
     private val foods: FoodRepository,
     settings: SettingsRepository,
+    private val templates: TemplateRepository,
+    private val openDay: MutableStateFlow<LocalDate?>,
 ) : ViewModel() {
     private val date = MutableStateFlow(LocalDate.now())
+
+    init {
+        // „Tag öffnen“ aus dem Verlauf
+        viewModelScope.launch {
+            openDay.filterNotNull().collect { d ->
+                date.value = if (d > LocalDate.now()) LocalDate.now() else d
+                openDay.value = null
+            }
+        }
+    }
+
+    /** Mahlzeit des angezeigten Tages als Vorlage speichern. */
+    fun saveTemplate(name: String, meal: Meal, onDone: (Boolean) -> Unit) = viewModelScope.launch {
+        onDone(templates.saveFromMeal(name, meal, date.value) != null)
+    }
 
     private val day = date.flatMapLatest { d ->
         combine(entries.observeDay(d), entries.observeDay(d.minusDays(1))) { list, yesterday -> Triple(d, list, yesterday) }
