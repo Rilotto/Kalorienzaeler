@@ -65,7 +65,13 @@ Etappen (mit dem Nutzer abgestimmt): 1+2 zusammen → 3 einzeln (Kamera am Gerä
 - [ ] **Spracheingabe** („200 Gramm Quark“) über die Android-Spracherkennung
 - [ ] Später: Rezepte (Block 7), Rezept-Import (Block 8), Kantinen-Wochenplan (siehe „Vielleicht“)
 
-### Bedienung
+### Nährwerte
+- [ ] **Zucker als zusätzlicher Wert** (Nutzerfrage): Alle Quellen liefern ihn – BLS-Spalte `SUGAR` (Mono- + Disaccharide je 100 g),
+      Open Food Facts `sugars_100g`, Foto-Erkennung „davon Zucker“. Umsetzung: BLS-Tabelle neu erzeugen (Spalte sugar),
+      DB v4 (food.sugar100, entry.sugar, nullable) + Migrationstest, Anzeige als 4. Balken in der Tagesansicht (abschaltbar, wie die Makros),
+      optional mit eigenem Tageslimit. Alte Einträge haben keinen Zuckerwert → als „–“ bzw. nicht mitgezählt kennzeichnen.
+      Gleiches Prinzip ginge auch für Ballaststoffe und Salz (beide ebenfalls in BLS und OFF).
+
 - [ ] ★ **Zwischen Tagen wischen** in der Tagesansicht
 - [ ] ★ **Eintrag verschieben** (anderer Tag / andere Mahlzeit) im Bearbeiten-Fenster
 - [ ] **Eigene Lebensmittel verwalten** (bearbeiten, löschen) in den Einstellungen
