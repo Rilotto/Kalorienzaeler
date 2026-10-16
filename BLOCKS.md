@@ -71,7 +71,18 @@ Etappen (mit dem Nutzer abgestimmt): 1+2 zusammen → 3 einzeln (Kamera am Gerä
       DB v4 (food.sugar100, entry.sugar, nullable) + Migrationstest, Anzeige als 4. Balken in der Tagesansicht (abschaltbar, wie die Makros),
       optional mit eigenem Tageslimit. Alte Einträge haben keinen Zuckerwert → als „–“ bzw. nicht mitgezählt kennzeichnen.
       Gleiches Prinzip ginge auch für Ballaststoffe und Salz (beide ebenfalls in BLS und OFF).
+- [ ] ★ **Nährwerte von Lebensmitteln korrigieren** (Nutzerwunsch, „die Werte sind teils komisch“):
+      Im Lebensmittel (Eintragen → Lebensmittel → Stift) kcal, Eiweiß, Kohlenhydrate, Fett, Zucker je 100 g/ml bzw. Portion ändern.
+      Bei BLS- und Open-Food-Facts-Produkten wird die Korrektur als eigene Änderung gespeichert, Original bleibt erhalten
+      („Auf Original zurücksetzen“), damit ein späteres Datenbank-Update sie nicht überschreibt. Markierung „angepasst“.
+      Gilt für neue Einträge; Frage beim Speichern: „Auch heutige Einträge damit neu berechnen?“
+- [ ] ★ **Werte eines einzelnen Eintrags anpassen**: im Fenster „Eintrag bearbeiten“ kcal und Makros direkt überschreiben (nur dieser Eintrag)
+- [ ] ★ **Eigene Tagesziele für Makros** (Nutzerwunsch): Eiweiß, Kohlenhydrate, Fett (und Zucker-Limit) in Gramm festlegen –
+      wahlweise in Prozent der Kalorien. Standard bleibt die automatische Aufteilung 20/50/30.
+- [ ] Hinweis in der App, woher ein Wert stammt (BLS = Durchschnittswert für die Lebensmittelart, Open Food Facts = Angaben der
+      Packung, von Nutzern erfasst) – erklärt Abweichungen zur eigenen Packung; bei Markenprodukten lieber scannen
 
+### Bedienung
 - [ ] ★ **Zwischen Tagen wischen** in der Tagesansicht
 - [ ] ★ **Eintrag verschieben** (anderer Tag / andere Mahlzeit) im Bearbeiten-Fenster
 - [ ] **Eigene Lebensmittel verwalten** (bearbeiten, löschen) in den Einstellungen
@@ -82,7 +93,6 @@ Etappen (mit dem Nutzer abgestimmt): 1+2 zusammen → 3 einzeln (Kamera am Gerä
 - [ ] ★ **Automatische Sicherung** + Wiederherstellen (Datei im Download-Ordner), **CSV-Export**
 
 ### Einstellungen
-- [ ] **Makro-Ziele** selbst festlegen (Gramm oder Prozent)
 - [ ] **Ziel pro Wochentag** (vorgezogen aus Block 6)
 - [ ] **Mahlzeiten anpassen**: umbenennen, ausblenden, z. B. „Spätsnack“ ergänzen
 - [ ] **Hell/Dunkel** erzwingen statt Systemeinstellung
