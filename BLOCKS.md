@@ -50,6 +50,10 @@ Etappen (mit dem Nutzer abgestimmt): 1+2 zusammen → 3 einzeln (Kamera am Gerä
 ## To-do v0.5 – Vorschläge (★ = Empfehlung, bitte auswählen)
 
 ### Weitere Wege, Essen einzutragen
+- [ ] ★ **Menge in Stück/Scheiben eingeben** (Wunsch des Nutzers): Statt nur Gramm eine Einheit wählen, z. B. „Scheibe (25 g)“,
+      und die Anzahl eintippen oder per Knopf wählen (½, 1, 1½, 2, 3). Beispiel: 1,5 Scheiben Gouda → App rechnet 37,5 g und die kcal.
+      Gilt für alle Portionen (Scheibe, Stück, EL, TL, Becher …). Der Eintrag zeigt danach „1,5 Scheiben (38 g)“, beim Bearbeiten
+      bleibt die gewählte Einheit erhalten. Für die Anzeige braucht der Eintrag eine Spalte für Einheit + Anzahl (DB v4, mit Migrationstest).
 - [ ] ★ **Mehrere nacheinander**: „Weiter eintragen“-Knopf – das Fenster bleibt offen (Frühstück mit 4 Zutaten ohne 4× öffnen)
 - [ ] ★ **Mahlzeit kopieren / „Wie gestern“**: ganze Mahlzeit eines anderen Tages mit einem Tipp übernehmen
 - [ ] ★ **Nochmal**: Eintrag lange drücken → noch einmal eintragen (heute, gleiche Menge)
