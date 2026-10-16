@@ -1,6 +1,6 @@
 """
 Erzeugt app/src/main/assets/bls.tsv aus dem offiziellen BLS-4.0-ZIP (Max Rubner-Institut, CC BY 4.0).
-Spalten: code, name, kcal, protein, carbs, fat, liquid  (Werte je 100 g essbarem Anteil).
+Spalten: code, name, kcal, protein, carbs, fat, liquid, sugar  (Werte je 100 g essbarem Anteil; sugar seit Version 2).
 Aufruf: python tools/bls/build_bls_tsv.py BLS.zip app/src/main/assets/bls.tsv
 """
 import io, re, sys, zipfile
@@ -52,6 +52,7 @@ def main(zip_path, out_path):
 
     i_code, i_name = header.index("BLS Code"), header.index("Lebensmittelbezeichnung")
     i_kcal, i_prot, i_fat, i_cho = col("ENERCC"), col("PROT625"), col("FAT"), col("CHO")
+    i_sug = col("SUGAR")
 
     out, liquids, skipped = [], 0, 0
     for r in rows:
@@ -62,13 +63,13 @@ def main(zip_path, out_path):
             continue
         liquid = is_liquid(code, nm)
         liquids += liquid
-        out.append((code, nm, num(r[i_kcal]), num(r[i_prot]), num(r[i_cho]), num(r[i_fat]), 1 if liquid else 0))
+        out.append((code, nm, num(r[i_kcal]), num(r[i_prot]), num(r[i_cho]), num(r[i_fat]), 1 if liquid else 0, num(r[i_sug])))
 
     out.sort(key=lambda t: t[0])
     with open(out_path, "w", encoding="utf-8", newline="\n") as f:
-        f.write("code\tname\tkcal\tprotein\tcarbs\tfat\tliquid\n")
+        f.write("code\tname\tkcal\tprotein\tcarbs\tfat\tliquid\tsugar\n")
         for t in out:
-            f.write(f"{t[0]}\t{t[1]}\t{fmt(t[2])}\t{fmt(t[3])}\t{fmt(t[4])}\t{fmt(t[5])}\t{t[6]}\n")
+            f.write(f"{t[0]}\t{t[1]}\t{fmt(t[2])}\t{fmt(t[3])}\t{fmt(t[4])}\t{fmt(t[5])}\t{t[6]}\t{fmt(t[7])}\n")
 
     print(f"Lebensmittel: {len(out)}, davon flüssig: {liquids}, übersprungen: {skipped}")
     groups = {}
