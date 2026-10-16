@@ -10,6 +10,22 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface EntryDao {
+    /**
+     * Zucker für ältere Einträge nachtragen (vor v0.5 gab es keinen Zuckerwert).
+     * Nur Einträge mit Lebensmittel, dessen Zucker bekannt ist. kcal & Co. bleiben unverändert.
+     * Mit Gramm: anteilig; Portions-Einträge ohne Gramm: über das kcal-Verhältnis (= Anzahl Portionen).
+     */
+    @Query(
+        """UPDATE entry SET sugar = (
+            SELECT CASE WHEN entry.grams IS NOT NULL THEN f.sugar100 * entry.grams / 100.0
+                        ELSE f.sugar100 * entry.kcal / f.kcal100 END
+            FROM food f WHERE f.id = entry.foodId)
+        WHERE sugar IS NULL AND foodId IS NOT NULL AND EXISTS (
+            SELECT 1 FROM food f WHERE f.id = entry.foodId AND f.sugar100 IS NOT NULL
+              AND (entry.grams IS NOT NULL OR f.kcal100 > 0))""",
+    )
+    suspend fun fillMissingSugar(): Int
+
     @Query("SELECT * FROM entry WHERE date = :date ORDER BY createdAt")
     fun observeDay(date: String): Flow<List<EntryEntity>>
 

@@ -22,6 +22,8 @@ class KalorienApp : Application() {
         container = AppContainer(this)
         container.appScope.launch {
             container.blsImporter.importIfNeeded()
+            // ältere Einträge bekommen ihren Zuckerwert nachträglich (sobald das Lebensmittel ihn kennt)
+            container.database.entryDao().fillMissingSugar()
             // einmal täglich automatisch sichern (wenn eingeschaltet)
             container.backup.autoBackupIfDue()
         }

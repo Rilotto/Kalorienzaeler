@@ -9,6 +9,7 @@
 - **Werte nur für einen Eintrag ändern** im Fenster „Eintrag bearbeiten“
 - **Eigene Makro-Ziele** in Gramm und ein **Zucker-Limit** (Einstellungen; leer = automatisch)
 - **Zucker** als vierter Balken (abschaltbar), aus BLS, Open Food Facts, Foto und eigenen Lebensmitteln
+  – auch ältere Einträge bekommen ihren Zuckerwert nachträglich, wenn das Lebensmittel ihn kennt
 - Hinweis, woher die Werte stammen (BLS = Durchschnitt, Open Food Facts = Packung)
 - **Hinzufügen und weiteres**: Das Fenster bleibt offen für die nächste Zutat
 - **Wie gestern**: Mahlzeit vom Vortag mit einem Tipp übernehmen
