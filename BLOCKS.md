@@ -47,16 +47,18 @@ Etappen (mit dem Nutzer abgestimmt): 1+2 zusammen → 3 einzeln (Kamera am Gerä
 ## Zusätzlich gebaut
 - Update-Knopf in den Einstellungen (v0.3.0): GitHub-Releases prüfen, APK laden, Android-Installer starten. Repo ist dafür öffentlich.
 
-## To-do v0.5 – Vorschläge (★ = Empfehlung, bitte auswählen)
+## To-do v0.5 / v0.6 – Vorschläge (★ = Empfehlung; [x] = gebaut)
+
+Nächster Schritt v0.6: Verlauf, Mahlzeit-Vorlagen, restliche Einstellungen, Technik-Punkte.
 
 ### Weitere Wege, Essen einzutragen
-- [ ] ★ **Menge in Stück/Scheiben eingeben** (Wunsch des Nutzers): Statt nur Gramm eine Einheit wählen, z. B. „Scheibe (25 g)“,
+- [x] (v0.5.0) ★ **Menge in Stück/Scheiben eingeben** (Wunsch des Nutzers): Statt nur Gramm eine Einheit wählen, z. B. „Scheibe (25 g)“,
       und die Anzahl eintippen oder per Knopf wählen (½, 1, 1½, 2, 3). Beispiel: 1,5 Scheiben Gouda → App rechnet 37,5 g und die kcal.
       Gilt für alle Portionen (Scheibe, Stück, EL, TL, Becher …). Der Eintrag zeigt danach „1,5 Scheiben (38 g)“, beim Bearbeiten
       bleibt die gewählte Einheit erhalten. Für die Anzeige braucht der Eintrag eine Spalte für Einheit + Anzahl (DB v4, mit Migrationstest).
-- [ ] ★ **Mehrere nacheinander**: „Weiter eintragen“-Knopf – das Fenster bleibt offen (Frühstück mit 4 Zutaten ohne 4× öffnen)
-- [ ] ★ **Mahlzeit kopieren / „Wie gestern“**: ganze Mahlzeit eines anderen Tages mit einem Tipp übernehmen
-- [ ] ★ **Nochmal**: Eintrag lange drücken → noch einmal eintragen (heute, gleiche Menge)
+- [x] (v0.5.0) ★ **Mehrere nacheinander**: „Weiter eintragen“-Knopf – das Fenster bleibt offen (Frühstück mit 4 Zutaten ohne 4× öffnen)
+- [x] (v0.5.0) ★ **Mahlzeit kopieren / „Wie gestern“**: ganze Mahlzeit eines anderen Tages mit einem Tipp übernehmen
+- [x] (v0.5.0) ★ **Nochmal**: Eintrag lange drücken → noch einmal eintragen (heute, gleiche Menge)
 - [ ] ★ **Mahlzeit-Vorlagen**: „Mein Frühstück“ = Quark + Banane + Kaffee, ein Tipp trägt alles ein
 - [ ] **Packungsanteil** bei gescannten Produkten: ¼ / ½ / ganze Packung
 - [ ] **Rest-Wiegen**: Packung vorher/nachher wiegen → gegessene Menge wird berechnet
@@ -66,31 +68,31 @@ Etappen (mit dem Nutzer abgestimmt): 1+2 zusammen → 3 einzeln (Kamera am Gerä
 - [ ] Später: Rezepte (Block 7), Rezept-Import (Block 8), Kantinen-Wochenplan (siehe „Vielleicht“)
 
 ### Nährwerte
-- [ ] **Zucker als zusätzlicher Wert** (Nutzerfrage): Alle Quellen liefern ihn – BLS-Spalte `SUGAR` (Mono- + Disaccharide je 100 g),
+- [x] (v0.5.0) **Zucker als zusätzlicher Wert** (Nutzerfrage): Alle Quellen liefern ihn – BLS-Spalte `SUGAR` (Mono- + Disaccharide je 100 g),
       Open Food Facts `sugars_100g`, Foto-Erkennung „davon Zucker“. Umsetzung: BLS-Tabelle neu erzeugen (Spalte sugar),
       DB v4 (food.sugar100, entry.sugar, nullable) + Migrationstest, Anzeige als 4. Balken in der Tagesansicht (abschaltbar, wie die Makros),
       optional mit eigenem Tageslimit. Alte Einträge haben keinen Zuckerwert → als „–“ bzw. nicht mitgezählt kennzeichnen.
       Gleiches Prinzip ginge auch für Ballaststoffe und Salz (beide ebenfalls in BLS und OFF).
-- [ ] ★ **Nährwerte von Lebensmitteln korrigieren** (Nutzerwunsch, „die Werte sind teils komisch“):
+- [x] (v0.5.0) ★ **Nährwerte von Lebensmitteln korrigieren** (Nutzerwunsch, „die Werte sind teils komisch“):
       Im Lebensmittel (Eintragen → Lebensmittel → Stift) kcal, Eiweiß, Kohlenhydrate, Fett, Zucker je 100 g/ml bzw. Portion ändern.
       Bei BLS- und Open-Food-Facts-Produkten wird die Korrektur als eigene Änderung gespeichert, Original bleibt erhalten
       („Auf Original zurücksetzen“), damit ein späteres Datenbank-Update sie nicht überschreibt. Markierung „angepasst“.
       Gilt für neue Einträge; Frage beim Speichern: „Auch heutige Einträge damit neu berechnen?“
-- [ ] ★ **Werte eines einzelnen Eintrags anpassen**: im Fenster „Eintrag bearbeiten“ kcal und Makros direkt überschreiben (nur dieser Eintrag)
-- [ ] ★ **Eigene Tagesziele für Makros** (Nutzerwunsch): Eiweiß, Kohlenhydrate, Fett (und Zucker-Limit) in Gramm festlegen –
+- [x] (v0.5.0) ★ **Werte eines einzelnen Eintrags anpassen**: im Fenster „Eintrag bearbeiten“ kcal und Makros direkt überschreiben (nur dieser Eintrag)
+- [x] (v0.5.0) ★ **Eigene Tagesziele für Makros** (Nutzerwunsch): Eiweiß, Kohlenhydrate, Fett (und Zucker-Limit) in Gramm festlegen –
       wahlweise in Prozent der Kalorien. Standard bleibt die automatische Aufteilung 20/50/30.
-- [ ] Hinweis in der App, woher ein Wert stammt (BLS = Durchschnittswert für die Lebensmittelart, Open Food Facts = Angaben der
+- [x] (v0.5.0) Hinweis in der App, woher ein Wert stammt (BLS = Durchschnittswert für die Lebensmittelart, Open Food Facts = Angaben der
       Packung, von Nutzern erfasst) – erklärt Abweichungen zur eigenen Packung; bei Markenprodukten lieber scannen
 
 ### Bedienung
-- [ ] ★ **Zwischen Tagen wischen** in der Tagesansicht
-- [ ] ★ **Eintrag verschieben** (anderer Tag / andere Mahlzeit) im Bearbeiten-Fenster
+- [x] (v0.5.0) ★ **Zwischen Tagen wischen** in der Tagesansicht
+- [x] (v0.5.0) ★ **Eintrag verschieben** (anderer Tag / andere Mahlzeit) im Bearbeiten-Fenster
 - [ ] **Eigene Lebensmittel verwalten** (bearbeiten, löschen) in den Einstellungen
 - [ ] Optionale **Uhrzeit** an Einträgen
 
 ### Verlauf & Sicherung (Block 4)
 - [ ] ★ **Verlauf** 7/14/30 Tage mit Ziellinie, Durchschnitt, Tag antippen
-- [ ] ★ **Automatische Sicherung** + Wiederherstellen (Datei im Download-Ordner), **CSV-Export**
+- [x] (v0.5.0) ★ **Automatische Sicherung** + Wiederherstellen (Datei im Download-Ordner), **CSV-Export**
 
 ### Einstellungen
 - [ ] **Ziel pro Wochentag** (vorgezogen aus Block 6)

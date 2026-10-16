@@ -32,6 +32,7 @@ data class CustomPrefill(
     val protein: Double? = null,
     val carbs: Double? = null,
     val fat: Double? = null,
+    val sugar: Double? = null,
     val basis: NutritionBasis = NutritionBasis.PER_100G,
     val servingGrams: Double? = null,
     /** Hinweis oben im Formular, z. B. „Barcode unbekannt“ */
@@ -67,8 +68,25 @@ class AddViewModel(
 
     fun reset() { query.value = "" }
 
-    fun addFood(food: FoodEntity, grams: Double, meal: Meal, date: LocalDate, onDone: (EntryEntity) -> Unit) =
-        viewModelScope.launch { onDone(entries.addFood(food, grams, meal, date)) }
+    fun addFood(
+        food: FoodEntity, grams: Double, meal: Meal, date: LocalDate, unitLabel: String?, unitCount: Double?,
+        onDone: (EntryEntity) -> Unit,
+    ) = viewModelScope.launch { onDone(entries.addFood(food, grams, meal, date, unitLabel, unitCount)) }
+
+    fun undo(entry: EntryEntity) = viewModelScope.launch { entries.delete(entry) }
+
+    /** Nährwerte korrigieren; optional die Einträge von [recalcDate] neu berechnen. */
+    suspend fun correctFood(food: FoodEntity, per: Per100, name: String, recalcDate: LocalDate?): FoodEntity {
+        val updated = foods.correct(food, per, name)
+        recalcDate?.let { entries.recalcForFood(updated, it) }
+        return updated
+    }
+
+    suspend fun resetFood(food: FoodEntity, recalcDate: LocalDate?): FoodEntity {
+        val updated = foods.resetToOriginal(food)
+        recalcDate?.let { entries.recalcForFood(updated, it) }
+        return updated
+    }
 
     fun addPortions(food: FoodEntity, portions: Double, meal: Meal, date: LocalDate, onDone: (EntryEntity) -> Unit) =
         viewModelScope.launch { onDone(entries.addPortions(food, portions, meal, date)) }
@@ -103,6 +121,7 @@ class AddViewModel(
                 CustomPrefill(
                     name = product.name.orEmpty(), brand = product.brand.orEmpty(), ean = ean,
                     kcal = product.kcal100, protein = product.protein100, carbs = product.carbs100, fat = product.fat100,
+                    sugar = product.sugar100,
                     basis = if (product.isLiquid) NutritionBasis.PER_100ML else NutritionBasis.PER_100G,
                     servingGrams = product.servingGrams, note = CustomPrefill.Note.BarcodeIncomplete,
                 ),
@@ -120,6 +139,7 @@ class AddViewModel(
             protein = p.protein ?: b.protein,
             carbs = p.carbs ?: b.carbs,
             fat = p.fat ?: b.fat,
+            sugar = p.sugar ?: b.sugar,
             basis = when (p.basis) {
                 NutritionBasis.UNKNOWN -> if (b.ean != null) b.basis else NutritionBasis.PER_PORTION // Kantine: meist pro Portion
                 else -> p.basis

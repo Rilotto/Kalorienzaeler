@@ -52,6 +52,7 @@ fun SettingsScreen(snackbar: SnackbarHostState, vm: SettingsViewModel = viewMode
     val c = Tokens.colors
     val settings by vm.settings.collectAsStateWithLifecycle()
     val update by vm.update.collectAsStateWithLifecycle()
+    val backupState by vm.backupState.collectAsStateWithLifecycle()
     val s = settings ?: return
     var goalText by remember { mutableStateOf("") }
     LaunchedEffect(s.dailyGoal) { goalText = s.dailyGoal.toString() }
@@ -107,6 +108,18 @@ fun SettingsScreen(snackbar: SnackbarHostState, vm: SettingsViewModel = viewMode
                 )
             }
         }
+        MacroGoalsCard(
+            s = s,
+            onSave = { p, c2, f, su ->
+                vm.setMacroGoals(p, c2, f, su)
+                scope.launch { snackbar.showSnackbar(context.getString(R.string.goals_saved)) }
+            },
+            onShowSugar = vm::setShowSugar,
+        )
+        BackupCard(
+            s = s, state = backupState, onAuto = vm::setAutoBackup, onBackupNow = vm::backupNow,
+            onRestore = vm::restore, onCsv = { ready -> vm.exportCsv(ready) },
+        )
         UpdateCard(
             state = update,
             includeTestVersions = s.includeTestVersions,

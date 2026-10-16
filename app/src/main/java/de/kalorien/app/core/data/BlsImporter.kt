@@ -42,15 +42,16 @@ class BlsImporter(
         db.withTransaction {
             rows.forEach { r ->
                 val key = FoodRepository.searchKey(r.name, null)
-                val updated = dao.updateBls(
-                    r.code, r.name, r.per100.kcal, r.per100.protein, r.per100.carbs, r.per100.fat, r.isLiquid, key,
-                )
-                if (updated == 0) {
+                val p = r.per100
+                val updated = dao.updateBls(r.code, r.name, p.kcal, p.protein, p.carbs, p.fat, p.sugar, r.isLiquid, key)
+                // vom Nutzer korrigierte Lebensmittel: Korrektur bleibt, nur das „Original“ wird aktualisiert
+                val adjusted = updated == 0 && dao.updateBlsOriginal(r.code, p.kcal, p.protein, p.carbs, p.fat, p.sugar) > 0
+                if (updated == 0 && !adjusted) {
                     dao.insert(
                         FoodEntity(
                             name = r.name, source = FoodSource.BLS, sourceId = r.code,
                             kcal100 = r.per100.kcal, protein100 = r.per100.protein, carbs100 = r.per100.carbs,
-                            fat100 = r.per100.fat, isLiquid = r.isLiquid, searchKey = key,
+                            fat100 = r.per100.fat, sugar100 = r.per100.sugar, isLiquid = r.isLiquid, searchKey = key,
                         ),
                     )
                 }
@@ -65,7 +66,7 @@ class BlsImporter(
         private const val TAG = "BlsImporter"
         const val ASSET = "bls.tsv"
 
-        /** Erhöhen, wenn assets/bls.tsv neu erzeugt wurde. */
-        const val ASSET_VERSION = 1
+        /** Erhöhen, wenn assets/bls.tsv neu erzeugt wurde. (2 = mit Zucker, v0.5.0) */
+        const val ASSET_VERSION = 2
     }
 }

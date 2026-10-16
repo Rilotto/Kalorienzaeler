@@ -1,6 +1,16 @@
 package de.kalorien.app.feature.today
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.input.pointer.pointerInput
+import de.kalorien.app.core.domain.NumberInput
+import de.kalorien.app.core.domain.UnitAmount
+import de.kalorien.app.core.ui.germanLong
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -115,15 +125,46 @@ fun TodayScreen(snackbar: SnackbarHostState, vm: TodayViewModel = viewModel(fact
                 .padding(top = 8.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            DayHeader(state.date, state.isToday, vm::previousDay, vm::nextDay, vm::goToToday)
-            Summary(state)
+            // Kopf + Bilanz: nach links/rechts wischen = Tag wechseln (Einträge selbst wischen = löschen)
+            Column(
+                Modifier.daySwipe(onPrev = vm::previousDay, onNext = vm::nextDay),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                DayHeader(state.date, state.isToday, vm::previousDay, vm::nextDay, vm::goToToday)
+                Summary(state)
+            }
             Meal.entries.forEach { meal ->
                 MealCard(
                     meal = meal,
                     entries = state.byMeal[meal].orEmpty(),
+                    canCopyYesterday = meal in state.yesterdayMeals,
                     onAdd = { addFor = meal },
                     onEdit = { editing = it },
                     onDelete = { deleteWithUndo(it) },
+                    onAgain = { e ->
+                        vm.duplicateToToday(e) { copy ->
+                            scope.launch {
+                                snackbar.currentSnackbarData?.dismiss()
+                                val r = snackbar.showSnackbar(
+                                    context.getString(R.string.entry_again, e.name), context.getString(R.string.undo),
+                                    duration = SnackbarDuration.Short,
+                                )
+                                if (r == SnackbarResult.ActionPerformed) vm.delete(copy)
+                            }
+                        }
+                    },
+                    onCopyYesterday = {
+                        vm.copyFromYesterday(meal) { ids ->
+                            scope.launch {
+                                snackbar.currentSnackbarData?.dismiss()
+                                val r = snackbar.showSnackbar(
+                                    context.getString(R.string.copied_yesterday, ids.size), context.getString(R.string.undo),
+                                    duration = SnackbarDuration.Short,
+                                )
+                                if (r == SnackbarResult.ActionPerformed) vm.undoCopy(ids)
+                            }
+                        }
+                    },
                 )
             }
         }
@@ -157,8 +198,13 @@ fun TodayScreen(snackbar: SnackbarHostState, vm: TodayViewModel = viewModel(fact
         EditEntrySheet(
             entry = entry,
             onDismiss = { editing = null },
-            onSaveFood = { grams, meal -> vm.updateFoodEntry(entry, grams, meal); editing = null },
-            onSaveQuick = { name, kcal, meal -> vm.updateQuickEntry(entry, name, kcal, meal); editing = null },
+            onSave = { edit ->
+                vm.save(entry, edit)
+                editing = null
+                if (edit.date.toString() != entry.date) {
+                    scope.launch { snackbar.showSnackbar(context.getString(R.string.entry_moved, edit.date.germanLong())) }
+                }
+            },
             onDelete = { editing = null; deleteWithUndo(entry) },
             loadFavorite = { vm.isFavorite(entry) },
             toggleFavorite = { current -> vm.toggleFavorite(entry, current) },
@@ -235,11 +281,21 @@ private fun Summary(state: TodayUiState) {
         }
         if (state.settings.showMacros) {
             Spacer(Modifier.height(14.dp))
-            val t = MacroTargets.fromGoal(goal)
+            val t = state.targets
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                MacroBar(stringResource(R.string.protein), state.total.protein, t.protein, c.protein, Modifier.weight(1f))
-                MacroBar(stringResource(R.string.carbs_short), state.total.carbs, t.carbs, c.carbs, Modifier.weight(1f))
-                MacroBar(stringResource(R.string.fat), state.total.fat, t.fat, c.fat, Modifier.weight(1f))
+                val compact = state.settings.showSugar
+                MacroBar(stringResource(R.string.protein), state.total.protein, t.protein, c.protein, Modifier.weight(1f), compact = compact)
+                MacroBar(stringResource(R.string.carbs_short), state.total.carbs, t.carbs, c.carbs, Modifier.weight(1f), compact = compact)
+                MacroBar(stringResource(R.string.fat), state.total.fat, t.fat, c.fat, Modifier.weight(1f), compact = compact)
+                if (state.settings.showSugar) {
+                    MacroBar(stringResource(R.string.sugar), state.total.sugar ?: 0.0, t.sugar, c.sugar, Modifier.weight(1f), isLimit = true, compact = true)
+                }
+            }
+            if (state.settings.showSugar && state.withoutSugar > 0 && state.count > 0) {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    stringResource(R.string.sugar_missing, state.withoutSugar), style = MaterialTheme.typography.bodySmall, color = c.muted,
+                )
             }
         }
     }
@@ -255,13 +311,17 @@ private fun StatRow(label: String, value: String) {
 }
 
 @Composable
-private fun MacroBar(label: String, value: Double, target: Int, color: Color, modifier: Modifier) {
+private fun MacroBar(label: String, value: Double, target: Int, color: Color, modifier: Modifier, isLimit: Boolean = false, compact: Boolean = false) {
     val c = Tokens.colors
+    // Zucker ist ein Höchstwert: über dem Limit wird der Balken rot
+    @Suppress("NAME_SHADOWING") val color = if (isLimit && target > 0 && value > target) c.over else color
     Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(label, style = MaterialTheme.typography.bodySmall, color = c.muted)
         Text(
             stringResource(R.string.macro_value, value.roundToInt(), target),
-            style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = c.fg,
+            // bei vier Balken etwas kleiner, damit „275 / 275 g“ in eine Zeile passt
+            style = if (compact) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold, color = c.fg, maxLines = 1,
         )
         LinearProgressIndicator(
             progress = { if (target <= 0) 0f else (value / target).toFloat().coerceIn(0f, 1f) },
@@ -271,13 +331,17 @@ private fun MacroBar(label: String, value: Double, target: Int, color: Color, mo
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MealCard(
     meal: Meal,
     entries: List<EntryEntity>,
+    canCopyYesterday: Boolean,
     onAdd: () -> Unit,
     onEdit: (EntryEntity) -> Unit,
     onDelete: (EntryEntity) -> Unit,
+    onAgain: (EntryEntity) -> Unit,
+    onCopyYesterday: () -> Unit,
 ) {
     val c = Tokens.colors
     val sum = entries.sumOf { it.kcal }
@@ -294,29 +358,71 @@ private fun MealCard(
             ) { Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add_to_meal, meal.label())) }
         }
         if (entries.isEmpty()) {
-            Text(
-                stringResource(R.string.meal_empty), style = MaterialTheme.typography.bodySmall, color = c.muted,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
-            )
+            Row(Modifier.padding(start = 16.dp, end = 8.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    stringResource(R.string.meal_empty), style = MaterialTheme.typography.bodySmall, color = c.muted,
+                    modifier = Modifier.weight(1f).padding(bottom = 8.dp),
+                )
+                if (canCopyYesterday) {
+                    TextButton(onClick = onCopyYesterday) { Text(stringResource(R.string.like_yesterday), color = c.accent) }
+                }
+            }
         }
         entries.forEach { e ->
             HorizontalDivider(color = c.line)
             // key: damit nach dem Löschen nicht der nächste Eintrag den „weggewischt“-Zustand erbt
-            key(e.id) { SwipeToDelete(onDelete = { onDelete(e) }) {
-            Row(
-                Modifier.fillMaxWidth().background(c.surface).clickable { onEdit(e) }.padding(horizontal = 16.dp, vertical = 10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text(e.name, style = MaterialTheme.typography.bodyLarge, color = c.fg, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    val sub = listOfNotNull(e.grams?.let { amountText(it, e.isLiquid) }, e.brand).joinToString(" · ")
-                    if (sub.isNotEmpty()) Text(sub, style = MaterialTheme.typography.bodySmall, color = c.muted)
+            key(e.id) {
+                var menu by remember { mutableStateOf(false) }
+                SwipeToDelete(onDelete = { onDelete(e) }) {
+                    Box {
+                        Row(
+                            Modifier.fillMaxWidth().background(c.surface)
+                                .combinedClickable(onClick = { onEdit(e) }, onLongClick = { menu = true })
+                                .padding(horizontal = 16.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text(e.name, style = MaterialTheme.typography.bodyLarge, color = c.fg, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                val sub = listOfNotNull(entryAmount(e), e.brand).joinToString(" · ")
+                                if (sub.isNotEmpty()) Text(sub, style = MaterialTheme.typography.bodySmall, color = c.muted)
+                            }
+                            Text(Nutrition.format(e.kcal), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = c.fg)
+                        }
+                        DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                            DropdownMenuItem(text = { Text(stringResource(R.string.again_today)) }, onClick = { menu = false; onAgain(e) })
+                            DropdownMenuItem(text = { Text(stringResource(R.string.edit_or_move)) }, onClick = { menu = false; onEdit(e) })
+                            DropdownMenuItem(text = { Text(stringResource(R.string.delete)) }, onClick = { menu = false; onDelete(e) })
+                        }
+                    }
                 }
-                Text(Nutrition.format(e.kcal), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = c.fg)
             }
-            } }
         }
     }
+}
+
+/** „1,5 × Scheibe (38 g)“, „2 × Portion“ oder „250 g“ */
+@Composable
+private fun entryAmount(e: EntryEntity): String? {
+    val count = e.unitCount
+    val label = e.unitLabel
+    return when {
+        label != null && count != null && e.grams != null -> UnitAmount.describe(count, label, e.grams, e.isLiquid)
+        label != null && count != null -> "${NumberInput.format(count)} × $label"
+        e.grams != null -> amountText(e.grams, e.isLiquid)
+        else -> null
+    }
+}
+
+/** Waagerechtes Wischen über Kopf und Bilanz wechselt den Tag. */
+private fun Modifier.daySwipe(onPrev: () -> Unit, onNext: () -> Unit): Modifier = pointerInput(Unit) {
+    var total = 0f
+    detectHorizontalDragGestures(
+        onDragStart = { total = 0f },
+        onDragEnd = {
+            val threshold = 80.dp.toPx()
+            if (total > threshold) onPrev() else if (total < -threshold) onNext()
+        },
+    ) { _, dragAmount -> total += dragAmount }
 }
 
 /** Nach links wischen = löschen (mit „Rückgängig“ in der Snackbar). */
