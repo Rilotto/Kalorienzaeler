@@ -101,6 +101,10 @@ import de.kalorien.app.core.ui.labelRes
 import de.kalorien.app.core.ui.theme.Tokens
 import de.kalorien.app.feature.scan.BarcodeCamera
 import de.kalorien.app.feature.scan.TextFromImage
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import de.kalorien.app.core.domain.QuickCalc
+import de.kalorien.app.core.data.TemplateWithItems
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import kotlin.math.roundToInt
@@ -131,6 +135,7 @@ fun AddSheet(
     date: LocalDate,
     onDismiss: () -> Unit,
     onAdded: (message: String, entry: EntryEntity) -> Unit,
+    onTemplateAdded: (message: String, ids: List<Long>) -> Unit,
     vm: AddViewModel = viewModel(factory = AppViewModels.Factory),
 ) {
     val c = Tokens.colors
@@ -144,7 +149,15 @@ fun AddSheet(
     // „Hinzufügen und weiteres“: zuletzt hinzugefügter Eintrag (Bestätigung + Rückgängig oben im Fenster)
     var lastAdded by remember { mutableStateOf<EntryEntity?>(null) }
 
-    LaunchedEffect(Unit) { vm.reset() }
+    LaunchedEffect(Unit) {
+        vm.reset()
+        // gewählter Start-Reiter aus den Einstellungen (nur, solange noch nichts anderes geöffnet wurde)
+        val start = vm.startTab()
+        if (screen == Screen.Main(TAB_SEARCH) && start != TAB_SEARCH) {
+            lastTab = start
+            screen = Screen.Main(start)
+        }
+    }
 
     // --- Foto → Texterkennung → Formular ---
     fun readImage(uri: Uri) {
@@ -292,6 +305,14 @@ fun AddSheet(
                     when (s.tab) {
                         TAB_SEARCH -> SearchTab(
                             vm,
+                            onTemplate = { t ->
+                                vm.applyTemplate(t, meal, date) { ids ->
+                                    onTemplateAdded(
+                                        context.getString(R.string.template_added, t.template.name, Nutrition.format(t.kcal)), ids,
+                                    )
+                                    onDismiss()
+                                }
+                            },
                             onPick = { screen = Screen.Detail(it) },
                             onCreate = { name -> screen = Screen.Custom(CustomPrefill(name = name)) },
                         )
@@ -346,7 +367,13 @@ private fun Busy(text: String) {
 // ---------------------------------------------------------------- Suchen
 
 @Composable
-private fun SearchTab(vm: AddViewModel, onPick: (FoodEntity) -> Unit, onCreate: (String) -> Unit) {
+private fun SearchTab(
+    vm: AddViewModel,
+    onTemplate: (TemplateWithItems) -> Unit,
+    onPick: (FoodEntity) -> Unit,
+    onCreate: (String) -> Unit,
+) {
+    val templates by vm.templates.collectAsStateWithLifecycle()
     val query by vm.query.collectAsStateWithLifecycle()
     val results by vm.results.collectAsStateWithLifecycle()
     val recent by vm.recent.collectAsStateWithLifecycle()
@@ -367,6 +394,10 @@ private fun SearchTab(vm: AddViewModel, onPick: (FoodEntity) -> Unit, onCreate: 
             item { Hint(stringResource(R.string.bls_preparing)) }
         }
         if (query.isBlank()) {
+            if (templates.isNotEmpty()) {
+                item { SectionLabel(stringResource(R.string.templates)) }
+                items(templates, key = { "t" + it.template.id }) { TemplateRow(it) { onTemplate(it) } }
+            }
             if (favorites.isNotEmpty()) {
                 item { SectionLabel(stringResource(R.string.favorites)) }
                 items(favorites, key = { "f" + it.id }) { FoodRow(it) { onPick(it) } }
@@ -385,6 +416,25 @@ private fun SearchTab(vm: AddViewModel, onPick: (FoodEntity) -> Unit, onCreate: 
             items(results, key = { it.id }) { FoodRow(it) { onPick(it) } }
         }
         item { CreateOwnRow { onCreate(query.trim()) } }
+    }
+}
+
+@Composable
+private fun TemplateRow(t: TemplateWithItems, onClick: () -> Unit) {
+    val c = Tokens.colors
+    Column {
+        HorizontalDivider(color = c.line)
+        Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 11.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Filled.Add, contentDescription = null, tint = c.accent, modifier = Modifier.padding(end = 8.dp))
+            Column(Modifier.weight(1f)) {
+                Text(t.template.name, style = MaterialTheme.typography.bodyLarge, color = c.fg, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(
+                    t.sortedItems.joinToString(", ") { it.name }, style = MaterialTheme.typography.bodySmall, color = c.muted,
+                    maxLines = 1, overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Text(stringResource(R.string.kcal_value, Nutrition.format(t.kcal)), style = MaterialTheme.typography.bodySmall, color = c.muted)
+        }
     }
 }
 
@@ -863,19 +913,34 @@ private fun QuickTab(meal: Meal, onMeal: (Meal) -> Unit, onAdd: (String, Int) ->
     val c = Tokens.colors
     var name by remember { mutableStateOf("") }
     var kcal by remember { mutableStateOf("") }
+    var inKj by remember { mutableStateOf(false) }
     val defaultName = stringResource(R.string.quick_default_name)
+    val input = if (inKj) "$kcal kJ" else kcal
+    val k = QuickCalc.parse(input) ?: 0
     Text(stringResource(R.string.quick_hint), style = MaterialTheme.typography.bodyMedium, color = c.muted)
     OutlinedTextField(
         value = name, onValueChange = { name = it.take(60) }, label = { Text(stringResource(R.string.quick_name)) },
         placeholder = { Text(defaultName) }, singleLine = true, modifier = Modifier.fillMaxWidth(),
     )
     OutlinedTextField(
-        value = kcal, onValueChange = { kcal = it.filter(Char::isDigit).take(5) }, label = { Text(stringResource(R.string.quick_kcal)) },
-        singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(),
+        value = kcal, onValueChange = { v -> kcal = v.filter { it.isDigit() || it in "+-*,." }.take(40) },
+        label = { Text(stringResource(if (inKj) R.string.quick_kj else R.string.quick_kcal)) },
+        supportingText = {
+            when {
+                kcal.isNotBlank() && k == 0 && QuickCalc.parse(input) == null -> Text(stringResource(R.string.quick_calc_invalid), color = c.over)
+                QuickCalc.isCalculation(input) && k > 0 -> Text(stringResource(R.string.quick_calc_result, Nutrition.format(k)), color = c.accent)
+                else -> Text(stringResource(R.string.quick_calc_hint), color = c.muted)
+            }
+        },
+        // Telefon-Tastatur: hat Ziffern und „+“, „*“ für einfache Rechnungen
+        singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), modifier = Modifier.fillMaxWidth(),
+    )
+    FilterChip(
+        selected = inKj, onClick = { inKj = !inKj }, label = { Text(stringResource(R.string.quick_in_kj)) },
+        colors = FilterChipDefaults.filterChipColors(selectedContainerColor = c.accentSoft, selectedLabelColor = c.accent),
     )
     Text(stringResource(R.string.meal), style = MaterialTheme.typography.bodySmall, color = c.muted)
     MealChips(meal, onMeal)
-    val k = kcal.toIntOrNull() ?: 0
     Button(
         onClick = { onAdd(name.trim().ifEmpty { defaultName }, k) }, enabled = k > 0, modifier = Modifier.fillMaxWidth(),
         colors = ButtonDefaults.buttonColors(containerColor = c.accent, contentColor = c.surface),

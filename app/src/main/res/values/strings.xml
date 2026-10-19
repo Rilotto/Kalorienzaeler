@@ -166,7 +166,7 @@
     <string name="food_edit_title">Nährwerte korrigieren</string>
     <string name="food_edit_hint">Gilt ab jetzt für alle neuen Einträge. Alte Tage bleiben, wie sie sind.</string>
     <string name="food_edit_hint_custom">Ändert dein eigenes Lebensmittel für alle neuen Einträge.</string>
-    <string name="values_per">Werte pro %1$s</string>
+    <string name="values_per">Werte %1$s</string>
     <string name="food_original">Original: %1$d kcal</string>
     <string name="food_recalc">Heutige Einträge damit neu berechnen</string>
     <string name="food_reset">Auf Original zurücksetzen</string>
@@ -220,4 +220,62 @@
         <item quantity="one">%1$d Produkt hat jetzt einen Zuckerwert</item>
         <item quantity="other">%1$d Produkte haben jetzt einen Zuckerwert</item>
     </plurals>
+
+    <!-- v0.6 -->
+    <string name="kcal">kcal</string>
+    <string name="adjusted">angepasst</string>
+    <string name="more_options">Mehr</string>
+    <string name="history_days">%1$d Tage</string>
+    <string name="history_avg">Durchschnitt pro Tag</string>
+    <string name="history_avg_goal">Ziel im Schnitt</string>
+    <string name="history_logged">Tage mit Einträgen</string>
+    <string name="history_of">%1$d von %2$d</string>
+    <string name="history_over">Tage über dem Ziel</string>
+    <string name="history_legend_ok">im Ziel</string>
+    <string name="history_legend_over">über dem Ziel</string>
+    <string name="history_legend_goal">- - - Ziel</string>
+    <string name="history_open">Tag öffnen</string>
+    <string name="history_no_entries">keine Einträge</string>
+    <string name="history_day_line">%1$s von %2$s kcal · %3$d Einträge</string>
+    <string name="history_note">Der Durchschnitt zählt nur Tage mit Einträgen und lässt den heutigen Tag weg, solange er noch läuft.</string>
+    <string name="templates">Vorlagen</string>
+    <string name="templates_empty">Noch keine Vorlagen. In der Tagesansicht bei einer Mahlzeit auf ⋮ → „Als Vorlage speichern“.</string>
+    <string name="template_save">Als Vorlage speichern</string>
+    <string name="template_save_hint">Alle Einträge dieser Mahlzeit werden gespeichert. Beim Eintragen findest du die Vorlage oben unter „Vorlagen“.</string>
+    <string name="template_name">Name der Vorlage</string>
+    <string name="template_default_name">%1$s-Vorlage</string>
+    <string name="template_saved">Vorlage „%1$s“ gespeichert</string>
+    <string name="template_empty">Die Mahlzeit ist leer – nichts gespeichert</string>
+    <string name="template_added">%1$s eingetragen (%2$s kcal)</string>
+    <string name="template_deleted">Vorlage „%1$s“ gelöscht</string>
+    <string name="template_summary">%1$d Teile · %2$s kcal</string>
+    <string name="week_goals_title">Ziel pro Wochentag</string>
+    <string name="week_goals_hint">Leer lassen = dein normales Ziel (%1$s kcal). Zum Beispiel am Wochenende etwas mehr.</string>
+    <string name="week_goals_clear">Alle zurücksetzen</string>
+    <string name="week_goals_saved">Wochentag-Ziele gespeichert</string>
+    <string name="appearance_title">Darstellung</string>
+    <string name="theme_label">Hell oder dunkel</string>
+    <string name="theme_system">Wie das Handy</string>
+    <string name="theme_light">Hell</string>
+    <string name="theme_dark">Dunkel</string>
+    <string name="start_tab_label">Beim Eintragen zuerst öffnen</string>
+    <string name="own_foods_title">Eigene Lebensmittel</string>
+    <string name="own_foods_hint">Selbst angelegte, gescannte und korrigierte Lebensmittel. Antippen zum Ändern oder Löschen.</string>
+    <string name="own_foods_open">Anzeigen (%1$d)</string>
+    <string name="own_foods_empty">Keine Lebensmittel gefunden.</string>
+    <string name="food_delete">Lebensmittel löschen</string>
+    <string name="food_delete_hint">Deine bisherigen Einträge bleiben mit ihren Werten erhalten.</string>
+    <string name="food_delete_confirm">Ja, löschen</string>
+    <string name="food_deleted">%1$s gelöscht</string>
+    <string name="quick_kj">Kilojoule (kJ)</string>
+    <string name="quick_in_kj">Wert ist in kJ</string>
+    <string name="quick_calc_hint">Auch Rechnen geht, z. B. 250+120</string>
+    <string name="quick_calc_result">= %1$s kcal</string>
+    <string name="quick_calc_invalid">Das kann ich nicht ausrechnen</string>
+    <string name="crash_title">Fehlerprotokoll</string>
+    <string name="crash_none">Keine Abstürze aufgezeichnet.</string>
+    <string name="crash_last">Letzter Absturz: %1$s</string>
+    <string name="crash_share">Protokoll teilen</string>
+    <string name="crash_clear">Löschen</string>
+    <string name="crash_subject">Kalorienzähler – Fehlerprotokoll</string>
 </resources>

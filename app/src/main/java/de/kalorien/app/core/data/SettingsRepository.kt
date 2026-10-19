@@ -11,6 +11,9 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import de.kalorien.app.core.domain.WeekGoals
+import java.time.DayOfWeek
+import java.time.LocalDate
 
 data class Settings(
     val dailyGoal: Int = DEFAULT_GOAL,
@@ -28,13 +31,24 @@ data class Settings(
     val autoBackup: Boolean = true,
     /** Datum (yyyy-MM-dd) der letzten Sicherung, null = noch nie */
     val lastBackup: String? = null,
+    /** Abweichendes Ziel an einzelnen Wochentagen (z. B. Samstag 2600) */
+    val weekdayGoals: Map<DayOfWeek, Int> = emptyMap(),
+    /** Hell/Dunkel: System, immer hell, immer dunkel */
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    /** Reiter, der beim Eintragen zuerst offen ist (0 Suchen, 1 Scannen, 2 Foto, 3 Schnell) */
+    val startTab: Int = 0,
 ) {
+    /** Tagesziel für ein Datum (Wochentag-Ziel oder Standard). */
+    fun goalFor(date: LocalDate): Int = weekdayGoals[date.dayOfWeek] ?: dailyGoal
+
     companion object {
         const val DEFAULT_GOAL = 2200
         const val MIN_GOAL = 800
         const val MAX_GOAL = 6000
     }
 }
+
+enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -51,6 +65,9 @@ class SettingsRepository(private val context: Context) {
         val sugarLimit = intPreferencesKey("sugar_limit")
         val autoBackup = booleanPreferencesKey("auto_backup")
         val lastBackup = stringPreferencesKey("last_backup")
+        val weekdayGoals = stringPreferencesKey("weekday_goals")
+        val theme = stringPreferencesKey("theme_mode")
+        val startTab = intPreferencesKey("start_tab")
     }
 
     val settings: Flow<Settings> = context.dataStore.data.map { p ->
@@ -65,6 +82,9 @@ class SettingsRepository(private val context: Context) {
             sugarLimit = p[Keys.sugarLimit],
             autoBackup = p[Keys.autoBackup] ?: true,
             lastBackup = p[Keys.lastBackup],
+            weekdayGoals = WeekGoals.parse(p[Keys.weekdayGoals]),
+            themeMode = p[Keys.theme]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM,
+            startTab = (p[Keys.startTab] ?: 0).coerceIn(0, 3),
         )
     }
 
@@ -91,6 +111,27 @@ class SettingsRepository(private val context: Context) {
         }
     }
 
+    /** Ziel für einen Wochentag; null = Standardziel verwenden. */
+    suspend fun setWeekdayGoal(day: DayOfWeek, goal: Int?) {
+        context.dataStore.edit { p ->
+            val m = WeekGoals.parse(p[Keys.weekdayGoals]).toMutableMap()
+            if (goal == null) m.remove(day) else m[day] = goal.coerceIn(Settings.MIN_GOAL, Settings.MAX_GOAL)
+            p[Keys.weekdayGoals] = WeekGoals.format(m)
+        }
+    }
+
+    suspend fun setWeekdayGoals(goals: Map<DayOfWeek, Int>) {
+        context.dataStore.edit { it[Keys.weekdayGoals] = WeekGoals.format(goals) }
+    }
+
+    suspend fun setThemeMode(mode: ThemeMode) {
+        context.dataStore.edit { it[Keys.theme] = mode.name }
+    }
+
+    suspend fun setStartTab(tab: Int) {
+        context.dataStore.edit { it[Keys.startTab] = tab.coerceIn(0, 3) }
+    }
+
     suspend fun setAutoBackup(on: Boolean) {
         context.dataStore.edit { it[Keys.autoBackup] = on }
     }
@@ -107,6 +148,9 @@ class SettingsRepository(private val context: Context) {
         setShowMacros(s.showMacros)
         setShowSugar(s.showSugar)
         setMacroGoals(s.proteinGoal, s.carbsGoal, s.fatGoal, s.sugarLimit)
+        setWeekdayGoals(s.weekdayGoals)
+        setThemeMode(s.themeMode)
+        setStartTab(s.startTab)
     }
 
     suspend fun setIncludeTestVersions(include: Boolean) {

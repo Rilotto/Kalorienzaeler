@@ -29,7 +29,26 @@ class BackupCodecTest {
         )
         val settings = Settings(dailyGoal = 2000, proteinGoal = 140, sugarLimit = 40)
 
-        val back = BackupCodec.decode(BackupCodec.encode(BackupData(settings, listOf(food, bls), listOf(entry)), 0))
+        val template = TemplateWithItems(
+            TemplateEntity(id = 3, name = "Mein Frühstück", meal = "BREAKFAST", createdAt = 5, useCount = 2),
+            listOf(
+                TemplateItemEntity(id = 9, templateId = 3, position = 1, foodId = 7, name = "Hafer Flocken", grams = 50.0, kcal = 180,
+                    protein = 6.6, carbs = 29.0, fat = 3.4, sugar = 0.6),
+                TemplateItemEntity(id = 8, templateId = 3, position = 0, foodId = null, name = "Kaffee", grams = null, kcal = 5,
+                    protein = 0.0, carbs = 0.0, fat = 0.0, unitLabel = "Tasse", unitCount = 1.0),
+            ),
+        )
+        val back = BackupCodec.decode(
+            BackupCodec.encode(BackupData(settings.copy(weekdayGoals = mapOf(java.time.DayOfWeek.SATURDAY to 2600), themeMode = ThemeMode.DARK, startTab = 1),
+                listOf(food, bls), listOf(entry), listOf(template)), 0),
+        )
+        assertEquals(mapOf(java.time.DayOfWeek.SATURDAY to 2600), back.settings.weekdayGoals)
+        assertEquals(ThemeMode.DARK, back.settings.themeMode)
+        assertEquals(1, back.settings.startTab)
+        assertEquals("Mein Frühstück", back.templates.single().template.name)
+        assertEquals(listOf("Kaffee", "Hafer Flocken"), back.templates.single().sortedItems.map { it.name })
+        assertEquals(7L, back.templates.single().sortedItems[1].foodId)
+        assertEquals("Tasse", back.templates.single().sortedItems[0].unitLabel)
 
         assertEquals(2000, back.settings.dailyGoal)
         assertEquals(140, back.settings.proteinGoal)

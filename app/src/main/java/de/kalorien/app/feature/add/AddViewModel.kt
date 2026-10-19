@@ -7,6 +7,9 @@ import de.kalorien.app.core.data.EntryEntity
 import de.kalorien.app.core.data.EntryRepository
 import de.kalorien.app.core.data.FoodEntity
 import de.kalorien.app.core.data.FoodRepository
+import de.kalorien.app.core.data.SettingsRepository
+import de.kalorien.app.core.data.TemplateRepository
+import de.kalorien.app.core.data.TemplateWithItems
 import de.kalorien.app.core.domain.Meal
 import de.kalorien.app.core.domain.NutritionBasis
 import de.kalorien.app.core.domain.NutritionTextParser
@@ -52,7 +55,18 @@ class AddViewModel(
     private val foods: FoodRepository,
     private val entries: EntryRepository,
     bls: BlsImporter,
+    private val templateRepo: TemplateRepository,
+    private val settings: SettingsRepository,
 ) : ViewModel() {
+    val templates = templateRepo.observeAll().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** Reiter, der beim Öffnen zuerst gezeigt wird (Einstellung). */
+    suspend fun startTab(): Int = settings.current().startTab
+
+    /** Vorlage eintragen; [onDone] bekommt die neuen IDs für „Rückgängig“. */
+    fun applyTemplate(t: TemplateWithItems, meal: Meal, date: LocalDate, onDone: (List<Long>) -> Unit) =
+        viewModelScope.launch { onDone(templateRepo.apply(t, meal, date)) }
+
     val query = MutableStateFlow("")
 
     val results: StateFlow<List<FoodEntity>> = query

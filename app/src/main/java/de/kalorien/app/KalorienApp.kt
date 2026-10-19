@@ -7,6 +7,10 @@ import de.kalorien.app.core.data.EntryRepository
 import de.kalorien.app.core.data.FoodRepository
 import de.kalorien.app.core.data.KalorienDatabase
 import de.kalorien.app.core.data.SettingsRepository
+import de.kalorien.app.core.data.TemplateRepository
+import de.kalorien.app.core.CrashLog
+import kotlinx.coroutines.flow.MutableStateFlow
+import java.time.LocalDate
 import de.kalorien.app.core.update.UpdateRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -19,6 +23,7 @@ class KalorienApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        CrashLog.install(this)
         container = AppContainer(this)
         container.appScope.launch {
             container.blsImporter.importIfNeeded()
@@ -40,4 +45,9 @@ class AppContainer(app: Application) {
     val blsImporter = BlsImporter(app, database, settings)
     val updates = UpdateRepository(app)
     val backup = BackupManager(app, database, settings)
+    val templates = TemplateRepository(database)
+    val crashLog = CrashLog(app)
+
+    /** Verlauf → „diesen Tag öffnen“: die Heute-Ansicht springt auf das Datum und setzt es zurück. */
+    val openDay = MutableStateFlow<LocalDate?>(null)
 }

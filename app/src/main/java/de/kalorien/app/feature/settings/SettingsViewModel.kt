@@ -5,6 +5,13 @@ import androidx.lifecycle.viewModelScope
 import android.net.Uri
 import de.kalorien.app.core.data.BackupManager
 import de.kalorien.app.core.data.FoodRepository
+import de.kalorien.app.core.data.FoodEntity
+import de.kalorien.app.core.data.TemplateRepository
+import de.kalorien.app.core.data.TemplateWithItems
+import de.kalorien.app.core.data.ThemeMode
+import de.kalorien.app.core.CrashLog
+import de.kalorien.app.core.domain.Per100
+import java.time.DayOfWeek
 import de.kalorien.app.core.data.Settings
 import de.kalorien.app.core.data.SettingsRepository
 import de.kalorien.app.core.update.ReleaseInfo
@@ -51,7 +58,34 @@ class SettingsViewModel(
     private val updates: UpdateRepository,
     private val backup: BackupManager,
     private val foods: FoodRepository,
+    private val templateRepo: TemplateRepository,
+    private val crash: CrashLog,
 ) : ViewModel() {
+    // --- v0.6: Vorlagen, eigene Lebensmittel, Darstellung, Fehlerprotokoll
+    val templates: StateFlow<List<TemplateWithItems>> =
+        templateRepo.observeAll().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+    val ownFoods: StateFlow<List<FoodEntity>> =
+        foods.observeOwn().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun setWeekdayGoals(goals: Map<DayOfWeek, Int>) = viewModelScope.launch { repo.setWeekdayGoals(goals) }
+    fun setThemeMode(mode: ThemeMode) = viewModelScope.launch { repo.setThemeMode(mode) }
+    fun setStartTab(tab: Int) = viewModelScope.launch { repo.setStartTab(tab) }
+
+    fun deleteTemplate(t: TemplateWithItems) = viewModelScope.launch { templateRepo.delete(t.template.id) }
+    fun restoreTemplate(t: TemplateWithItems) = viewModelScope.launch { templateRepo.restore(t) }
+    fun renameTemplate(t: TemplateWithItems, name: String) = viewModelScope.launch { templateRepo.rename(t.template.id, name) }
+
+    fun deleteFood(f: FoodEntity) = viewModelScope.launch { foods.deleteOwn(f) }
+    fun restoreFood(f: FoodEntity) = viewModelScope.launch { foods.restoreDeleted(f) }
+    fun correctFood(f: FoodEntity, per: Per100, name: String) = viewModelScope.launch { foods.correct(f, per, name) }
+    fun resetFood(f: FoodEntity) = viewModelScope.launch { foods.resetToOriginal(f) }
+
+    /** Zeitpunkt des letzten Absturzes, null = keiner aufgezeichnet. */
+    private val _crash = MutableStateFlow(crash.lastCrash())
+    val lastCrash: StateFlow<String?> = _crash
+    fun crashShareUri(): Uri = crash.shareUri()
+    fun clearCrashLog() { crash.clear(); _crash.value = null }
+
     private val _sugar = MutableStateFlow<SugarRefresh>(SugarRefresh.Idle)
     val sugarRefresh: StateFlow<SugarRefresh> = _sugar
 
