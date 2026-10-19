@@ -278,4 +278,38 @@
     <string name="crash_share">Protokoll teilen</string>
     <string name="crash_clear">Löschen</string>
     <string name="crash_subject">Kalorienzähler – Fehlerprotokoll</string>
+
+    <!-- v0.7 -->
+    <string name="history_by_day">Tage</string>
+    <string name="history_by_week">Wochen</string>
+    <string name="history_by_month">Monate</string>
+    <string name="history_weeks">%1$d Wochen</string>
+    <string name="history_months">%1$d Monate</string>
+    <string name="chart_bars">Balken</string>
+    <string name="chart_line">Linie</string>
+    <string name="chart_area">Fläche</string>
+    <string name="history_week_title">%1$s – %2$s</string>
+    <string name="history_day_short">%1$s von %2$s kcal</string>
+    <string name="history_bucket_line">Ø %1$s von %2$s kcal pro Tag · %3$d von %4$d Tagen eingetragen</string>
+    <string name="history_logged_days">%1$d von %2$d Tagen eingetragen</string>
+    <string name="history_note_grouped">Wochen und Monate zeigen den Durchschnitt pro Tag – gezählt werden nur Tage mit Einträgen. Der heutige Tag zählt erst mit, wenn er vorbei ist.</string>
+    <string name="palette_label">Farbschema</string>
+    <string name="palette_default">Salbei</string>
+    <string name="palette_peach">Pfirsich</string>
+    <string name="palette_lavender">Lavendel</string>
+    <string name="palette_mint">Minze</string>
+    <string name="palette_sky">Himmel</string>
+    <string name="palette_rose">Rosé</string>
+    <string name="palette_memphis">Memphis (90er)</string>
+    <string name="palette_vaporwave">Vaporwave (90er)</string>
+    <string name="serving_set">+ Eigene Portion festlegen</string>
+    <string name="serving_change">Eigene Portion ändern</string>
+    <string name="serving_title">Eigene Portion</string>
+    <string name="serving_hint">Die App merkt sich die Portion bei diesem Lebensmittel und schlägt sie zuerst vor.</string>
+    <string name="serving_label">Bezeichnung</string>
+    <string name="serving_default_label">1 Stück</string>
+    <string name="serving_from_pack">Oder aus der Packung ausrechnen:</string>
+    <string name="serving_pack">Packung (%1$s)</string>
+    <string name="serving_pieces">Anzahl Stück</string>
+    <string name="serving_remove">Eigene Portion entfernen</string>
 </resources>

@@ -96,6 +96,8 @@ class AddViewModel(
         return updated
     }
 
+    suspend fun setServing(food: FoodEntity, label: String?, grams: Double?): FoodEntity = foods.setServing(food, label, grams)
+
     suspend fun resetFood(food: FoodEntity, recalcDate: LocalDate?): FoodEntity {
         val updated = foods.resetToOriginal(food)
         recalcDate?.let { entries.recalcForFood(updated, it) }
