@@ -42,6 +42,16 @@ import de.kalorien.app.core.ui.AppCard
 import de.kalorien.app.core.ui.AppChip
 import de.kalorien.app.core.ui.AppNumberField
 import de.kalorien.app.core.ui.theme.Tokens
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import de.kalorien.app.core.ui.theme.Palette
 import java.time.DayOfWeek
 import java.time.format.TextStyle
 import java.util.Locale
@@ -94,10 +104,21 @@ fun WeekGoalsCard(s: Settings, onSave: (Map<DayOfWeek, Int>) -> Unit) {
 /** Hell/Dunkel und Start-Reiter beim Eintragen. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun AppearanceCard(s: Settings, onTheme: (ThemeMode) -> Unit, onStartTab: (Int) -> Unit) {
+fun AppearanceCard(s: Settings, onTheme: (ThemeMode) -> Unit, onStartTab: (Int) -> Unit, onPalette: (Palette) -> Unit) {
     val c = Tokens.colors
+    val dark = when (s.themeMode) {
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+    }
     AppCard {
         Text(stringResource(R.string.appearance_title), style = MaterialTheme.typography.titleMedium, color = c.fg)
+        Spacer(Modifier.height(6.dp))
+        Text(stringResource(R.string.palette_label), style = MaterialTheme.typography.bodySmall, color = c.muted)
+        Spacer(Modifier.height(4.dp))
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Palette.entries.forEach { p -> PaletteSwatch(p, dark, selected = s.palette == p) { onPalette(p) } }
+        }
         Spacer(Modifier.height(6.dp))
         Text(stringResource(R.string.theme_label), style = MaterialTheme.typography.bodySmall, color = c.muted)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -111,6 +132,42 @@ fun AppearanceCard(s: Settings, onTheme: (ThemeMode) -> Unit, onStartTab: (Int) 
                 .forEachIndexed { i, res -> AppChip(stringResource(res), s.startTab == i) { onStartTab(i) } }
         }
     }
+}
+
+/** Kleine Vorschau eines Farbschemas: Hintergrund, Hauptfarbe, Akzent, Makro-Farben. */
+@Composable
+private fun PaletteSwatch(p: Palette, dark: Boolean, selected: Boolean, onClick: () -> Unit) {
+    val c = Tokens.colors
+    val t = p.colors(dark)
+    val shape = RoundedCornerShape(12.dp)
+    Column(
+        Modifier.width(96.dp).clip(shape)
+            .border(if (selected) 2.dp else 1.dp, if (selected) c.accent else c.line, shape)
+            .background(t.bg).clickable(onClick = onClick).padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+            listOf(t.accent, t.accentSoft, t.over, t.protein).forEach { col ->
+                Box(Modifier.size(16.dp).background(col, CircleShape).border(1.dp, t.line, CircleShape))
+            }
+        }
+        Spacer(Modifier.height(6.dp))
+        Text(
+            stringResource(paletteName(p)), style = MaterialTheme.typography.labelSmall, color = t.fg, maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+private fun paletteName(p: Palette) = when (p) {
+    Palette.DEFAULT -> R.string.palette_default
+    Palette.PEACH -> R.string.palette_peach
+    Palette.LAVENDER -> R.string.palette_lavender
+    Palette.MINT -> R.string.palette_mint
+    Palette.SKY -> R.string.palette_sky
+    Palette.ROSE -> R.string.palette_rose
+    Palette.MEMPHIS -> R.string.palette_memphis
+    Palette.VAPORWAVE -> R.string.palette_vaporwave
 }
 
 /** Gespeicherte Mahlzeit-Vorlagen ansehen und löschen. */

@@ -1,5 +1,17 @@
 # Änderungen
 
+## [0.7.0] – Farben, schönerer Verlauf, eigene Portionen
+### Neu
+- **8 Farbschemas** (Einstellungen → Darstellung): Salbei, Pfirsich, Lavendel, Minze, Himmel, Rosé
+  und zwei aus den 90ern: Memphis und Vaporwave – jeweils hell und dunkel
+- **Verlauf** nach **Tagen, Wochen oder Monaten** (Wochen/Monate als Durchschnitt pro Tag) und als
+  **Balken, Linie oder Fläche**. Die Auswahl bleibt gespeichert.
+- **Eigene Portion festlegen** im Lebensmittel, z. B. „1 Stück = 16,7 g“ – oder aus der Packung ausrechnen
+  („100 g, 6 Stück“). Wird danach zuerst vorgeschlagen.
+### Behoben
+- Handy drehen bricht das Eintragen nicht mehr ab (auch Kamera und Formulare bleiben offen)
+- Portionsvorschläge: „Reiswaffeln“ bekamen „1 Portion gekocht“ wie Reis – jetzt zählt das Wortende
+
 ## [0.6.0] – Verlauf, Vorlagen, mehr Einstellungen
 ### Neu
 - **Verlauf**: letzte 7, 14 oder 30 Tage als Balken mit Ziellinie, Durchschnitt pro Tag, Tage mit Einträgen und

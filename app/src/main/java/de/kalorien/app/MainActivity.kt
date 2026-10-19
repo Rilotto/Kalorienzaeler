@@ -10,6 +10,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.kalorien.app.core.data.Settings
 import de.kalorien.app.core.data.ThemeMode
 import de.kalorien.app.core.ui.theme.KalorienTheme
+import de.kalorien.app.core.ui.theme.Palette
 import de.kalorien.app.navigation.KalorienAppRoot
 
 class MainActivity : ComponentActivity() {
@@ -24,7 +25,7 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.LIGHT -> false
                 ThemeMode.DARK -> true
             }
-            KalorienTheme(darkTheme = dark) {
+            KalorienTheme(darkTheme = dark, palette = settings?.palette ?: Palette.DEFAULT) {
                 KalorienAppRoot()
             }
         }

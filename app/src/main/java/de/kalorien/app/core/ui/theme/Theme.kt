@@ -8,13 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 
-/** App-Theme. Hell/dunkel folgt dem System. Keine dynamischen Farben, damit die App überall gleich aussieht. */
+/** App-Theme. Hell/dunkel folgt dem System oder der Einstellung, Farben aus dem gewählten [Palette]-Schema. Keine dynamischen Farben, damit die App überall gleich aussieht. */
 @Composable
 fun KalorienTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    palette: Palette = Palette.DEFAULT,
     content: @Composable () -> Unit,
 ) {
-    val t = if (darkTheme) DarkTokens else LightTokens
+    val t = palette.colors(darkTheme)
     val scheme = if (darkTheme) {
         darkColorScheme(
             primary = t.accent, onPrimary = t.bg, primaryContainer = t.accentSoft, onPrimaryContainer = t.accent,

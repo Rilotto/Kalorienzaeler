@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import de.kalorien.app.core.domain.WeekGoals
+import de.kalorien.app.core.domain.ChartType
+import de.kalorien.app.core.domain.HistoryGrouping
+import de.kalorien.app.core.ui.theme.Palette
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -37,6 +40,12 @@ data class Settings(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     /** Reiter, der beim Eintragen zuerst offen ist (0 Suchen, 1 Scannen, 2 Foto, 3 Schnell) */
     val startTab: Int = 0,
+    /** Verlauf: Ansicht, Anzahl Abschnitte und Diagrammart (zuletzt gewählt) */
+    val historyGrouping: HistoryGrouping = HistoryGrouping.DAYS,
+    val historyCount: Int = HistoryGrouping.DAYS.defaultCount,
+    val chartType: ChartType = ChartType.BARS,
+    /** Farbschema (v0.7) */
+    val palette: Palette = Palette.DEFAULT,
 ) {
     /** Tagesziel für ein Datum (Wochentag-Ziel oder Standard). */
     fun goalFor(date: LocalDate): Int = weekdayGoals[date.dayOfWeek] ?: dailyGoal
@@ -49,6 +58,9 @@ data class Settings(
 }
 
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
+
+private inline fun <reified E : Enum<E>> enumOr(name: String?, default: E): E =
+    name?.let { n -> enumValues<E>().firstOrNull { it.name == n } } ?: default
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -68,6 +80,10 @@ class SettingsRepository(private val context: Context) {
         val weekdayGoals = stringPreferencesKey("weekday_goals")
         val theme = stringPreferencesKey("theme_mode")
         val startTab = intPreferencesKey("start_tab")
+        val historyGrouping = stringPreferencesKey("history_grouping")
+        val historyCount = intPreferencesKey("history_count")
+        val chartType = stringPreferencesKey("chart_type")
+        val palette = stringPreferencesKey("palette")
     }
 
     val settings: Flow<Settings> = context.dataStore.data.map { p ->
@@ -85,6 +101,10 @@ class SettingsRepository(private val context: Context) {
             weekdayGoals = WeekGoals.parse(p[Keys.weekdayGoals]),
             themeMode = p[Keys.theme]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM,
             startTab = (p[Keys.startTab] ?: 0).coerceIn(0, 3),
+            historyGrouping = enumOr(p[Keys.historyGrouping], HistoryGrouping.DAYS),
+            historyCount = p[Keys.historyCount] ?: enumOr(p[Keys.historyGrouping], HistoryGrouping.DAYS).defaultCount,
+            chartType = enumOr(p[Keys.chartType], ChartType.BARS),
+            palette = enumOr(p[Keys.palette], Palette.DEFAULT),
         )
     }
 
@@ -124,6 +144,19 @@ class SettingsRepository(private val context: Context) {
         context.dataStore.edit { it[Keys.weekdayGoals] = WeekGoals.format(goals) }
     }
 
+    /** Verlauf-Ansicht merken. Passt die Anzahl nicht zur Ansicht, wird deren Standard genommen. */
+    suspend fun setHistoryView(grouping: HistoryGrouping, count: Int, chart: ChartType) {
+        context.dataStore.edit {
+            it[Keys.historyGrouping] = grouping.name
+            it[Keys.historyCount] = if (count in grouping.counts) count else grouping.defaultCount
+            it[Keys.chartType] = chart.name
+        }
+    }
+
+    suspend fun setPalette(palette: Palette) {
+        context.dataStore.edit { it[Keys.palette] = palette.name }
+    }
+
     suspend fun setThemeMode(mode: ThemeMode) {
         context.dataStore.edit { it[Keys.theme] = mode.name }
     }
@@ -151,6 +184,7 @@ class SettingsRepository(private val context: Context) {
         setWeekdayGoals(s.weekdayGoals)
         setThemeMode(s.themeMode)
         setStartTab(s.startTab)
+        setPalette(s.palette)
     }
 
     suspend fun setIncludeTestVersions(include: Boolean) {

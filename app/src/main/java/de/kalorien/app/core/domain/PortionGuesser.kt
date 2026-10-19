@@ -38,6 +38,19 @@ object PortionGuesser {
         Rule(listOf("bratwurst", "currywurst", "wiener", "wuerstchen"), listOf(Portion("1 Stück", 100.0))),
     )
 
+    /**
+     * Passt ein Schlüsselwort zum Hauptwort? Im Deutschen steht das eigentliche Ding am Wortende
+     * („Vollkorn**brot**“, „Basmati**reis**“) – „Reiswaffeln“ ist also eine Waffel, kein Reis.
+     * Schlüsselwörter mit Leerzeichen am Ende („ei “) gelten nur als ganzes Wort.
+     */
+    private fun matches(head: String, keyword: String): Boolean {
+        if (keyword.endsWith(" ")) return head == keyword.trim()
+        return endings.any { head.endsWith(keyword + it) }
+    }
+
+    /** übliche Endungen für Mehrzahl/Fälle: Tomate-n, Nudel-n, Ei-er … */
+    private val endings = listOf("", "n", "en", "e", "s", "es", "er")
+
     private val liquidDefaults = listOf(Portion("1 Tasse", 200.0), Portion("1 Glas", 250.0), Portion("0,5 l", 500.0))
 
     /** Wenn keine Regel passt: einfache Standardmengen statt nur „100 g“. */
@@ -48,11 +61,8 @@ object PortionGuesser {
         // Nur das Hauptwort am Anfang zählt (sonst bekäme „Pizza mit Tomatensauce“ Tomaten-Portionen).
         // Passt dort nichts, die ersten zwei Wörter zusammengeschrieben: BLS schreibt „Hafer Flocken“.
         val words = TextNormalizer.tokens(name)
-        fun rulesFor(head: String): List<Portion> {
-            val key = " $head "
-            return rules.filter { r -> r.keywords.any { key.contains(if (it.endsWith(" ")) " $it" else it) } }
-                .flatMap { it.portions }
-        }
+        fun rulesFor(head: String): List<Portion> =
+            rules.filter { r -> r.keywords.any { matches(head, it) } }.flatMap { it.portions }
         val found: List<Portion> = when {
             isLiquid || words.isEmpty() -> emptyList()
             else -> rulesFor(words[0]).ifEmpty { if (words.size > 1) rulesFor(words[0] + words[1]) else emptyList() }
