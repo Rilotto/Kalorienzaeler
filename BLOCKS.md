@@ -1,5 +1,7 @@
 # Bauplan
 
+> Vollständige Liste aller gewünschten und gebauten Funktionen: **FEATURES.md** (wird bei jedem Bau geprüft).
+
 Status: offen · in Arbeit · Testversion · fertig
 
 | Block | Inhalt | Version | Status |

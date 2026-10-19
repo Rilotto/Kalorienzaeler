@@ -27,8 +27,17 @@ ist kein Android-Entwickler: Antworten kurz, einfache Worte, keine Fachbegriffe 
   legt Tag + GitHub-Release mit `kalorienzaehler-vX.Y.Z.apk` an. Release-Text kommt aus dem CHANGELOG-Abschnitt.
   Den Release-Zweig danach stehen lassen (Löschen ist ebenfalls nicht nötig).
 
+## Vor jeder Version (Pflicht, Wunsch des Nutzers vom 19.10.)
+- **Ausgangsstand ist immer die zuletzt an den Nutzer gegebene Version** – auch Testversionen.
+  Beispiel: Wurde zuletzt 0.7.2 (oder 0.7.2-rc.1) ausgeliefert, baut 0.7.3 genau auf diesem Stand auf, nie auf einem älteren.
+  Prüfen: `gh api repos/Rilotto/Kalorienzaeler/releases --jq '.[0].tag_name'` → neuen Zweig von diesem Tag/Zweig
+  (`release/<tag>`) bzw. vom offenen Versionszweig abzweigen, wenn dieser den Stand bereits enthält. Nie von einem alten Zweig weiterbauen.
+- `FEATURES.md` durchgehen: Neue Wünsche aus dem Chat eintragen (mit Datum), Status pflegen.
+  Keine ✅/🧪-Funktion darf verschwinden. `python3 tools/check_features.py` muss „Alles da.“ melden (läuft auch in CI).
+- Nach dem Ausliefern: 🧪 → ✅, wenn der Nutzer die Version freigegeben hat.
+
 ## Ablauf pro Block
-1. `BLOCKS.md`, `CHANGELOG.md`, offene PRs/Kommentare lesen. Branch `block-<n>-<name>` von `main`.
+1. `FEATURES.md`, `BLOCKS.md`, `CHANGELOG.md`, offene PRs/Kommentare lesen. Branch vom Stand der zuletzt ausgelieferten Version (siehe oben).
 2. Kleine Commits. Rechenlogik als reine Kotlin-Funktionen in `core/domain` mit Unit-Tests.
 3. Push → CI prüfen (siehe oben) → Fehler beheben, bis grün.
 4. Testversion: Zweig `release/vX.Y.0-rc.N` auf den Branch-Stand pushen → Nutzer installiert sie vom Releases-Tab.
@@ -73,4 +82,4 @@ app/src/main/java/de/kalorien/app/
 - Sicherung (ab 0.5): `core/data/Backup.kt`, JSON-Format 2 (seit 0.6, mit Vorlagen) über MediaStore nach `Download/Kalorienzaehler`, die letzten 7 bleiben.
   Formatänderung = `FORMAT` +1 und alte Dateien weiter lesen können.
 - Fehlerprotokoll (ab 0.6): `core/CrashLog.kt` schreibt Abstürze nach `filesDir/crash.log`, Teilen nur per Knopf.
-- Offene Ideen, Wünsche für v0.7 und der Plan bis 1.0 stehen in `BLOCKS.md`.
+- Offene Ideen, Wünsche für v0.7 und der Plan bis 1.0 stehen in `BLOCKS.md`; alle Funktionen mit Status in `FEATURES.md`.
