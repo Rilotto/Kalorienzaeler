@@ -109,6 +109,13 @@ Bewusst nicht gemacht: R8/Minify (Größe kommt fast nur von den ML-Kit-Modellen
 - [x] (v0.6.0) Fehlerprotokoll in der App exportierbar machen (hilft bei Problemen auf dem Oppo)
 
 ## Wünsche des Nutzers – v0.7
+- [ ] **Fehler: Drehen des Handys bricht das Eintragen ab** (landet in der Übersicht). Ursache: Fenster-Zustand
+      (offenes Eintragen/Bearbeiten, gewählter Reiter, Eingaben) wird beim Drehen nicht gemerkt (`remember` statt
+      `rememberSaveable`). Alles, was offen ist, muss das Drehen überstehen – auch Kamera und Foto-Formular.
+- [ ] **Portionsgröße selbst festlegen** (Beispiel Reiswaffeln: 6 Stück = 100 g, vorgeschlagen wurden „250 g (gekocht)“).
+      Im Lebensmittel eigene Portionen anlegen/ändern, z. B. „1 Stück = 16,7 g“ oder „Packung = 100 g“; die App merkt sie sich
+      und schlägt sie zuerst vor. Außerdem prüfen, warum „gekocht“ auftaucht (Portionsvorschlag passt Reis gekocht statt
+      Reiswaffel → PortionGuesser genauer machen).
 - [ ] **Verlauf schöner und flexibler**: Diagrammart wählbar (Balken, Linie, …) und Ansicht nach Tagen / Wochen / Monaten
       (Wochen- und Monatswerte als Durchschnitt pro Tag). Baut auf dem einfachen Verlauf aus v0.6 auf.
 - [ ] **Farbschemas zur Auswahl** (Einstellungen): 5 schöne Pastell-Schemas + 2 ausgefallene im 90er-Stil,
