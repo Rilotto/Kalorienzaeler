@@ -105,6 +105,8 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import de.kalorien.app.core.domain.QuickCalc
 import de.kalorien.app.core.data.TemplateWithItems
+import androidx.compose.material3.AlertDialog
+import de.kalorien.app.core.ui.AppNumberField
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import kotlin.math.roundToInt
@@ -232,6 +234,9 @@ fun AddSheet(
                         onFavorite = { screen = Screen.Detail(vm.toggleFavorite(s.food)) },
                         onBack = { screen = Screen.Main(lastTab) },
                         onEdit = { screen = Screen.EditFood(s.food) },
+                        onSetServing = { label, grams ->
+                            scope.launch { screen = Screen.Detail(vm.setServing(s.food, label, grams)) }
+                        },
                         onAdd = { amount, unitLabel, unitCount, keepOpen ->
                             if (s.food.isPortionFood) vm.addPortions(s.food, amount, meal, date) { added(it, keepOpen) }
                             else vm.addFood(s.food, amount, meal, date, unitLabel, unitCount) { added(it, keepOpen) }
@@ -701,8 +706,10 @@ private fun FoodDetail(
     onFavorite: () -> Unit,
     onBack: () -> Unit,
     onEdit: () -> Unit,
+    onSetServing: (label: String?, grams: Double?) -> Unit,
     onAdd: (amount: Double, unitLabel: String?, unitCount: Double?, keepOpen: Boolean) -> Unit,
 ) {
+    var servingDialog by remember { mutableStateOf(false) }
     val c = Tokens.colors
     val byPortion = food.isPortionFood
     val serving = food.servingGrams?.takeIf { it > 0 }?.let { Portion(food.servingLabel ?: stringResource(R.string.one_portion), it) }
@@ -713,9 +720,9 @@ private fun FoodDetail(
     }
     val unit = stringResource(if (food.isLiquid) R.string.unit_ml else R.string.unit_g)
     // Standard: erste Einheit (z. B. „Scheibe“) mit Anzahl 1; ohne Einheit Gramm
-    var selectedUnit by remember(food.id) { mutableStateOf(units.firstOrNull()) }
-    var countText by remember(food.id) { mutableStateOf("1") }
-    var gramsText by remember(food.id) { mutableStateOf(NumberInput.format(portions.first().grams)) }
+    var selectedUnit by remember(food.id, serving) { mutableStateOf(units.firstOrNull()) }
+    var countText by remember(food.id, serving) { mutableStateOf("1") }
+    var gramsText by remember(food.id, serving) { mutableStateOf(NumberInput.format(portions.first().grams)) }
 
     val count = NumberInput.parse(countText)
     // bei Portions-Lebensmitteln: Anzahl Portionen; sonst Gramm/ml
@@ -777,6 +784,12 @@ private fun FoodDetail(
                 }
             }
         }
+        TextButton(onClick = { servingDialog = true }) {
+            Text(
+                stringResource(if (food.servingGrams != null) R.string.serving_change else R.string.serving_set),
+                color = c.accent,
+            )
+        }
         if (selectedUnit != null) {
             CountChips(count) { countText = NumberInput.format(it) }
             NumberField(countText, { countText = it }, stringResource(R.string.unit_count, selectedUnit!!.label))
@@ -810,6 +823,61 @@ private fun FoodDetail(
     TextButton(onClick = { add(true) }, enabled = ok, modifier = Modifier.fillMaxWidth()) {
         Text(stringResource(R.string.add_and_more), color = if (ok) c.accent else c.muted)
     }
+    if (servingDialog) {
+        ServingDialog(
+            food = food, unit = unit,
+            onDismiss = { servingDialog = false },
+            onSave = { label, grams -> servingDialog = false; onSetServing(label, grams) },
+        )
+    }
+}
+
+/**
+ * Eigene Portion festlegen: Name („1 Stück“) und Gramm – oder aus der Packung ausrechnen
+ * („Packung 100 g, 6 Stück“ → 1 Stück = 16,7 g).
+ */
+@Composable
+private fun ServingDialog(food: FoodEntity, unit: String, onDismiss: () -> Unit, onSave: (String?, Double?) -> Unit) {
+    val c = Tokens.colors
+    val defaultLabel = stringResource(R.string.serving_default_label)
+    var label by remember { mutableStateOf(food.servingLabel ?: defaultLabel) }
+    var grams by remember { mutableStateOf(food.servingGrams?.let { NumberInput.format(it) }.orEmpty()) }
+    var pack by remember { mutableStateOf("") }
+    var pieces by remember { mutableStateOf("") }
+    val packG = NumberInput.parse(pack)
+    val piecesN = NumberInput.parse(pieces)
+    LaunchedEffect(packG, piecesN) {
+        if (packG != null && piecesN != null && piecesN > 0) grams = NumberInput.format(Math.round(packG / piecesN * 10) / 10.0)
+    }
+    val g = NumberInput.parse(grams)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.serving_title)) },
+        text = {
+            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.serving_hint), style = MaterialTheme.typography.bodySmall, color = c.muted)
+                OutlinedTextField(
+                    value = label, onValueChange = { label = it.take(30) }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+                    label = { Text(stringResource(R.string.serving_label)) },
+                )
+                NumberField(grams, { grams = it }, stringResource(R.string.amount_in, unit))
+                Text(stringResource(R.string.serving_from_pack), style = MaterialTheme.typography.bodySmall, color = c.muted)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    AppNumberField(pack, { pack = it }, stringResource(R.string.serving_pack, unit), Modifier.weight(1f))
+                    AppNumberField(pieces, { pieces = it }, stringResource(R.string.serving_pieces), Modifier.weight(1f))
+                }
+                if (food.servingGrams != null) {
+                    TextButton(onClick = { onSave(null, null) }) { Text(stringResource(R.string.serving_remove), color = c.over) }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onSave(label.trim().ifEmpty { defaultLabel }, g) }, enabled = g != null && g > 0) {
+                Text(stringResource(R.string.save), color = c.accent)
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel), color = c.muted) } },
+    )
 }
 
 @Composable

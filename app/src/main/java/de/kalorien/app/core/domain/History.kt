@@ -123,3 +123,84 @@ object QuickCalc {
         return s.contains("kj") || s.trim().drop(1).any { it in "+-*×x" }
     }
 }
+
+/** Ansicht im Verlauf: einzelne Tage, Wochen (Mo–So) oder Kalendermonate. */
+enum class HistoryGrouping(val counts: List<Int>, val defaultCount: Int) {
+    DAYS(listOf(7, 14, 30), 7),
+    WEEKS(listOf(4, 8, 12), 8),
+    MONTHS(listOf(3, 6, 12), 6),
+}
+
+/** Diagrammart im Verlauf. */
+enum class ChartType { BARS, LINE, AREA }
+
+/**
+ * Ein Abschnitt im Verlauf (ein Tag, eine Woche oder ein Monat).
+ * [kcal] = Durchschnitt pro Tag mit Einträgen (beim Tag: die Summe), null = keine Einträge.
+ */
+data class HistoryBucket(
+    val start: LocalDate,
+    val end: LocalDate,
+    val kcal: Int?,
+    val goal: Int,
+    val loggedDays: Int,
+    val days: Int,
+    val protein: Double = 0.0,
+    val carbs: Double = 0.0,
+    val fat: Double = 0.0,
+) {
+    val logged: Boolean get() = kcal != null
+    val over: Boolean get() = kcal != null && kcal > goal
+}
+
+object HistoryBuckets {
+    /**
+     * [count] Abschnitte bis einschließlich [today]. Wochen beginnen montags, Monate am 1.
+     * Pro Abschnitt: Durchschnitt der Tage mit Einträgen; der laufende Tag zählt nur, wenn er der einzige ist.
+     */
+    fun build(
+        today: LocalDate,
+        grouping: HistoryGrouping,
+        count: Int,
+        totals: List<DayTotal>,
+        goalFor: (LocalDate) -> Int,
+    ): List<HistoryBucket> {
+        require(count > 0)
+        val byDate = totals.associateBy { it.date }
+        val ranges: List<Pair<LocalDate, LocalDate>> = when (grouping) {
+            HistoryGrouping.DAYS -> (count - 1 downTo 0).map { today.minusDays(it.toLong()).let { d -> d to d } }
+            HistoryGrouping.WEEKS -> {
+                val monday = today.minusDays((today.dayOfWeek.value - 1).toLong())
+                (count - 1 downTo 0).map { back -> monday.minusWeeks(back.toLong()).let { it to it.plusDays(6) } }
+            }
+            HistoryGrouping.MONTHS -> {
+                val first = today.withDayOfMonth(1)
+                (count - 1 downTo 0).map { back ->
+                    first.minusMonths(back.toLong()).let { it to it.plusMonths(1).minusDays(1) }
+                }
+            }
+        }
+        return ranges.map { (start, endFull) ->
+            val end = if (endFull > today) today else endFull
+            val dates = generateSequence(start) { it.plusDays(1) }.takeWhile { it <= end }.toList()
+            val logged = dates.mapNotNull { byDate[it]?.takeIf { t -> t.entries > 0 } }
+            val base = logged.filter { it.date != today }.ifEmpty { logged }
+            HistoryBucket(
+                start = start, end = end,
+                kcal = if (base.isEmpty()) null else base.map { it.kcal }.average().roundToInt(),
+                goal = dates.map(goalFor).average().roundToInt(),
+                loggedDays = logged.size, days = dates.size,
+                protein = if (base.isEmpty()) 0.0 else base.map { it.protein }.average(),
+                carbs = if (base.isEmpty()) 0.0 else base.map { it.carbs }.average(),
+                fat = if (base.isEmpty()) 0.0 else base.map { it.fat }.average(),
+            )
+        }
+    }
+
+    /** Erster Tag, der für [grouping]/[count] geladen werden muss. */
+    fun firstDay(today: LocalDate, grouping: HistoryGrouping, count: Int): LocalDate = when (grouping) {
+        HistoryGrouping.DAYS -> today.minusDays(count - 1L)
+        HistoryGrouping.WEEKS -> today.minusDays((today.dayOfWeek.value - 1).toLong()).minusWeeks(count - 1L)
+        HistoryGrouping.MONTHS -> today.withDayOfMonth(1).minusMonths(count - 1L)
+    }
+}

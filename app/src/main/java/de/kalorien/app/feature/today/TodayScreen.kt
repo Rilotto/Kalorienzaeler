@@ -59,6 +59,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -102,9 +103,10 @@ fun TodayScreen(snackbar: SnackbarHostState, vm: TodayViewModel = viewModel(fact
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    var addFor by remember { mutableStateOf<Meal?>(null) }
+    // rememberSaveable: übersteht auch, wenn Android die App im Hintergrund beendet
+    var addFor by rememberSaveable { mutableStateOf<Meal?>(null) }
     var editing by remember { mutableStateOf<EntryEntity?>(null) }
-    var templateFor by remember { mutableStateOf<Meal?>(null) }
+    var templateFor by rememberSaveable { mutableStateOf<Meal?>(null) }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) { vm.refreshToday(state.isToday) }
 

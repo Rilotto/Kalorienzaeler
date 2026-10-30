@@ -9,6 +9,7 @@ import androidx.room.withTransaction
 import de.kalorien.app.BuildConfig
 import de.kalorien.app.core.domain.Meal
 import de.kalorien.app.core.domain.WeekGoals
+import de.kalorien.app.core.ui.theme.Palette
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -48,7 +49,7 @@ object BackupCodec {
                     .putOpt("proteinGoal", s.proteinGoal).putOpt("carbsGoal", s.carbsGoal)
                     .putOpt("fatGoal", s.fatGoal).putOpt("sugarLimit", s.sugarLimit)
                     .put("weekdayGoals", WeekGoals.format(s.weekdayGoals)).put("themeMode", s.themeMode.name)
-                    .put("startTab", s.startTab),
+                    .put("startTab", s.startTab).put("palette", s.palette.name),
             )
         root.put("foods", JSONArray().apply { data.foods.forEach { put(food(it)) } })
         root.put("entries", JSONArray().apply { data.entries.forEach { put(entry(it)) } })
@@ -70,6 +71,7 @@ object BackupCodec {
             weekdayGoals = WeekGoals.parse(st.optStringOrNull("weekdayGoals")),
             themeMode = st.optStringOrNull("themeMode")?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM,
             startTab = st.optInt("startTab", 0),
+            palette = st.optStringOrNull("palette")?.let { n -> Palette.entries.firstOrNull { it.name == n } } ?: Palette.DEFAULT,
         )
         val foods = root.optJSONArray("foods").objects().map(::food)
         val entries = root.optJSONArray("entries").objects().map(::entry)
@@ -220,6 +222,7 @@ class BackupManager(
                     foodDao.update(
                         existing.copy(
                             favorite = f.favorite, useCount = f.useCount, lastUsedAt = f.lastUsedAt,
+                            servingGrams = f.servingGrams, servingLabel = f.servingLabel,
                             isAdjusted = f.isAdjusted,
                             kcal100 = if (f.isAdjusted) f.kcal100 else existing.kcal100,
                             protein100 = if (f.isAdjusted) f.protein100 else existing.protein100,

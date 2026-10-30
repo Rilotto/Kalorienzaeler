@@ -133,7 +133,7 @@ fun SettingsScreen(
             sugarRefresh = sugarRefresh,
             onRefreshSugar = vm::refreshSugar,
         )
-        AppearanceCard(s, onTheme = vm::setThemeMode, onStartTab = vm::setStartTab)
+        AppearanceCard(s, onTheme = vm::setThemeMode, onStartTab = vm::setStartTab, onPalette = vm::setPalette)
         TemplatesCard(templates) { t ->
             vm.deleteTemplate(t)
             scope.launch {

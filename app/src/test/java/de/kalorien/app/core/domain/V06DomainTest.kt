@@ -73,4 +73,17 @@ class V06DomainTest {
         assertTrue(QuickCalc.isCalculation("800 kJ"))
         assertFalse(QuickCalc.isCalculation("650"))
     }
+
+    @Test
+    fun portionGuesserUsesWordEnd() {
+        // Reiswaffeln sind kein gekochter Reis
+        assertTrue(PortionGuesser.portionsFor("Reiswaffeln", false).none { it.label.contains("gekocht") })
+        assertTrue(PortionGuesser.portionsFor("Basmatireis, gekocht", false).any { it.label.contains("gekocht") })
+        assertTrue(PortionGuesser.portionsFor("Vollkornnudeln", false).any { it.grams == 200.0 })
+        assertTrue(PortionGuesser.portionsFor("Tomaten", false).any { it.grams == 80.0 })
+        // „Brei“ endet auf „ei“, ist aber kein Ei
+        assertTrue(PortionGuesser.portionsFor("Brei", false).none { it.grams == 58.0 })
+        // eigene Portion steht vorne
+        assertEquals("1 Stück", PortionGuesser.portionsFor("Reiswaffeln", false, Portion("1 Stück", 16.7)).first().label)
+    }
 }

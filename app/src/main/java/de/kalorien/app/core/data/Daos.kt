@@ -141,6 +141,10 @@ interface FoodDao {
     @Update
     suspend fun update(food: FoodEntity)
 
+    /** Eigene Portion („1 Stück“ = 16,7 g); null = keine. */
+    @Query("UPDATE food SET servingGrams = :grams, servingLabel = :label WHERE id = :id")
+    suspend fun setServing(id: Long, label: String?, grams: Double?)
+
     @Query("UPDATE food SET favorite = :favorite WHERE id = :id")
     suspend fun setFavorite(id: Long, favorite: Boolean)
 
@@ -169,7 +173,7 @@ interface FoodDao {
     suspend fun updateBlsOriginal(code: String, kcal: Double, protein: Double, carbs: Double, fat: Double, sugar: Double?): Int
 
     // --- Sicherung: alles, was nicht aus der eingebauten BLS-Tabelle neu erzeugt werden kann
-    @Query("SELECT * FROM food WHERE source != 'BLS' OR favorite = 1 OR useCount > 0 OR isAdjusted = 1")
+    @Query("SELECT * FROM food WHERE source != 'BLS' OR favorite = 1 OR useCount > 0 OR isAdjusted = 1 OR servingGrams IS NOT NULL")
     suspend fun userRelevant(): List<FoodEntity>
 
     @Query("DELETE FROM food WHERE source != 'BLS'")
@@ -187,7 +191,7 @@ interface FoodDao {
     suspend fun linkEntry(entryId: Long, foodId: Long)
 
     /** Eigene und gescannte Lebensmittel (für „Eigene Lebensmittel verwalten“). */
-    @Query("SELECT * FROM food WHERE source IN ('CUSTOM', 'OFF', 'QUICK') OR isAdjusted = 1 ORDER BY name COLLATE NOCASE")
+    @Query("SELECT * FROM food WHERE source IN ('CUSTOM', 'OFF', 'QUICK') OR isAdjusted = 1 OR servingGrams IS NOT NULL ORDER BY name COLLATE NOCASE")
     fun observeOwn(): Flow<List<FoodEntity>>
 
     @Query("DELETE FROM food WHERE id = :id AND source != 'BLS'")

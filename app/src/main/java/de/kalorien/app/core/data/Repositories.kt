@@ -295,6 +295,14 @@ class FoodRepository(private val db: KalorienDatabase) {
 
     fun observeOwn(): Flow<List<FoodEntity>> = foods.observeOwn()
 
+    /** Eigene Portion festlegen (z. B. „1 Stück“ = 16,7 g) oder mit null entfernen. */
+    suspend fun setServing(food: FoodEntity, label: String?, grams: Double?): FoodEntity {
+        val l = label?.trim()?.ifEmpty { null }
+        val g = grams?.takeIf { it > 0 }
+        foods.setServing(food.id, if (g == null) null else l, g)
+        return food.copy(servingLabel = if (g == null) null else l, servingGrams = g)
+    }
+
     /**
      * Eigenes oder gescanntes Lebensmittel löschen. Einträge und Vorlagen behalten ihre Werte
      * (Snapshot), sie verlieren nur die Verknüpfung. BLS-Lebensmittel lassen sich nicht löschen.

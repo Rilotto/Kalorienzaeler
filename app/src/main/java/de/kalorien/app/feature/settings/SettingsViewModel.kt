@@ -11,6 +11,7 @@ import de.kalorien.app.core.data.TemplateWithItems
 import de.kalorien.app.core.data.ThemeMode
 import de.kalorien.app.core.CrashLog
 import de.kalorien.app.core.domain.Per100
+import de.kalorien.app.core.ui.theme.Palette
 import java.time.DayOfWeek
 import de.kalorien.app.core.data.Settings
 import de.kalorien.app.core.data.SettingsRepository
@@ -70,6 +71,7 @@ class SettingsViewModel(
     fun setWeekdayGoals(goals: Map<DayOfWeek, Int>) = viewModelScope.launch { repo.setWeekdayGoals(goals) }
     fun setThemeMode(mode: ThemeMode) = viewModelScope.launch { repo.setThemeMode(mode) }
     fun setStartTab(tab: Int) = viewModelScope.launch { repo.setStartTab(tab) }
+    fun setPalette(p: Palette) = viewModelScope.launch { repo.setPalette(p) }
 
     fun deleteTemplate(t: TemplateWithItems) = viewModelScope.launch { templateRepo.delete(t.template.id) }
     fun restoreTemplate(t: TemplateWithItems) = viewModelScope.launch { templateRepo.restore(t) }
