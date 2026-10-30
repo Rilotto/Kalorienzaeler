@@ -119,6 +119,11 @@ Status: ✅ fertig · 🧪 in Testversion · ⏳ geplant (Version) · 💭 viell
 | P13 | Eigene Schriften wie im Prototyp | V | 💭 |
 | P14 | Optionale Uhrzeit an Einträgen | V | 💭 |
 
+## Browser-Version
+| ID | Funktion | Quelle | Seit | Status |
+|---|---|---|---|---|
+| W1 | App als Webseite (Claude-Artefakt), Stand 0.7 ohne Scannen/Foto/Update; Sicherung mit der App austauschbar – Quelltext in `web/` | N 30.10. | web-0.7 | 🧪 |
+
 ## Offene Fehlermeldungen
 | ID | Meldung | Datum | Status |
 |---|---|---|---|

@@ -82,4 +82,6 @@ app/src/main/java/de/kalorien/app/
 - Sicherung (ab 0.5): `core/data/Backup.kt`, JSON-Format 2 (seit 0.6, mit Vorlagen) über MediaStore nach `Download/Kalorienzaehler`, die letzten 7 bleiben.
   Formatänderung = `FORMAT` +1 und alte Dateien weiter lesen können.
 - Fehlerprotokoll (ab 0.6): `core/CrashLog.kt` schreibt Abstürze nach `filesDir/crash.log`, Teilen nur per Knopf.
+- Browser-Version (Wunsch 30.10.): `web/` (siehe web/README.md), Artefakt https://claude.ai/artifact/Wfxe1BABcSSGv9fLogYevc.
+  Nach jeder App-Version prüfen, was nachgezogen werden soll.
 - Offene Ideen, Wünsche für v0.7 und der Plan bis 1.0 stehen in `BLOCKS.md`; alle Funktionen mit Status in `FEATURES.md`.

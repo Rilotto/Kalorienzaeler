@@ -1,0 +1,22 @@
+const C = require('./core.js'); const a = require('assert');
+a.strictEqual(C.quickCalc('250+120+80'), 450); a.strictEqual(C.quickCalc('800 kJ'), 191); a.strictEqual(C.quickCalc('2x150'), 300);
+a.strictEqual(C.quickCalc('250+'), null); a.strictEqual(C.quickCalc('62,5*2'), 125); a.ok(!C.isCalculation('650'));
+a.ok(C.portionsFor('Reiswaffeln', false).every(p => !p.label.includes('gekocht')));
+a.strictEqual(C.portionsFor('Roggenmischbrot', false)[0].label, '1 Scheibe');
+a.ok(C.portionsFor('Brei', false).every(p => p.grams !== 58));
+a.strictEqual(C.portionsFor('Hafer Flocken', false)[0].label, '1 EL');
+const today = '2026-10-21';
+const totals = [{ date: '2026-10-19', kcal: 2000, entries: 3, protein: 0, carbs: 0, fat: 0 }, { date: '2026-10-20', kcal: 2400, entries: 3, protein: 0, carbs: 0, fat: 0 },
+  { date: today, kcal: 300, entries: 1, protein: 0, carbs: 0, fat: 0 }, { date: '2026-10-12', kcal: 1800, entries: 2, protein: 0, carbs: 0, fat: 0 }];
+const b = C.buildBuckets(today, 'WEEKS', 3, totals, () => 2200);
+a.strictEqual(b[2].start, '2026-10-19'); a.strictEqual(b[2].end, today); a.strictEqual(b[2].kcal, 2200); a.strictEqual(b[1].kcal, 1800); a.strictEqual(b[0].kcal, null);
+a.strictEqual(C.firstDay(today, 'WEEKS', 3), '2026-10-05');
+const m = C.buildBuckets(today, 'MONTHS', 2, [{ date: '2026-09-30', kcal: 2600, entries: 4, protein: 0, carbs: 0, fat: 0 }], () => 2000);
+a.strictEqual(m[0].start, '2026-09-01'); a.strictEqual(m[0].end, '2026-09-30'); a.strictEqual(m[0].days, 30); a.strictEqual(m[1].days, 21);
+const s = C.summarize(today, 7, totals, () => 2200); a.strictEqual(s.average, 2200); a.strictEqual(s.loggedDays, 3); a.strictEqual(s.overDays, 1);
+a.strictEqual(C.D.dow('2026-10-19'), 1);
+a.deepStrictEqual(C.parseWeekGoals('MONDAY=1900;FOO=1;SATURDAY=2600'), { MONDAY: 1900, SATURDAY: 2600 });
+a.strictEqual(C.fmtNum(12.5), '12,5'); a.strictEqual(C.fmtNum(50), '50');
+const cands = [{ norm: 'hafer flocken haferflocken', favorite: false, useCount: 0, isOwn: false }, { norm: 'haferflockenplaetzchen', favorite: false, useCount: 0, isOwn: false }];
+a.strictEqual(C.rankSearch('haferflocken', cands)[0].norm, 'hafer flocken haferflocken');
+console.log('alle Tests ok');
