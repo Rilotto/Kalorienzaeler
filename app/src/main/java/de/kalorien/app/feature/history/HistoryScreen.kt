@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,17 +33,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import de.kalorien.app.R
-import de.kalorien.app.core.domain.History
-import de.kalorien.app.core.domain.HistoryDay
-import de.kalorien.app.core.domain.HistorySummary
+import de.kalorien.app.core.domain.ChartType
+import de.kalorien.app.core.domain.HistoryBucket
+import de.kalorien.app.core.domain.HistoryGrouping
 import de.kalorien.app.core.domain.Nutrition
 import de.kalorien.app.core.ui.AppCard
 import de.kalorien.app.core.ui.AppChip
@@ -53,13 +60,18 @@ import java.time.format.TextStyle
 import java.util.Locale
 import kotlin.math.roundToInt
 
-/** Verlauf: letzte 7/14/30 Tage als Balken mit Ziellinie, Durchschnitt und Tagesliste. Tippen öffnet den Tag. */
+/**
+ * Verlauf: Tage, Wochen oder Monate als Balken, Linie oder Fläche mit Ziellinie.
+ * Wochen/Monate zeigen den Durchschnitt pro Tag mit Einträgen. Tippen wählt einen Abschnitt; Tage lassen sich öffnen.
+ */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun HistoryScreen(onOpenDay: () -> Unit, vm: HistoryViewModel = viewModel(factory = AppViewModels.Factory)) {
     val c = Tokens.colors
     val state by vm.state.collectAsStateWithLifecycle()
-    var selected by remember(state.range) { mutableStateOf<LocalDate?>(null) }
+    var selected by remember(state.grouping, state.count) { mutableStateOf<LocalDate?>(null) }
     fun open(d: LocalDate) { vm.open(d); onOpenDay() }
+    val isDays = state.grouping == HistoryGrouping.DAYS
 
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp),
@@ -69,9 +81,14 @@ fun HistoryScreen(onOpenDay: () -> Unit, vm: HistoryViewModel = viewModel(factor
             stringResource(R.string.history_title), style = MaterialTheme.typography.titleLarge, color = c.fg,
             modifier = Modifier.align(Alignment.CenterHorizontally),
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            History.ranges.forEach { r -> AppChip(stringResource(R.string.history_days, r), state.range == r) { vm.setRange(r) } }
+        // Ansicht: Tage / Wochen / Monate, darunter der Zeitraum
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            HistoryGrouping.entries.forEach { g -> AppChip(stringResource(groupingName(g)), state.grouping == g) { vm.setGrouping(g) } }
         }
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            state.grouping.counts.forEach { n -> AppChip(stringResource(countLabel(state.grouping), n), state.count == n) { vm.setCount(n) } }
+        }
+        if (!state.loaded) return@Column
         val s = state.summary ?: return@Column
         AppCard {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -83,8 +100,14 @@ fun HistoryScreen(onOpenDay: () -> Unit, vm: HistoryViewModel = viewModel(factor
                 Stat(stringResource(R.string.history_logged), stringResource(R.string.history_of, s.loggedDays, s.days.size), Modifier.weight(1f))
                 Stat(stringResource(R.string.history_over), s.overDays.toString(), Modifier.weight(1f))
             }
-            Spacer(Modifier.height(14.dp))
-            BarChart(s, selected) { selected = if (selected == it) null else it }
+            Spacer(Modifier.height(12.dp))
+            // Diagrammart
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ChartType.entries.forEach { t -> AppChip(stringResource(chartName(t)), state.chart == t) { vm.setChart(t) } }
+            }
+            Spacer(Modifier.height(10.dp))
+            Chart(state.buckets, state.chart, selected) { selected = if (selected == it) null else it }
+            AxisLabels(state.buckets, state.grouping)
             Spacer(Modifier.height(6.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 LegendDot(c.accent); Text(stringResource(R.string.history_legend_ok), style = MaterialTheme.typography.labelSmall, color = c.muted)
@@ -93,26 +116,49 @@ fun HistoryScreen(onOpenDay: () -> Unit, vm: HistoryViewModel = viewModel(factor
                 Spacer(Modifier.width(10.dp))
                 Text(stringResource(R.string.history_legend_goal), style = MaterialTheme.typography.labelSmall, color = c.muted)
             }
-            s.days.firstOrNull { it.total.date == selected }?.let { d ->
+            state.buckets.firstOrNull { it.start == selected }?.let { b ->
                 Spacer(Modifier.height(8.dp))
                 HorizontalDivider(color = c.line)
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
                     Column(Modifier.weight(1f)) {
-                        Text(longDate(d.total.date), style = MaterialTheme.typography.bodyMedium, color = c.fg, fontWeight = FontWeight.SemiBold)
-                        Text(dayLine(d), style = MaterialTheme.typography.bodySmall, color = c.muted)
+                        Text(bucketTitle(b, state.grouping), style = MaterialTheme.typography.bodyMedium, color = c.fg, fontWeight = FontWeight.SemiBold)
+                        Text(bucketLine(b, state.grouping), style = MaterialTheme.typography.bodySmall, color = c.muted)
                     }
-                    TextButton(onClick = { open(d.total.date) }) { Text(stringResource(R.string.history_open), color = c.accent) }
+                    if (isDays) TextButton(onClick = { open(b.start) }) { Text(stringResource(R.string.history_open), color = c.accent) }
                 }
             }
         }
         AppCard(padding = false) {
-            s.days.asReversed().forEachIndexed { i, d ->
+            state.buckets.asReversed().forEachIndexed { i, b ->
                 if (i > 0) HorizontalDivider(color = c.line)
-                DayRow(d, state.showMacros) { open(d.total.date) }
+                BucketRow(b, state.grouping, state.showMacros) {
+                    if (isDays) open(b.start) else selected = b.start
+                }
             }
         }
-        Text(stringResource(R.string.history_note), style = MaterialTheme.typography.bodySmall, color = c.muted)
+        Text(
+            stringResource(if (isDays) R.string.history_note else R.string.history_note_grouped),
+            style = MaterialTheme.typography.bodySmall, color = c.muted,
+        )
     }
+}
+
+private fun groupingName(g: HistoryGrouping) = when (g) {
+    HistoryGrouping.DAYS -> R.string.history_by_day
+    HistoryGrouping.WEEKS -> R.string.history_by_week
+    HistoryGrouping.MONTHS -> R.string.history_by_month
+}
+
+private fun countLabel(g: HistoryGrouping) = when (g) {
+    HistoryGrouping.DAYS -> R.string.history_days
+    HistoryGrouping.WEEKS -> R.string.history_weeks
+    HistoryGrouping.MONTHS -> R.string.history_months
+}
+
+private fun chartName(t: ChartType) = when (t) {
+    ChartType.BARS -> R.string.chart_bars
+    ChartType.LINE -> R.string.chart_line
+    ChartType.AREA -> R.string.chart_area
 }
 
 @Composable
@@ -125,101 +171,166 @@ private fun Stat(label: String, value: String, modifier: Modifier) {
 }
 
 @Composable
-private fun LegendDot(color: androidx.compose.ui.graphics.Color) {
+private fun LegendDot(color: Color) {
     Spacer(Modifier.size(8.dp).background(color, CircleShape))
     Spacer(Modifier.width(4.dp))
 }
 
-/** Balken je Tag; gestrichelte Linie = Ziel des Tages. Antippen wählt den Tag. */
+/** Diagramm: je Abschnitt ein Wert; gestrichelt = Ziel. Antippen wählt den Abschnitt. */
 @Composable
-private fun BarChart(s: HistorySummary, selected: LocalDate?, onSelect: (LocalDate) -> Unit) {
+private fun Chart(buckets: List<HistoryBucket>, type: ChartType, selected: LocalDate?, onSelect: (LocalDate) -> Unit) {
     val c = Tokens.colors
-    val max = (s.maxKcal * 1.1f).coerceAtLeast(1f)
-    val n = s.days.size
+    val n = buckets.size
+    if (n == 0) return
+    val max = (buckets.maxOf { maxOf(it.kcal ?: 0, it.goal) } * 1.1f).coerceAtLeast(1f)
     Canvas(
-        Modifier.fillMaxWidth().height(160.dp).pointerInput(s.days) {
+        Modifier.fillMaxWidth().height(170.dp).pointerInput(buckets) {
             detectTapGestures { pos ->
                 val i = (pos.x / (size.width / n.toFloat())).toInt().coerceIn(0, n - 1)
-                if (s.days[i].logged) onSelect(s.days[i].total.date)
+                if (buckets[i].logged) onSelect(buckets[i].start)
             }
         },
     ) {
         val slot = size.width / n
-        val bar = slot * if (n <= 7) 0.55f else 0.7f
+        fun y(v: Int) = size.height * (1f - v / max)
+        fun cx(i: Int) = i * slot + slot / 2
         val dash = PathEffect.dashPathEffect(floatArrayOf(6f, 5f))
-        s.days.forEachIndexed { i, d ->
-            val x = i * slot + (slot - bar) / 2
-            val h = size.height * (d.total.kcal / max)
-            val isSel = d.total.date == selected
-            val color = when {
-                !d.logged -> c.line
-                d.over -> c.over
-                else -> c.accent
+        fun colorOf(b: HistoryBucket) = if (b.over) c.over else c.accent
+        fun dim(b: HistoryBucket, col: Color) = if (selected == null || b.start == selected) col else col.copy(alpha = 0.45f)
+
+        when (type) {
+            ChartType.BARS -> {
+                val bar = slot * if (n <= 8) 0.55f else 0.7f
+                buckets.forEachIndexed { i, b ->
+                    val x = i * slot + (slot - bar) / 2
+                    val k = b.kcal
+                    if (k != null) {
+                        val h = size.height - y(k)
+                        drawRoundRect(dim(b, colorOf(b)), Offset(x, size.height - h), Size(bar, h), CornerRadius(4f, 4f))
+                    } else {
+                        drawRoundRect(c.line, Offset(x, size.height - 3f), Size(bar, 3f))
+                    }
+                }
             }
-            if (d.logged) {
-                drawRoundRect(
-                    color = if (selected == null || isSel) color else color.copy(alpha = 0.45f),
-                    topLeft = Offset(x, size.height - h), size = Size(bar, h), cornerRadius = CornerRadius(4f, 4f),
-                )
-            } else {
-                drawRoundRect(color, Offset(x, size.height - 3f), Size(bar, 3f))
+            ChartType.LINE, ChartType.AREA -> {
+                // Linie durch alle Abschnitte mit Einträgen; Lücken unterbrechen die Linie
+                val segments = mutableListOf<MutableList<Pair<Int, Int>>>()
+                buckets.forEachIndexed { i, b ->
+                    val k = b.kcal
+                    if (k == null) segments.add(mutableListOf()) else {
+                        if (segments.isEmpty()) segments.add(mutableListOf())
+                        segments.last().add(i to k)
+                    }
+                }
+                segments.filter { it.isNotEmpty() }.forEach { seg ->
+                    val line = Path().apply {
+                        seg.forEachIndexed { j, (i, k) -> if (j == 0) moveTo(cx(i), y(k)) else lineTo(cx(i), y(k)) }
+                    }
+                    if (type == ChartType.AREA && seg.size > 1) {
+                        val area = Path().apply {
+                            addPath(line)
+                            lineTo(cx(seg.last().first), size.height)
+                            lineTo(cx(seg.first().first), size.height)
+                            close()
+                        }
+                        drawPath(area, c.accent.copy(alpha = 0.22f))
+                    }
+                    drawPath(line, c.accent, style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round))
+                }
+                buckets.forEachIndexed { i, b ->
+                    val k = b.kcal ?: return@forEachIndexed
+                    val r = if (b.start == selected) 6.dp.toPx() else 4.dp.toPx()
+                    drawCircle(c.surface, r + 2f, Offset(cx(i), y(k)))
+                    drawCircle(dim(b, colorOf(b)), r, Offset(cx(i), y(k)))
+                }
             }
-            val gy = size.height * (1f - d.goal / max)
+        }
+        // Ziel je Abschnitt (kann sich durch Wochentag-Ziele unterscheiden)
+        buckets.forEachIndexed { i, b ->
+            val gy = y(b.goal)
             drawLine(c.muted, Offset(i * slot + 1f, gy), Offset((i + 1) * slot - 1f, gy), strokeWidth = 2f, pathEffect = dash)
         }
     }
-    // Beschriftung: Wochentag (7 Tage) bzw. Tag des Monats an jedem n-ten Balken
-    val step = when { n <= 7 -> 1; n <= 14 -> 2; else -> 5 }
+}
+
+private val DAY_MONTH: DateTimeFormatter = DateTimeFormatter.ofPattern("d.M.", Locale.GERMANY)
+
+/** Beschriftung unter dem Diagramm; bei vielen Abschnitten nur jede zweite/fünfte. */
+@Composable
+private fun AxisLabels(buckets: List<HistoryBucket>, grouping: HistoryGrouping) {
+    val c = Tokens.colors
+    val n = buckets.size
+    val step = when (grouping) {
+        HistoryGrouping.DAYS -> when { n <= 7 -> 1; n <= 14 -> 2; else -> 5 }
+        HistoryGrouping.WEEKS -> if (n <= 4) 1 else 2
+        HistoryGrouping.MONTHS -> if (n <= 6) 1 else 2
+    }
     Row(Modifier.fillMaxWidth()) {
-        s.days.forEachIndexed { i, d ->
+        buckets.forEachIndexed { i, b ->
             val show = (n - 1 - i) % step == 0
+            val text = when {
+                !show -> ""
+                grouping == HistoryGrouping.DAYS && n <= 7 -> b.start.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.GERMANY).take(2)
+                grouping == HistoryGrouping.DAYS -> b.start.dayOfMonth.toString()
+                grouping == HistoryGrouping.WEEKS -> b.start.format(DAY_MONTH)
+                else -> b.start.month.getDisplayName(TextStyle.SHORT, Locale.GERMANY).removeSuffix(".")
+            }
             Text(
-                if (!show) "" else if (n <= 7) d.total.date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.GERMANY).take(2)
-                else d.total.date.dayOfMonth.toString(),
-                style = MaterialTheme.typography.labelSmall, color = c.muted, maxLines = 1,
-                modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                text, style = MaterialTheme.typography.labelSmall, color = c.muted, maxLines = 1,
+                modifier = Modifier.weight(1f), textAlign = TextAlign.Center,
             )
         }
     }
 }
 
 @Composable
-private fun DayRow(d: HistoryDay, showMacros: Boolean, onClick: () -> Unit) {
+private fun BucketRow(b: HistoryBucket, grouping: HistoryGrouping, showMacros: Boolean, onClick: () -> Unit) {
     val c = Tokens.colors
     Row(
         Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
-            Text(longDate(d.total.date), style = MaterialTheme.typography.bodyLarge, color = c.fg)
-            if (d.logged && showMacros) {
-                Text(
-                    stringResource(R.string.macros_line, d.total.protein.roundToInt(), d.total.carbs.roundToInt(), d.total.fat.roundToInt()),
-                    style = MaterialTheme.typography.bodySmall, color = c.muted,
-                )
-            } else if (!d.logged) {
-                Text(stringResource(R.string.history_no_entries), style = MaterialTheme.typography.bodySmall, color = c.muted)
+            Text(bucketTitle(b, grouping), style = MaterialTheme.typography.bodyLarge, color = c.fg)
+            val sub = when {
+                !b.logged -> stringResource(R.string.history_no_entries)
+                grouping != HistoryGrouping.DAYS -> stringResource(R.string.history_logged_days, b.loggedDays, b.days)
+                showMacros -> stringResource(R.string.macros_line, b.protein.roundToInt(), b.carbs.roundToInt(), b.fat.roundToInt())
+                else -> null
             }
+            if (sub != null) Text(sub, style = MaterialTheme.typography.bodySmall, color = c.muted)
         }
-        if (d.logged) {
+        b.kcal?.let { k ->
             Text(
-                Nutrition.format(d.total.kcal), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold,
-                color = if (d.over) c.over else c.fg,
+                (if (grouping == HistoryGrouping.DAYS) "" else "Ø ") + Nutrition.format(k),
+                style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = if (b.over) c.over else c.fg,
             )
-            Text(" / " + Nutrition.format(d.goal), style = MaterialTheme.typography.bodySmall, color = c.muted)
+            Text(" / " + Nutrition.format(b.goal), style = MaterialTheme.typography.bodySmall, color = c.muted)
         }
     }
 }
 
-@Composable
-private fun dayLine(d: HistoryDay): String =
-    stringResource(R.string.history_day_line, Nutrition.format(d.total.kcal), Nutrition.format(d.goal), d.total.entries)
-
 private val LONG: DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE, d. MMMM", Locale.GERMANY)
+private val SHORT: DateTimeFormatter = DateTimeFormatter.ofPattern("d. MMM", Locale.GERMANY)
+private val MONTH: DateTimeFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.GERMANY)
 
 @Composable
-private fun longDate(d: LocalDate): String = when (d) {
-    LocalDate.now() -> stringResource(R.string.today_title)
-    LocalDate.now().minusDays(1) -> stringResource(R.string.yesterday)
-    else -> d.format(LONG)
+private fun bucketTitle(b: HistoryBucket, grouping: HistoryGrouping): String = when (grouping) {
+    HistoryGrouping.DAYS -> when (b.start) {
+        LocalDate.now() -> stringResource(R.string.today_title)
+        LocalDate.now().minusDays(1) -> stringResource(R.string.yesterday)
+        else -> b.start.format(LONG)
+    }
+    HistoryGrouping.WEEKS -> stringResource(R.string.history_week_title, b.start.format(SHORT), b.start.plusDays(6).format(SHORT))
+    HistoryGrouping.MONTHS -> b.start.format(MONTH)
+}
+
+@Composable
+private fun bucketLine(b: HistoryBucket, grouping: HistoryGrouping): String {
+    val k = b.kcal ?: 0
+    return if (grouping == HistoryGrouping.DAYS) {
+        stringResource(R.string.history_day_short, Nutrition.format(k), Nutrition.format(b.goal))
+    } else {
+        stringResource(R.string.history_bucket_line, Nutrition.format(k), Nutrition.format(b.goal), b.loggedDays, b.days)
+    }
 }

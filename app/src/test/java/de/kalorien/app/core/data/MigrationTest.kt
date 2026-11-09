@@ -141,4 +141,34 @@ class MigrationTest {
         }
         db.close()
     }
+
+    @Test
+    fun migrate5To6AddsDishesAndMensaAndKeepsData() {
+        val dbName = "migration-5-6.db"
+        helper.createDatabase(dbName, 5).apply {
+            execSQL(
+                "INSERT INTO food (id, name, source, kcal100, protein100, carbs100, fat100, isLiquid, favorite, useCount, searchKey, isPortionFood, isAdjusted) " +
+                    "VALUES (7, 'Gouda', 'BLS', 356, 24.9, 0.1, 28.6, 0, 1, 4, 'gouda', 0, 0)",
+            )
+            execSQL("INSERT INTO meal_template (id, name, meal, createdAt, useCount) VALUES (1, 'Frühstück', 'BREAKFAST', 0, 2)")
+            close()
+        }
+
+        val db = helper.runMigrationsAndValidate(dbName, 6, true)
+
+        db.query("SELECT useCount FROM meal_template WHERE id = 1").use { c -> c.moveToFirst(); assertEquals(2, c.getInt(0)) }
+        db.execSQL(
+            "INSERT INTO food (id, name, source, kcal100, protein100, carbs100, fat100, isLiquid, favorite, useCount, searchKey, isPortionFood, isAdjusted) " +
+                "VALUES (8, 'Sandwich', 'DISH', 348, 13, 41, 12.8, 0, 1, 0, 'sandwich', 1, 0)",
+        )
+        db.execSQL("INSERT INTO dish (foodId, servings) VALUES (8, 1.0)")
+        db.execSQL(
+            "INSERT INTO dish_ingredient (dishFoodId, position, foodId, name, grams, isLiquid, kcal, protein, carbs, fat) " +
+                "VALUES (8, 0, 7, 'Gouda', 25, 0, 89, 6.2, 0, 7.2)",
+        )
+        db.execSQL("INSERT INTO mensa_slot (name, position) VALUES ('Menü 1', 0)")
+        db.query("SELECT COUNT(*) FROM dish_ingredient").use { c -> c.moveToFirst(); assertEquals(1, c.getInt(0)) }
+        db.query("SELECT foodId, date FROM mensa_slot").use { c -> c.moveToFirst(); assertEquals(true, c.isNull(0)); assertEquals(true, c.isNull(1)) }
+        db.close()
+    }
 }

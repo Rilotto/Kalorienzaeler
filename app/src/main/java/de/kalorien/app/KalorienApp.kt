@@ -8,6 +8,8 @@ import de.kalorien.app.core.data.FoodRepository
 import de.kalorien.app.core.data.KalorienDatabase
 import de.kalorien.app.core.data.SettingsRepository
 import de.kalorien.app.core.data.TemplateRepository
+import de.kalorien.app.core.data.DishRepository
+import de.kalorien.app.core.data.MensaRepository
 import de.kalorien.app.core.CrashLog
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.time.LocalDate
@@ -46,6 +48,8 @@ class AppContainer(app: Application) {
     val updates = UpdateRepository(app)
     val backup = BackupManager(app, database, settings)
     val templates = TemplateRepository(database)
+    val dishes = DishRepository(database)
+    val mensa = MensaRepository(database)
     val crashLog = CrashLog(app)
 
     /** Verlauf → „diesen Tag öffnen“: die Heute-Ansicht springt auf das Datum und setzt es zurück. */

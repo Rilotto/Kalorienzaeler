@@ -12,8 +12,49 @@ data class ParsedNutrition(
     val fat: Double?,
     val basis: NutritionBasis,
     val sugar: Double? = null,
+    /**
+     * Bei Tabellen mit zwei Spalten (z. B. Mensa: „pro 100 g“ und „pro Portion“) jede Spalte einzeln,
+     * in der Reihenfolge der Tabelle. Leer, wenn nur eine Spalte erkannt wurde (dann gelten die Felder oben).
+     */
+    val columns: List<NutritionColumn> = emptyList(),
+    /** Portionsgewicht in g, wenn es auf der Tabelle steht oder aus beiden Spalten folgt */
+    val portionGrams: Double? = null,
 ) {
     val hasAnyValue: Boolean get() = kcal != null || protein != null || carbs != null || fat != null
+
+    fun column(basis: NutritionBasis): NutritionColumn? = columns.firstOrNull { it.basis == basis }
+
+    private val single: NutritionColumn get() = NutritionColumn(basis, kcal, protein, carbs, fat, sugar)
+
+    /**
+     * Werte pro Portion: aus der Portions-Spalte, sonst 100-g-Werte × Portionsgewicht,
+     * sonst die erkannten Werte, wenn die Tabelle nur eine Spalte ohne „100 g“ hat (Mensa-Monitor: meist pro Gericht).
+     */
+    fun perPortion(): NutritionColumn? {
+        column(NutritionBasis.PER_PORTION)?.let { return it }
+        val per100 = column(NutritionBasis.PER_100G) ?: column(NutritionBasis.PER_100ML)
+            ?: single.takeIf { basis == NutritionBasis.PER_100G || basis == NutritionBasis.PER_100ML }
+        if (per100 != null) return portionGrams?.let { per100.scaled(it / 100.0, NutritionBasis.PER_PORTION) }
+        return single.copy(basis = NutritionBasis.PER_PORTION)
+    }
+
+    /** Werte pro 100 g/ml, falls vorhanden. */
+    fun per100(): NutritionColumn? = column(NutritionBasis.PER_100G) ?: column(NutritionBasis.PER_100ML)
+        ?: single.takeIf { basis == NutritionBasis.PER_100G || basis == NutritionBasis.PER_100ML }
+}
+
+/** Eine Spalte einer Nährwerttabelle. */
+data class NutritionColumn(
+    val basis: NutritionBasis,
+    val kcal: Double?,
+    val protein: Double?,
+    val carbs: Double?,
+    val fat: Double?,
+    val sugar: Double?,
+) {
+    fun scaled(f: Double, newBasis: NutritionBasis) = NutritionColumn(
+        newBasis, kcal?.times(f), protein?.times(f), carbs?.times(f), fat?.times(f), sugar?.times(f),
+    )
 }
 
 /**
@@ -48,15 +89,77 @@ object NutritionTextParser {
         val kcal = kcalRegex.find(text)?.let { toDouble(it.groupValues[1]) }
             ?: kjRegex.find(text)?.let { toDouble(it.groupValues[1])?.let(NutritionUnits::kjToKcal) }
 
+        val columns = twoColumns(text, lines)
         return ParsedNutrition(
             name = guessName(lines),
             kcal = kcal?.takeIf { it in 1.0..5000.0 },
             protein = valueAfter(lines, proteinWords),
             carbs = valueAfter(lines, carbWords),
             fat = valueAfter(lines, fatWords),
-            basis = basis(text),
+            basis = columns.firstOrNull()?.basis ?: basis(text),
             sugar = valueAfter(lines, sugarWords),
+            columns = columns,
+            portionGrams = portionGrams(text, columns),
         )
+    }
+
+    private val per100Header = Regex("""100\s*(g|ml)\b""", RegexOption.IGNORE_CASE)
+    private val portionHeader = Regex("""portion|teller|je\s+gericht|pro\s+gericht|pro\s+stück|je\s+stück""", RegexOption.IGNORE_CASE)
+
+    /**
+     * Zwei Spalten, wenn beide Überschriften vorkommen und in den Zeilen je zwei Zahlen stehen.
+     * Die Reihenfolge der Spalten folgt der Reihenfolge der Überschriften im Text.
+     */
+    private fun twoColumns(text: String, lines: List<String>): List<NutritionColumn> {
+        val h100 = per100Header.find(text) ?: return emptyList()
+        val hPortion = portionHeader.find(text) ?: return emptyList()
+        val b100 = if (h100.groupValues[1].lowercase() == "ml") NutritionBasis.PER_100ML else NutritionBasis.PER_100G
+        val bases = if (h100.range.first < hPortion.range.first) listOf(b100, NutritionBasis.PER_PORTION)
+        else listOf(NutritionBasis.PER_PORTION, b100)
+
+        val kcals = kcalRegex.findAll(text).mapNotNull { toDouble(it.groupValues[1]) }.filter { it in 1.0..5000.0 }.toList()
+            .ifEmpty { kjRegex.findAll(text).mapNotNull { toDouble(it.groupValues[1])?.let(NutritionUnits::kjToKcal) }.toList() }
+        val protein = valuesAfter(lines, proteinWords)
+        val carbs = valuesAfter(lines, carbWords)
+        val fat = valuesAfter(lines, fatWords)
+        val sugar = valuesAfter(lines, sugarWords)
+        // wirklich zweispaltig: kcal doppelt oder mindestens zwei Nährwerte doppelt
+        val doubled = listOf(protein, carbs, fat).count { it.size >= 2 }
+        if (kcals.size < 2 && doubled < 2) return emptyList()
+        return bases.mapIndexed { i, b ->
+            NutritionColumn(b, kcals.getOrNull(i), protein.getOrNull(i), carbs.getOrNull(i), fat.getOrNull(i), sugar.getOrNull(i))
+        }
+    }
+
+    /** Alle Zahlen hinter dem Wort (zwei Spalten = zwei Zahlen), sonst die der nächsten Zeile. */
+    private fun valuesAfter(lines: List<String>, label: Regex): List<Double> {
+        fun numbers(t: String): List<Double> {
+            val grams = gramRegex.findAll(t).mapNotNull { toDouble(it.groupValues[1]) }.toList()
+            return grams.ifEmpty { anyNumber.findAll(t).mapNotNull { toDouble(it.groupValues[1]) }.toList() }
+        }
+        for ((i, line) in lines.withIndex()) {
+            val m = label.find(line) ?: continue
+            if (label === fatWords && subLine.containsMatchIn(line)) continue
+            val rest = line.substring(m.range.last + 1)
+            val found = numbers(rest).ifEmpty { lines.getOrNull(i + 1)?.let(::numbers).orEmpty() }.filter { it in 0.0..1000.0 }
+            if (found.isNotEmpty()) return found
+        }
+        return emptyList()
+    }
+
+    private val portionWeight = listOf(
+        Regex("""(?:portion|teller|gericht)\s*\(?\s*(?:à|a|=|zu|ca\.?)?\s*(\d{2,4})\s*g\b""", RegexOption.IGNORE_CASE),
+        Regex("""(\d{2,4})\s*g\s*\)?\s*(?:portion|teller)""", RegexOption.IGNORE_CASE),
+    )
+
+    /** Portionsgewicht: steht es da („Portion (350 g)“), sonst kcal pro Portion ÷ kcal pro 100 g. */
+    private fun portionGrams(text: String, columns: List<NutritionColumn>): Double? {
+        portionWeight.firstNotNullOfOrNull { r -> r.find(text)?.groupValues?.get(1)?.let(::toDouble) }
+            ?.takeIf { it in 20.0..2000.0 && it != 100.0 }?.let { return it }
+        val p = columns.firstOrNull { it.basis == NutritionBasis.PER_PORTION }?.kcal
+        val h = columns.firstOrNull { it.basis != NutritionBasis.PER_PORTION }?.kcal
+        if (p != null && h != null && h > 0) return kotlin.math.round(p / h * 100).takeIf { it in 20.0..2000.0 }
+        return null
     }
 
     private fun valueAfter(lines: List<String>, label: Regex): Double? {

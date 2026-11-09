@@ -274,7 +274,8 @@ class FoodRepository(private val db: KalorienDatabase) {
      * Eigene Lebensmittel werden einfach geändert (inkl. Name).
      */
     suspend fun correct(food: FoodEntity, per: Per100, name: String = food.name): FoodEntity {
-        val updated = if (food.source == FoodSource.CUSTOM) {
+        // Eigene Lebensmittel, Gerichte und Mensa-Gerichte werden direkt geändert, BLS/Open Food Facts mit Original
+        val updated = if (food.source in DIRECT_EDIT) {
             food.copy(
                 name = name.trim().ifEmpty { food.name }, searchKey = searchKey(name.ifBlank { food.name }, food.brand),
                 kcal100 = per.kcal, protein100 = per.protein, carbs100 = per.carbs, fat100 = per.fat, sugar100 = per.sugar,
@@ -295,6 +296,14 @@ class FoodRepository(private val db: KalorienDatabase) {
 
     fun observeOwn(): Flow<List<FoodEntity>> = foods.observeOwn()
 
+    /** Eigene Portion festlegen (z. B. „1 Stück“ = 16,7 g) oder mit null entfernen. */
+    suspend fun setServing(food: FoodEntity, label: String?, grams: Double?): FoodEntity {
+        val l = label?.trim()?.ifEmpty { null }
+        val g = grams?.takeIf { it > 0 }
+        foods.setServing(food.id, if (g == null) null else l, g)
+        return food.copy(servingLabel = if (g == null) null else l, servingGrams = g)
+    }
+
     /**
      * Eigenes oder gescanntes Lebensmittel löschen. Einträge und Vorlagen behalten ihre Werte
      * (Snapshot), sie verlieren nur die Verknüpfung. BLS-Lebensmittel lassen sich nicht löschen.
@@ -303,7 +312,9 @@ class FoodRepository(private val db: KalorienDatabase) {
         if (food.source == FoodSource.BLS) return@withTransaction false
         db.entryDao().unlinkFood(food.id)
         db.templateDao().unlinkFood(food.id)
-        foods.deleteOwn(food.id) > 0
+        db.dishDao().unlinkFood(food.id)
+        db.mensaDao().unlinkFood(food.id)
+        foods.deleteOwn(food.id) > 0 // Zutaten eines Gerichts werden mit gelöscht (ForeignKey CASCADE)
     }
 
     /** Gelöschtes Lebensmittel wiederherstellen („Rückgängig“). Verknüpfungen bleiben gelöst. */
@@ -343,6 +354,9 @@ class FoodRepository(private val db: KalorienDatabase) {
     }
 
     companion object {
+        /** Quellen, deren Werte der Nutzer direkt ändert (ohne „Original“ zu merken). */
+        val DIRECT_EDIT = setOf(FoodSource.CUSTOM, FoodSource.DISH, FoodSource.MENSA)
+
         /**
          * Normalisierter Suchtext. Zusätzlich die Variante ohne Leerzeichen, damit „haferflocken“
          * auch „Hafer Flocken“ (so heißt es im BLS) findet.

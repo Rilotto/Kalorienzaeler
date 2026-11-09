@@ -14,7 +14,7 @@ import de.kalorien.app.feature.today.TodayViewModel
 object AppViewModels {
     val Factory: ViewModelProvider.Factory = viewModelFactory {
         initializer { val c = app().container; TodayViewModel(c.entries, c.foods, c.settings, c.templates, c.openDay) }
-        initializer { val c = app().container; AddViewModel(c.foods, c.entries, c.blsImporter, c.templates, c.settings) }
+        initializer { val c = app().container; AddViewModel(c.foods, c.entries, c.blsImporter, c.templates, c.settings, c.dishes, c.mensa) }
         initializer { val c = app().container; HistoryViewModel(c.entries, c.settings, c.openDay) }
         initializer { val c = app().container; SettingsViewModel(c.settings, c.updates, c.backup, c.foods, c.templates, c.crashLog) }
     }

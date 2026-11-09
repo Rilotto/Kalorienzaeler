@@ -16,7 +16,10 @@ object FoodSource {
     const val QUICK = "QUICK"
     /** Open Food Facts (Barcode, Block 3) */
     const val OFF = "OFF"
-    // später: RECIPE (Block 7)
+    /** Gericht aus Zutaten (v0.8) – Werte pro Portion, Zutaten in [DishIngredientEntity] */
+    const val DISH = "DISH"
+    /** Mensa-Gericht (v0.8) – Werte pro Portion, meist per Foto der Nährwerttabelle */
+    const val MENSA = "MENSA"
 }
 
 @Entity(
@@ -148,3 +151,53 @@ data class TemplateWithItems(
     val kcal: Int get() = items.sumOf { it.kcal }
     val sortedItems: List<TemplateItemEntity> get() = items.sortedBy { it.position }
 }
+
+/**
+ * Selbst zusammengestelltes Gericht (z. B. „Mein Sandwich“). Seit DB v5→6.
+ * Das Gericht ist zugleich ein Portions-Lebensmittel ([FoodEntity] mit Quelle DISH): Dort stehen die Werte pro Portion,
+ * hier die Zutaten und die Anzahl Portionen, damit es sich später ändern lässt.
+ */
+@Entity(
+    tableName = "dish",
+    foreignKeys = [ForeignKey(entity = FoodEntity::class, parentColumns = ["id"], childColumns = ["foodId"], onDelete = ForeignKey.CASCADE)],
+)
+data class DishEntity(
+    @PrimaryKey val foodId: Long,
+    /** Anzahl Portionen, die die Zutaten ergeben (z. B. 1 Sandwich, 4 Portionen Auflauf) */
+    val servings: Double,
+)
+
+/** Zutat eines Gerichts, mit Nährwert-Snapshot wie bei Einträgen. Seit DB v6. */
+@Entity(
+    tableName = "dish_ingredient",
+    foreignKeys = [ForeignKey(entity = DishEntity::class, parentColumns = ["foodId"], childColumns = ["dishFoodId"], onDelete = ForeignKey.CASCADE)],
+    indices = [Index("dishFoodId")],
+)
+data class DishIngredientEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val dishFoodId: Long,
+    val position: Int,
+    val foodId: Long?,
+    val name: String,
+    val grams: Double?,
+    val isLiquid: Boolean = false,
+    val kcal: Int,
+    val protein: Double,
+    val carbs: Double,
+    val fat: Double,
+    val sugar: Double? = null,
+    val unitLabel: String? = null,
+    val unitCount: Double? = null,
+)
+
+/** Fester Mensa-Platz („Menü 1“), der jeden Tag mit einem Gericht belegt wird. Seit DB v6. */
+@Entity(tableName = "mensa_slot")
+data class MensaSlotEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val position: Int,
+    /** Gericht (Lebensmittel mit Quelle MENSA), das zuletzt auf diesem Platz stand */
+    val foodId: Long? = null,
+    /** Tag (yyyy-MM-dd), für den [foodId] gilt */
+    val date: String? = null,
+)

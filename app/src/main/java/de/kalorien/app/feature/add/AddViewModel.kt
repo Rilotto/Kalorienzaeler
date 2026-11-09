@@ -10,6 +10,14 @@ import de.kalorien.app.core.data.FoodRepository
 import de.kalorien.app.core.data.SettingsRepository
 import de.kalorien.app.core.data.TemplateRepository
 import de.kalorien.app.core.data.TemplateWithItems
+import de.kalorien.app.core.data.DishDraft
+import de.kalorien.app.core.data.DishDraftItem
+import de.kalorien.app.core.data.DishRepository
+import de.kalorien.app.core.data.MensaRepository
+import de.kalorien.app.core.data.MensaSlotEntity
+import de.kalorien.app.core.data.EntryRepository.Companion.PORTION_UNIT
+import de.kalorien.app.core.domain.Amount
+import de.kalorien.app.core.domain.NutritionColumn
 import de.kalorien.app.core.domain.Meal
 import de.kalorien.app.core.domain.NutritionBasis
 import de.kalorien.app.core.domain.NutritionTextParser
@@ -51,13 +59,68 @@ sealed interface BarcodeResult {
 }
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
+/** Ergebnis des Mensa-Fotos für das Formular (alles änderbar). */
+data class MensaPrefill(
+    val name: String = "",
+    val portion: NutritionColumn? = null,
+    val per100: NutritionColumn? = null,
+    val portionGrams: Double? = null,
+    /** Hat die Texterkennung etwas gefunden? null = von Hand angelegt */
+    val found: Boolean? = null,
+    val slotName: String? = null,
+)
+
 class AddViewModel(
     private val foods: FoodRepository,
     private val entries: EntryRepository,
     bls: BlsImporter,
     private val templateRepo: TemplateRepository,
     private val settings: SettingsRepository,
+    private val dishes: DishRepository,
+    private val mensa: MensaRepository,
 ) : ViewModel() {
+    // ---------------------------------------------------------------- Mensa (v0.8)
+    val mensaSlots = mensa.observeSlots().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+    val mensaDishes = mensa.observeKnownDishes().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun ensureMensaSlots(names: List<String>) = viewModelScope.launch { mensa.ensureDefaultSlots(names) }
+    fun addMensaSlot(name: String) = viewModelScope.launch { mensa.addSlot(name) }
+    fun renameMensaSlot(slot: MensaSlotEntity, name: String) = viewModelScope.launch { mensa.renameSlot(slot, name) }
+    fun deleteMensaSlot(slot: MensaSlotEntity) = viewModelScope.launch { mensa.deleteSlot(slot) }
+    fun restoreMensaSlot(slot: MensaSlotEntity) = viewModelScope.launch { mensa.restoreSlot(slot) }
+
+    /** Bekanntes Gericht für den Tag auf den Platz legen. */
+    fun assignMensa(slot: MensaSlotEntity, food: FoodEntity, date: LocalDate) = viewModelScope.launch { mensa.assign(slot, food, date) }
+
+    /** Gericht aus Foto/Formular speichern und (falls ein Platz gewählt war) für den Tag zuordnen. */
+    suspend fun saveMensaDish(name: String, perPortion: Per100, portionGrams: Double?, slot: MensaSlotEntity?, date: LocalDate): FoodEntity {
+        val food = mensa.saveDish(name, perPortion, portionGrams)
+        if (slot != null) mensa.assign(slot, food, date)
+        return food
+    }
+
+    /** Foto der Mensa-Tabelle auswerten. */
+    fun mensaPrefillFromText(text: String, slotName: String?): MensaPrefill {
+        val p = NutritionTextParser.parse(text)
+        return MensaPrefill(
+            name = p.name.orEmpty(), portion = p.perPortion(), per100 = p.per100(), portionGrams = p.portionGrams,
+            found = p.hasAnyValue || p.columns.isNotEmpty(), slotName = slotName,
+        )
+    }
+
+    // ---------------------------------------------------------------- Gerichte aus Zutaten (v0.8)
+    suspend fun loadDish(food: FoodEntity): DishDraft = dishes.load(food)
+    suspend fun saveDish(draft: DishDraft): FoodEntity = dishes.save(draft)
+    suspend fun dishIngredients(foodId: Long) = dishes.ingredients(foodId)
+
+    /** Zutat aus Lebensmittel + Menge (Gramm, oder Anzahl Portionen bei Portions-Lebensmitteln). */
+    fun ingredientOf(food: FoodEntity, amount: Double, unitLabel: String?, unitCount: Double?): DishDraftItem =
+        if (food.isPortionFood) {
+            DishDraftItem(food.id, food.name, null, food.isLiquid, Amount.of(food.per100, amount * 100.0), PORTION_UNIT, amount)
+        } else {
+            DishDraftItem(food.id, food.name, amount, food.isLiquid, Amount.of(food.per100, amount), unitLabel, unitCount)
+        }
+
     val templates = templateRepo.observeAll().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     /** Reiter, der beim Öffnen zuerst gezeigt wird (Einstellung). */
@@ -95,6 +158,8 @@ class AddViewModel(
         recalcDate?.let { entries.recalcForFood(updated, it) }
         return updated
     }
+
+    suspend fun setServing(food: FoodEntity, label: String?, grams: Double?): FoodEntity = foods.setServing(food, label, grams)
 
     suspend fun resetFood(food: FoodEntity, recalcDate: LocalDate?): FoodEntity {
         val updated = foods.resetToOriginal(food)
@@ -150,6 +215,15 @@ class AddViewModel(
     fun prefillFromText(text: String, base: CustomPrefill?): CustomPrefill {
         val p = NutritionTextParser.parse(text)
         val b = base ?: CustomPrefill()
+        // Tabelle mit zwei Spalten: für eigene Lebensmittel die 100-g-Spalte nehmen (dann geht auch Gramm), Portion als Portionsgröße
+        p.per100()?.takeIf { p.columns.size == 2 }?.let { col ->
+            return b.copy(
+                name = b.name.ifBlank { p.name.orEmpty() },
+                kcal = col.kcal ?: b.kcal, protein = col.protein ?: b.protein, carbs = col.carbs ?: b.carbs, fat = col.fat ?: b.fat,
+                sugar = col.sugar ?: b.sugar, basis = col.basis, servingGrams = p.portionGrams ?: b.servingGrams,
+                note = CustomPrefill.Note.PhotoRead,
+            )
+        }
         return b.copy(
             name = b.name.ifBlank { p.name.orEmpty() },
             kcal = p.kcal ?: b.kcal,

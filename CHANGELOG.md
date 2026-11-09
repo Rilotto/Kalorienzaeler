@@ -1,5 +1,30 @@
 # Änderungen
 
+## [0.8.0] – Mensa-Menüs und Gerichte
+### Neu
+- **Reiter „Mensa“** beim Eintragen: feste Plätze („Menü 1“, „Menü 2“, „Vegetarisch“ – umbenennen, löschen, neue anlegen).
+  Pro Platz und Tag: **Foto der Nährwerttabelle**, ein **bekanntes Gericht** wählen oder Werte von Hand eintragen.
+- **Tabellen mit zwei Spalten** (pro 100 g und pro Portion) werden erkannt; das Portionsgewicht wird ausgerechnet.
+  Gilt auch für Fotos im Reiter „Foto“ (dort wird die 100-g-Spalte genommen, die Portion als Portionsgröße).
+- Mensa-Gerichte merken sich ihre Werte: Kommt ein Gericht wieder, wird es mit einem Tipp gewählt (gleicher Name → aktualisiert statt doppelt).
+- **Gerichte aus Zutaten** (z. B. Sandwich): „Gericht aus Zutaten anlegen“ in der Suche, Zutaten über die normale Suche mit Menge,
+  Anzahl Portionen → Werte pro Portion. Über den Stift im Gericht lassen sich die Zutaten später ändern.
+- Start-Reiter „Mensa“ in den Einstellungen wählbar
+### Technik
+- Datenbank Version 6 (Gerichte, Zutaten, Mensa-Plätze), Migrationstest 5→6; Sicherung Format 3 (ältere Sicherungen bleiben lesbar)
+
+## [0.7.0] – Farben, schönerer Verlauf, eigene Portionen
+### Neu
+- **8 Farbschemas** (Einstellungen → Darstellung): Salbei, Pfirsich, Lavendel, Minze, Himmel, Rosé
+  und zwei aus den 90ern: Memphis und Vaporwave – jeweils hell und dunkel
+- **Verlauf** nach **Tagen, Wochen oder Monaten** (Wochen/Monate als Durchschnitt pro Tag) und als
+  **Balken, Linie oder Fläche**. Die Auswahl bleibt gespeichert.
+- **Eigene Portion festlegen** im Lebensmittel, z. B. „1 Stück = 16,7 g“ – oder aus der Packung ausrechnen
+  („100 g, 6 Stück“). Wird danach zuerst vorgeschlagen.
+### Behoben
+- Handy drehen bricht das Eintragen nicht mehr ab (auch Kamera und Formulare bleiben offen)
+- Portionsvorschläge: „Reiswaffeln“ bekamen „1 Portion gekocht“ wie Reis – jetzt zählt das Wortende
+
 ## [0.6.0] – Verlauf, Vorlagen, mehr Einstellungen
 ### Neu
 - **Verlauf**: letzte 7, 14 oder 30 Tage als Balken mit Ziellinie, Durchschnitt pro Tag, Tage mit Einträgen und
