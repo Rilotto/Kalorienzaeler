@@ -312,4 +312,63 @@
     <string name="serving_pack">Packung (%1$s)</string>
     <string name="serving_pieces">Anzahl Stück</string>
     <string name="serving_remove">Eigene Portion entfernen</string>
+
+    <!-- v0.8: Gerichte und Mensa -->
+    <string name="tab_mensa">Mensa</string>
+    <string name="source_dish">Gericht</string>
+    <string name="source_mensa">Mensa</string>
+    <string name="hint_dish">Dein Gericht – Werte pro Portion. Über den Stift änderst du die Zutaten.</string>
+    <string name="hint_mensa">Mensa-Gericht – Werte pro Portion von der Nährwerttabelle.</string>
+    <string name="dish_create">Gericht aus Zutaten anlegen</string>
+    <string name="dish_new_title">Neues Gericht</string>
+    <string name="dish_edit_title">Gericht bearbeiten</string>
+    <string name="dish_hint">Zum Beispiel ein Sandwich: Zutaten mit Menge hinzufügen, die App rechnet die Werte pro Portion aus.</string>
+    <string name="dish_name">Name des Gerichts</string>
+    <string name="dish_portion_label">Bezeichnung einer Portion (optional)</string>
+    <string name="dish_portion_label_hint">z. B. 1 Sandwich</string>
+    <string name="dish_servings">Wie viele Portionen ergibt das?</string>
+    <string name="dish_servings_field">Anzahl Portionen</string>
+    <string name="dish_ingredients">Zutaten</string>
+    <string name="dish_no_ingredients">Noch keine Zutaten.</string>
+    <string name="dish_add_ingredient">Zutat hinzufügen</string>
+    <string name="dish_add_ingredient_confirm">Zum Gericht hinzufügen</string>
+    <string name="dish_remove_ingredient">Zutat entfernen</string>
+    <string name="dish_pick_title">Zutat wählen</string>
+    <string name="dish_per_portion">Pro Portion</string>
+    <string name="dish_grams_per_portion">Eine Portion wiegt etwa %1$s g</string>
+    <string name="dish_needs">Name und mindestens eine Zutat angeben.</string>
+    <string-array name="mensa_default_slots">
+        <item>Menü 1</item>
+        <item>Menü 2</item>
+        <item>Vegetarisch</item>
+    </string-array>
+    <string name="mensa_hint">Jeder Platz steht für ein Menü deiner Mensa. Fotografiere die Nährwerttabelle – oder wähle ein Gericht, das es schon einmal gab.</string>
+    <string name="mensa_empty_today">An diesem Tag noch kein Gericht.</string>
+    <string name="mensa_photo">Foto der Nährwerttabelle</string>
+    <string name="mensa_new_photo">Neues Foto</string>
+    <string name="mensa_known">Bekanntes Gericht</string>
+    <string name="mensa_manual">Von Hand</string>
+    <string name="mensa_add">Eintragen</string>
+    <string name="mensa_per_portion">%1$s kcal pro Portion</string>
+    <string name="mensa_portion_grams">Portion %1$s g</string>
+    <string name="mensa_slot_add">+ Platz hinzufügen</string>
+    <string name="mensa_slot_rename">Umbenennen</string>
+    <string name="mensa_slot_delete">Platz löschen</string>
+    <string name="mensa_slot_name">Name, z. B. Menü 3</string>
+    <string name="mensa_known_title">Bekannte Mensa-Gerichte</string>
+    <string name="mensa_known_for">Gericht für %1$s</string>
+    <string name="mensa_form_title">Mensa-Gericht</string>
+    <string name="mensa_read_ok">Werte vom Foto übernommen – bitte kurz prüfen.</string>
+    <string name="mensa_dish_name">Name des Gerichts</string>
+    <string name="mensa_known_update">Dieses Gericht kennt die App schon – die Werte werden aktualisiert.</string>
+    <string name="mensa_values_for">Die Werte unten gelten</string>
+    <string name="mensa_basis_portion">pro Portion</string>
+    <string name="mensa_basis_100">pro 100 g</string>
+    <string name="mensa_both_columns">Erkannt: %1$s kcal pro 100 g und %2$s kcal pro Portion</string>
+    <string name="mensa_grams_optional">Portionsgewicht in g (optional)</string>
+    <string name="mensa_grams_needed">Portionsgewicht in g</string>
+    <string name="mensa_need_grams">Für Werte pro 100 g brauche ich das Gewicht einer Portion.</string>
+    <string name="mensa_result">= %1$s kcal pro Portion</string>
+    <string name="mensa_photo_again">Neues Foto</string>
+    <string name="mensa_save">Speichern</string>
 </resources>

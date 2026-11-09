@@ -17,7 +17,7 @@ Status: ✅ fertig · 🧪 in Testversion · ⏳ geplant (Version) · 💭 viell
 | G1 | Schlichte Oberfläche, kein Gewichtsverlauf, keine Motivation/Tipps/Streaks, kein Konto, keine Cloud, keine Werbung | K, N | ✅ | – |
 | G2 | Keine Foto-Erkennung von Gerichten (Nährwert-Schilder per Texterkennung sind erlaubt) | N | ✅ | – |
 | G3 | Daten bleiben auf dem Handy; Internet nur per Knopf/Scan (Update, Open Food Facts, später Rezept-Import) | K | ✅ | – |
-| G4 | Updates ohne Datenverlust (feste Signatur, Datenbank-Migrationen mit Test) | K | ✅ | `AutoMigration\(from = 4, to = 5\)` |
+| G4 | Updates ohne Datenverlust (feste Signatur, Datenbank-Migrationen mit Test) | K | ✅ | `AutoMigration\(from = 5, to = 6\)` |
 | G5 | Optimiert fürs Oppo Reno 2 Z (Android 11), App nur für 64-Bit (kleiner Download) | N, 0.4.1 | ✅ | `abiFilters` |
 
 ## Tagesansicht (Heute)
@@ -52,7 +52,7 @@ Status: ✅ fertig · 🧪 in Testversion · ⏳ geplant (Version) · 💭 viell
 | E11 | „Hinzufügen und weiteres“ (Fenster bleibt offen) mit Rückgängig | V | 0.5.0 | ✅ | `R.string.add_and_more` |
 | E12 | Rückgängig nach dem Hinzufügen | K | 0.4.0 | ✅ | `fun undo\(entry` |
 | E13 | Mahlzeit-Vorlagen eintragen (oben in der Suche) mit Rückgängig | K | 0.6.0 | ✅ | `private fun TemplateRow` |
-| E14 | Start-Reiter beim Eintragen wählbar | V | 0.6.0 | ✅ | `suspend fun startTab` |
+| E14 | Start-Reiter beim Eintragen wählbar (ab 0.8 auch Mensa) | V | 0.6.0 | ✅ | `suspend fun startTab` |
 | E15 | Nährwerte eines Lebensmittels korrigieren (Stift), „Auf Original zurücksetzen“, heutige Einträge neu berechnen | N 15.10. | 0.5.0 | ✅ | `private fun FoodValuesForm` |
 | E16 | Hinweis zur Herkunft der Werte (BLS = Durchschnitt, OFF = Packung) | V | 0.5.0 | ✅ | `private fun sourceHint` |
 | E17 | Drehen des Handys bricht nichts ab | N 19.10. | 0.7.0 | 🧪 | `android:configChanges` |
@@ -101,6 +101,14 @@ Status: ✅ fertig · 🧪 in Testversion · ⏳ geplant (Version) · 💭 viell
 | X12 | Quellenangabe BLS / Open Food Facts | K | 0.3.0 | ✅ | `settings_sources_text` |
 | X13 | Daten löschen (alles zurücksetzen) | K | – | ⏳ 1.0 | – |
 
+## Gerichte und Mensa (Wunsch 09.11., v0.8)
+| ID | Funktion | Quelle | Seit | Status | Prüfanker |
+|---|---|---|---|---|---|
+| M1 | Mensa-Menüs als feste Plätze (z. B. „Menü 1“, „Menü 2“, „Vegetarisch“), jeden Tag neu belegbar; Plätze anlegen/umbenennen/löschen | N 09.11. | 0.8.0 | 🧪 | `fun ColumnScope.MensaTab` |
+| M2 | Foto der Mensa-Nährwerttabelle → Gericht mit Werten pro Portion; Tabellen mit zwei Spalten (pro 100 g + pro Portion) werden erkannt, Portionsgewicht wird ausgerechnet | N 09.11. | 0.8.0 | 🧪 | `private fun twoColumns` |
+| M3 | Bekannte Mensa-Gerichte wiederfinden und einem Platz zuordnen (Gerichte wiederholen sich) | N 09.11. | 0.8.0 | 🧪 | `fun findMensaFood` |
+| M4 | Gerichte aus Zutaten (z. B. Sandwich): Zutaten über Suche, Menge je Zutat, Anzahl Portionen → Nährwerte pro Portion; später bearbeiten | N 09.11., K | 0.8.0 | 🧪 | `fun ColumnScope.DishEditor` |
+
 ## Geplant
 | ID | Funktion | Quelle | Status |
 |---|---|---|---|
@@ -110,7 +118,7 @@ Status: ✅ fertig · 🧪 in Testversion · ⏳ geplant (Version) · 💭 viell
 | P4 | App-Shortcuts (Scannen, Suchen, Schnell, Gestriges Frühstück) | K | ⏳ 1.0 |
 | P5 | Getränke-Schnellknöpfe (Kaffee, Cola, Bier, Saft) | K | ⏳ 1.0 (Widget) |
 | P6 | Schnelleinstellungs-Kachel „Scanner“ (optional) | K | ⏳ 1.0 |
-| P7 | Eigene Rezepte (Zutaten, Portionen, Gesamtgewicht gekocht), Reste | K, N | ⏳ 1.1 (Block 7) |
+| P7 | Eigene Rezepte: Grundfunktion kommt als „Gerichte aus Zutaten“ in 0.8 (M4); Gesamtgewicht gekocht und Reste später | K, N | ⏳ teilweise 0.8 |
 | P8 | Rezept-Import per Teilen aus Chefkoch & Co. | K, N | ⏳ 1.2 (Block 8) |
 | P9 | Mahlzeiten anpassen (umbenennen, ausblenden, Spätsnack) | V | ⏳ offen |
 | P10 | Packungsanteil (¼ / ½ / ganze Packung), Rest-Wiegen, Spracheingabe | V | 💭 |
@@ -127,4 +135,4 @@ Status: ✅ fertig · 🧪 in Testversion · ⏳ geplant (Version) · 💭 viell
 ## Offene Fehlermeldungen
 | ID | Meldung | Datum | Status |
 |---|---|---|---|
-| F1 | „Lebensmittel lassen sich nicht mehr bearbeiten, sobald ausgewählt“ – genaue Stelle beim Nutzer erfragt | 19.10. | 🔍 offen |
+| F1 | „Lebensmittel lassen sich nicht mehr bearbeiten, sobald ausgewählt“ – genaue Stelle beim Nutzer erfragt (09.11. erneut) | 19.10. | 🔍 offen |

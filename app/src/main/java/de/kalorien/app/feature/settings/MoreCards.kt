@@ -128,8 +128,9 @@ fun AppearanceCard(s: Settings, onTheme: (ThemeMode) -> Unit, onStartTab: (Int) 
         Spacer(Modifier.height(8.dp))
         Text(stringResource(R.string.start_tab_label), style = MaterialTheme.typography.bodySmall, color = c.muted)
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            listOf(R.string.tab_search, R.string.tab_scan, R.string.tab_photo, R.string.tab_quick)
-                .forEachIndexed { i, res -> AppChip(stringResource(res), s.startTab == i) { onStartTab(i) } }
+            // Nummern wie im Eintragen-Fenster: 0 Suchen, 1 Scannen, 2 Foto, 4 Mensa, 3 Schnell
+            listOf(0 to R.string.tab_search, 1 to R.string.tab_scan, 2 to R.string.tab_photo, 4 to R.string.tab_mensa, 3 to R.string.tab_quick)
+                .forEach { (i, res) -> AppChip(stringResource(res), s.startTab == i) { onStartTab(i) } }
         }
     }
 }

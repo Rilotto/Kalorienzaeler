@@ -36,7 +36,7 @@ function patchFood(f, changes) {
 }
 function markUsed(id) { const f = food(id); if (f) patchFood(f, { lastUsedAt: Date.now(), useCount: (f.useCount || 0) + 1 }); }
 function per100Label(f) { return f.isPortionFood ? `${Math.round(f.kcal100)} kcal/Portion` : `${Math.round(f.kcal100)} kcal/100 ${f.isLiquid ? 'ml' : 'g'}`; }
-function sourceLabel(f) { return f.source === 'BLS' ? 'BLS' : f.source === 'OFF' ? 'Open Food Facts' : 'Eigenes'; }
+function sourceLabel(f) { return f.source === 'BLS' ? 'BLS' : f.source === 'OFF' ? 'Open Food Facts' : f.source === 'DISH' ? 'Gericht' : f.source === 'MENSA' ? 'Mensa' : 'Eigenes'; }
 function allFoods() {
   const own = Object.values(S.own).map(f => ({ ...f, norm: normalize([f.name, f.brand].filter(Boolean).join(' ')) }));
   const ov = Object.keys(S.blsOverlay);
@@ -141,7 +141,8 @@ function exportBackup() {
 function importBackup(json) {
   const o = JSON.parse(json);
   if (o.app !== 'Kalorienzaehler') throw new Error('Das ist keine Sicherung des Kalorienzählers.');
-  if (!(o.format >= 1 && o.format <= 2)) throw new Error('Die Sicherung ist von einer neueren App-Version.');
+  // Format 3 (App 0.8): Gerichte/Mensa-Plätze kennt die Browser-Version noch nicht – Gerichte kommen als eigene Lebensmittel mit
+  if (!(o.format >= 1 && o.format <= 3)) throw new Error('Die Sicherung ist von einer neueren App-Version.');
   const st = o.settings || {};
   const map = new Map(); const own = {}; const overlay = {};
   let seq = 1;

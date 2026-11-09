@@ -137,6 +137,8 @@ fun OwnFoodsScreen(
 private fun sourceRes(f: FoodEntity) = when (f.source) {
     FoodSource.BLS -> R.string.source_bls
     FoodSource.OFF -> R.string.source_off
+    FoodSource.DISH -> R.string.source_dish
+    FoodSource.MENSA -> R.string.source_mensa
     else -> R.string.source_custom
 }
 
@@ -164,7 +166,7 @@ private fun FoodEditDialog(
     var sugar by remember { mutableStateOf(fmt(food.sugar100)) }
     var confirmDelete by remember { mutableStateOf(false) }
     val k = NumberInput.parse(kcal)
-    val custom = food.source == FoodSource.CUSTOM
+    val custom = food.source in FoodRepository.DIRECT_EDIT
 
     AlertDialog(
         onDismissRequest = onDismiss,

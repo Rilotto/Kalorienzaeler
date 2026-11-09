@@ -7,23 +7,29 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 /**
- * Version 1 (Block 1/2), Version 2 (v0.3.1: food.isPortionFood), Version 3 (v0.4.0: food.servingGrams/servingLabel), Version 4 (v0.5.0: Zucker, Einheiten, Korrekturen), Version 5 (v0.6.0: Mahlzeit-Vorlagen). Jede Änderung: version + 1, Migration in [MIGRATIONS] oder
+ * Version 1 (Block 1/2), Version 2 (v0.3.1: food.isPortionFood), Version 3 (v0.4.0: food.servingGrams/servingLabel), Version 4 (v0.5.0: Zucker, Einheiten, Korrekturen), Version 5 (v0.6.0: Mahlzeit-Vorlagen), Version 6 (v0.8.0: Gerichte, Mensa-Plätze). Jede Änderung: version + 1, Migration in [MIGRATIONS] oder
  * `autoMigrations`, Schema-Datei in app/schemas wird von CI eingecheckt.
  * NIEMALS fallbackToDestructiveMigration – das würde Nutzerdaten löschen.
  */
 @Database(
-    entities = [FoodEntity::class, EntryEntity::class, TemplateEntity::class, TemplateItemEntity::class],
-    version = 5,
+    entities = [
+        FoodEntity::class, EntryEntity::class, TemplateEntity::class, TemplateItemEntity::class,
+        DishEntity::class, DishIngredientEntity::class, MensaSlotEntity::class,
+    ],
+    version = 6,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4),
         AutoMigration(from = 4, to = 5),
+        AutoMigration(from = 5, to = 6),
     ],
 )
 abstract class KalorienDatabase : RoomDatabase() {
     abstract fun entryDao(): EntryDao
     abstract fun foodDao(): FoodDao
     abstract fun templateDao(): TemplateDao
+    abstract fun dishDao(): DishDao
+    abstract fun mensaDao(): MensaDao
 
     companion object {
         private val MIGRATIONS = emptyArray<androidx.room.migration.Migration>()

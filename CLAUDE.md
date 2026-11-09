@@ -70,16 +70,17 @@ app/src/main/java/de/kalorien/app/
 - Ab Block 1: Room + KSP, DataStore für Einstellungen. Block 3: CameraX + ML Kit (gebündelt), Ktor/Retrofit.
   Block 5: Glance-Widget, AlarmManager.setExactAndAllowWhileIdle + BOOT_COMPLETED.
 - Einträge speichern einen Nährwert-Snapshot (kcal, P, K, F), damit spätere Änderungen an Lebensmitteln alte Tage nicht verändern.
-- Datenbank aktuell Version 5. Migrationstests in `app/src/test/.../core/data/MigrationTest.kt` (Robolectric, JVM).
+- Datenbank aktuell Version 6 (Gerichte `dish`/`dish_ingredient`, Mensa `mensa_slot`). Migrationstests in `app/src/test/.../core/data/MigrationTest.kt` (Robolectric, JVM).
   Neue Version: Test ergänzen; die neue Schema-JSON entsteht erst im ersten CI-Lauf (bot committet sie) →
   danach einen weiteren Commit pushen, damit der Test sie findet.
 - Portions-Lebensmittel (`isPortionFood`): Werte in den *100-Feldern gelten für 1 Portion, Auswahl nach Anzahl.
+  Gerichte (Quelle DISH) und Mensa-Gerichte (MENSA) sind Portions-Lebensmittel; Zutaten in `dish_ingredient`.
 - Scanner: CameraX + ML Kit Barcode (gebündelt), Code nur nach 2× gleicher Lesung + Prüfziffer.
   Fotos: System-Kamera (TakePicture) oder Galerie → verkleinert → ML Kit Text → `NutritionTextParser`.
 - APK nur für `arm64-v8a` (abiFilters), sonst ~90 MB wegen ML-Kit-Modellen.
 - Update-Knopf: GitHub-Releases-API, Repo ist öffentlich. FileProvider-Authority `${applicationId}.updates`
   (Pfade `updates/` und `photos/` im Cache).
-- Sicherung (ab 0.5): `core/data/Backup.kt`, JSON-Format 2 (seit 0.6, mit Vorlagen) über MediaStore nach `Download/Kalorienzaehler`, die letzten 7 bleiben.
+- Sicherung (ab 0.5): `core/data/Backup.kt`, JSON-Format 3 (seit 0.8, mit Vorlagen, Gerichten, Mensa-Plätzen) über MediaStore nach `Download/Kalorienzaehler`, die letzten 7 bleiben.
   Formatänderung = `FORMAT` +1 und alte Dateien weiter lesen können.
 - Fehlerprotokoll (ab 0.6): `core/CrashLog.kt` schreibt Abstürze nach `filesDir/crash.log`, Teilen nur per Knopf.
 - Browser-Version (Wunsch 30.10.): `web/` (siehe web/README.md), Artefakt https://claude.ai/artifact/Wfxe1BABcSSGv9fLogYevc.

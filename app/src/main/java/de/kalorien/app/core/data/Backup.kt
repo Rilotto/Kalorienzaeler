@@ -25,6 +25,11 @@ data class BackupData(
     val entries: List<EntryEntity>,
     /** seit Format 2 (v0.6) */
     val templates: List<TemplateWithItems> = emptyList(),
+    /** seit Format 3 (v0.8): Gerichte aus Zutaten (Zutaten mit dishFoodId = alte Lebensmittel-ID) */
+    val dishes: List<DishEntity> = emptyList(),
+    val dishIngredients: List<DishIngredientEntity> = emptyList(),
+    /** seit Format 3: Mensa-Plätze */
+    val mensaSlots: List<MensaSlotEntity> = emptyList(),
 )
 
 /**
@@ -33,8 +38,8 @@ data class BackupData(
  * (die Nährwerte stecken ohnehin in der App).
  */
 object BackupCodec {
-    /** 1 = v0.5, 2 = v0.6 (Vorlagen, Wochentag-Ziele, Hell/Dunkel, Start-Reiter) */
-    const val FORMAT = 2
+    /** 1 = v0.5, 2 = v0.6 (Vorlagen, Wochentag-Ziele, Hell/Dunkel, Start-Reiter), 3 = v0.8 (Gerichte, Mensa-Plätze) */
+    const val FORMAT = 3
 
     fun encode(data: BackupData, createdAt: Long = System.currentTimeMillis()): String {
         val s = data.settings
@@ -54,6 +59,36 @@ object BackupCodec {
         root.put("foods", JSONArray().apply { data.foods.forEach { put(food(it)) } })
         root.put("entries", JSONArray().apply { data.entries.forEach { put(entry(it)) } })
         root.put("templates", JSONArray().apply { data.templates.forEach { put(template(it)) } })
+        root.put(
+            "dishes",
+            JSONArray().apply {
+                data.dishes.forEach { d ->
+                    put(
+                        JSONObject().put("foodId", d.foodId).put("servings", d.servings).put(
+                            "items",
+                            JSONArray().apply {
+                                data.dishIngredients.filter { it.dishFoodId == d.foodId }.sortedBy { it.position }.forEach { i ->
+                                    put(
+                                        JSONObject().put("position", i.position).putOpt("foodId", i.foodId).put("name", i.name)
+                                            .putOpt("grams", i.grams).put("isLiquid", i.isLiquid).put("kcal", i.kcal)
+                                            .put("protein", i.protein).put("carbs", i.carbs).put("fat", i.fat).putOpt("sugar", i.sugar)
+                                            .putOpt("unitLabel", i.unitLabel).putOpt("unitCount", i.unitCount),
+                                    )
+                                }
+                            },
+                        ),
+                    )
+                }
+            },
+        )
+        root.put(
+            "mensaSlots",
+            JSONArray().apply {
+                data.mensaSlots.forEach { s ->
+                    put(JSONObject().put("name", s.name).put("position", s.position).putOpt("foodId", s.foodId).putOpt("date", s.date))
+                }
+            },
+        )
         return root.toString()
     }
 
@@ -76,7 +111,23 @@ object BackupCodec {
         val foods = root.optJSONArray("foods").objects().map(::food)
         val entries = root.optJSONArray("entries").objects().map(::entry)
         val templates = root.optJSONArray("templates").objects().map(::template)
-        return BackupData(settings, foods, entries, templates)
+        val dishObjs = root.optJSONArray("dishes").objects()
+        val dishes = dishObjs.map { DishEntity(it.getLong("foodId"), it.optDouble("servings", 1.0)) }
+        val ingredients = dishObjs.flatMap { d ->
+            d.optJSONArray("items").objects().map { i ->
+                DishIngredientEntity(
+                    dishFoodId = d.getLong("foodId"), position = i.optInt("position"), foodId = i.optLongOrNull("foodId"),
+                    name = i.getString("name"), grams = i.optDoubleOrNull("grams"), isLiquid = i.optBoolean("isLiquid"),
+                    kcal = i.optInt("kcal"), protein = i.optDouble("protein", 0.0), carbs = i.optDouble("carbs", 0.0),
+                    fat = i.optDouble("fat", 0.0), sugar = i.optDoubleOrNull("sugar"), unitLabel = i.optStringOrNull("unitLabel"),
+                    unitCount = i.optDoubleOrNull("unitCount"),
+                )
+            }
+        }
+        val slots = root.optJSONArray("mensaSlots").objects().map {
+            MensaSlotEntity(name = it.getString("name"), position = it.optInt("position"), foodId = it.optLongOrNull("foodId"), date = it.optStringOrNull("date"))
+        }
+        return BackupData(settings, foods, entries, templates, dishes, ingredients, slots)
     }
 
     private fun food(f: FoodEntity) = JSONObject()
@@ -213,6 +264,7 @@ class BackupManager(
         val entryDao = db.entryDao()
         db.withTransaction {
             entryDao.deleteAll()
+            db.dishDao().deleteAll()
             foodDao.deleteNonBls()
             foodDao.resetBlsUsage()
             val idMap = HashMap<Long, Long>()
@@ -248,6 +300,24 @@ class BackupManager(
                     templateDao.insertItems(t.items.map { it.copy(id = 0, templateId = id, foodId = it.foodId?.let { f -> idMap[f] }) })
                 }
             }
+            // Gerichte (Format 3): an die neuen Lebensmittel-IDs hängen
+            val dishDao = db.dishDao()
+            data.dishes.forEach { d ->
+                val newId = idMap[d.foodId] ?: return@forEach
+                dishDao.upsert(DishEntity(newId, d.servings))
+                dishDao.insertIngredients(
+                    data.dishIngredients.filter { it.dishFoodId == d.foodId }
+                        .map { it.copy(id = 0, dishFoodId = newId, foodId = it.foodId?.let { f -> idMap[f] }) },
+                )
+            }
+            // Mensa-Plätze: aus der Sicherung, sonst die vorhandenen behalten (Belegung gelöst, Gerichte sind ersetzt)
+            val mensaDao = db.mensaDao()
+            if (data.mensaSlots.isNotEmpty()) {
+                mensaDao.deleteAll()
+                mensaDao.insertAll(data.mensaSlots.map { it.copy(id = 0, foodId = it.foodId?.let { f -> idMap[f] }) })
+            } else {
+                mensaDao.clearAssignments()
+            }
         }
         settings.restore(data.settings)
         data.entries.size
@@ -278,8 +348,10 @@ class BackupManager(
         Meal.BREAKFAST -> "Frühstück"; Meal.LUNCH -> "Mittagessen"; Meal.DINNER -> "Abendessen"; Meal.SNACK -> "Snacks"
     }
 
-    private suspend fun collect() =
-        BackupData(settings.current(), db.foodDao().userRelevant(), db.entryDao().all(), db.templateDao().all())
+    private suspend fun collect() = BackupData(
+        settings.current(), db.foodDao().userRelevant(), db.entryDao().all(), db.templateDao().all(),
+        db.dishDao().all(), db.dishDao().allIngredients(), db.mensaDao().slots(),
+    )
 
     /** Eigene Sicherungsdateien (nur die, die diese App angelegt hat): Name → Uri */
     private fun ownBackups(): List<Pair<String, Uri>> {

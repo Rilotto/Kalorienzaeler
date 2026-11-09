@@ -1,5 +1,18 @@
 # Änderungen
 
+## [0.8.0] – Mensa-Menüs und Gerichte
+### Neu
+- **Reiter „Mensa“** beim Eintragen: feste Plätze („Menü 1“, „Menü 2“, „Vegetarisch“ – umbenennen, löschen, neue anlegen).
+  Pro Platz und Tag: **Foto der Nährwerttabelle**, ein **bekanntes Gericht** wählen oder Werte von Hand eintragen.
+- **Tabellen mit zwei Spalten** (pro 100 g und pro Portion) werden erkannt; das Portionsgewicht wird ausgerechnet.
+  Gilt auch für Fotos im Reiter „Foto“ (dort wird die 100-g-Spalte genommen, die Portion als Portionsgröße).
+- Mensa-Gerichte merken sich ihre Werte: Kommt ein Gericht wieder, wird es mit einem Tipp gewählt (gleicher Name → aktualisiert statt doppelt).
+- **Gerichte aus Zutaten** (z. B. Sandwich): „Gericht aus Zutaten anlegen“ in der Suche, Zutaten über die normale Suche mit Menge,
+  Anzahl Portionen → Werte pro Portion. Über den Stift im Gericht lassen sich die Zutaten später ändern.
+- Start-Reiter „Mensa“ in den Einstellungen wählbar
+### Technik
+- Datenbank Version 6 (Gerichte, Zutaten, Mensa-Plätze), Migrationstest 5→6; Sicherung Format 3 (ältere Sicherungen bleiben lesbar)
+
 ## [0.7.0] – Farben, schönerer Verlauf, eigene Portionen
 ### Neu
 - **8 Farbschemas** (Einstellungen → Darstellung): Salbei, Pfirsich, Lavendel, Minze, Himmel, Rosé

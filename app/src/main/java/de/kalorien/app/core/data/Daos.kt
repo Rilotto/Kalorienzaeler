@@ -191,7 +191,7 @@ interface FoodDao {
     suspend fun linkEntry(entryId: Long, foodId: Long)
 
     /** Eigene und gescannte Lebensmittel (für „Eigene Lebensmittel verwalten“). */
-    @Query("SELECT * FROM food WHERE source IN ('CUSTOM', 'OFF', 'QUICK') OR isAdjusted = 1 OR servingGrams IS NOT NULL ORDER BY name COLLATE NOCASE")
+    @Query("SELECT * FROM food WHERE source IN ('CUSTOM', 'OFF', 'QUICK', 'DISH', 'MENSA') OR isAdjusted = 1 OR servingGrams IS NOT NULL ORDER BY name COLLATE NOCASE")
     fun observeOwn(): Flow<List<FoodEntity>>
 
     @Query("DELETE FROM food WHERE id = :id AND source != 'BLS'")
@@ -199,4 +199,75 @@ interface FoodDao {
 
     @Query("SELECT COUNT(*) FROM food WHERE source = 'BLS'")
     suspend fun countBls(): Int
+}
+
+@Dao
+interface DishDao {
+    @Query("SELECT * FROM dish WHERE foodId = :foodId")
+    suspend fun get(foodId: Long): DishEntity?
+
+    @Query("SELECT * FROM dish_ingredient WHERE dishFoodId = :foodId ORDER BY position")
+    suspend fun ingredients(foodId: Long): List<DishIngredientEntity>
+
+    @Query("SELECT * FROM dish")
+    suspend fun all(): List<DishEntity>
+
+    @Query("SELECT * FROM dish_ingredient ORDER BY dishFoodId, position")
+    suspend fun allIngredients(): List<DishIngredientEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(dish: DishEntity)
+
+    @Query("DELETE FROM dish_ingredient WHERE dishFoodId = :foodId")
+    suspend fun clearIngredients(foodId: Long)
+
+    @Insert
+    suspend fun insertIngredients(list: List<DishIngredientEntity>)
+
+    @Query("DELETE FROM dish")
+    suspend fun deleteAll()
+
+    @Query("UPDATE dish_ingredient SET foodId = NULL WHERE foodId = :foodId")
+    suspend fun unlinkFood(foodId: Long)
+}
+
+@Dao
+interface MensaDao {
+    @Query("SELECT * FROM mensa_slot ORDER BY position, id")
+    fun observeSlots(): Flow<List<MensaSlotEntity>>
+
+    @Query("SELECT * FROM mensa_slot ORDER BY position, id")
+    suspend fun slots(): List<MensaSlotEntity>
+
+    @Insert
+    suspend fun insert(slot: MensaSlotEntity): Long
+
+    @Insert
+    suspend fun insertAll(slots: List<MensaSlotEntity>)
+
+    @Update
+    suspend fun update(slot: MensaSlotEntity)
+
+    @Query("DELETE FROM mensa_slot WHERE id = :id")
+    suspend fun delete(id: Long)
+
+    @Query("DELETE FROM mensa_slot")
+    suspend fun deleteAll()
+
+    @Query("UPDATE mensa_slot SET foodId = NULL, date = NULL")
+    suspend fun clearAssignments()
+
+    @Query("UPDATE mensa_slot SET foodId = NULL, date = NULL WHERE foodId = :foodId")
+    suspend fun unlinkFood(foodId: Long)
+
+    /** Bekannte Mensa-Gerichte, zuletzt verwendete zuerst. */
+    @Query("SELECT * FROM food WHERE source = 'MENSA' ORDER BY COALESCE(lastUsedAt, 0) DESC, name COLLATE NOCASE")
+    fun observeMensaFoods(): Flow<List<FoodEntity>>
+
+    @Query("SELECT * FROM food WHERE source = 'MENSA' AND searchKey = :key LIMIT 1")
+    suspend fun findMensaFood(key: String): FoodEntity?
+
+    /** Eigene Gerichte (aus Zutaten), zuletzt verwendete zuerst. */
+    @Query("SELECT * FROM food WHERE source = 'DISH' ORDER BY COALESCE(lastUsedAt, 0) DESC, name COLLATE NOCASE")
+    fun observeDishes(): Flow<List<FoodEntity>>
 }

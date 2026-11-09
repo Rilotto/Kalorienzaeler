@@ -38,7 +38,7 @@ data class Settings(
     val weekdayGoals: Map<DayOfWeek, Int> = emptyMap(),
     /** Hell/Dunkel: System, immer hell, immer dunkel */
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
-    /** Reiter, der beim Eintragen zuerst offen ist (0 Suchen, 1 Scannen, 2 Foto, 3 Schnell) */
+    /** Reiter, der beim Eintragen zuerst offen ist (0 Suchen, 1 Scannen, 2 Foto, 3 Schnell, 4 Mensa) */
     val startTab: Int = 0,
     /** Verlauf: Ansicht, Anzahl Abschnitte und Diagrammart (zuletzt gewählt) */
     val historyGrouping: HistoryGrouping = HistoryGrouping.DAYS,
@@ -100,7 +100,7 @@ class SettingsRepository(private val context: Context) {
             lastBackup = p[Keys.lastBackup],
             weekdayGoals = WeekGoals.parse(p[Keys.weekdayGoals]),
             themeMode = p[Keys.theme]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM,
-            startTab = (p[Keys.startTab] ?: 0).coerceIn(0, 3),
+            startTab = (p[Keys.startTab] ?: 0).coerceIn(0, 4),
             historyGrouping = enumOr(p[Keys.historyGrouping], HistoryGrouping.DAYS),
             historyCount = p[Keys.historyCount] ?: enumOr(p[Keys.historyGrouping], HistoryGrouping.DAYS).defaultCount,
             chartType = enumOr(p[Keys.chartType], ChartType.BARS),
@@ -162,7 +162,7 @@ class SettingsRepository(private val context: Context) {
     }
 
     suspend fun setStartTab(tab: Int) {
-        context.dataStore.edit { it[Keys.startTab] = tab.coerceIn(0, 3) }
+        context.dataStore.edit { it[Keys.startTab] = tab.coerceIn(0, 4) }
     }
 
     suspend fun setAutoBackup(on: Boolean) {

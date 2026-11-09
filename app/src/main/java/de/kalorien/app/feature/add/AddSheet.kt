@@ -107,6 +107,10 @@ import de.kalorien.app.core.domain.QuickCalc
 import de.kalorien.app.core.data.TemplateWithItems
 import androidx.compose.material3.AlertDialog
 import de.kalorien.app.core.ui.AppNumberField
+import de.kalorien.app.core.data.FoodRepository
+import androidx.compose.material3.ScrollableTabRow
+import de.kalorien.app.core.data.DishDraft
+import de.kalorien.app.core.data.MensaSlotEntity
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import kotlin.math.roundToInt
@@ -119,12 +123,22 @@ private sealed interface Screen {
     data object Reading : Screen
     data class Custom(val prefill: CustomPrefill) : Screen
     data class EditFood(val food: FoodEntity) : Screen
+    /** Gericht aus Zutaten bearbeiten (Entwurf liegt in `dishDraft`) */
+    data object DishEdit : Screen
+    /** Zutat für das Gericht suchen */
+    data object DishPick : Screen
+    /** Mensa-Gericht nach Foto oder von Hand */
+    data class MensaForm(val prefill: MensaPrefill, val slot: MensaSlotEntity?) : Screen
 }
 
 private const val TAB_SEARCH = 0
 private const val TAB_SCAN = 1
 private const val TAB_PHOTO = 2
 private const val TAB_QUICK = 3
+private const val TAB_MENSA = 4
+
+/** Reihenfolge der Reiter auf dem Bildschirm (die Nummern bleiben wegen der gespeicherten Einstellung gleich). */
+private val TAB_ORDER = listOf(TAB_SEARCH, TAB_SCAN, TAB_PHOTO, TAB_MENSA, TAB_QUICK)
 
 /**
  * Eintragen: Reiter „Suchen“, „Scannen“ (Barcode), „Foto“ (Nährwerte abfotografieren) und „Schnell“.
@@ -150,6 +164,12 @@ fun AddSheet(
     var photoBase by remember { mutableStateOf<CustomPrefill?>(null) }
     // „Hinzufügen und weiteres“: zuletzt hinzugefügter Eintrag (Bestätigung + Rückgängig oben im Fenster)
     var lastAdded by remember { mutableStateOf<EntryEntity?>(null) }
+    // Gericht aus Zutaten: Entwurf und ob gerade eine Zutat gewählt wird
+    var dishDraft by remember { mutableStateOf<DishDraft?>(null) }
+    var pickForDish by remember { mutableStateOf(false) }
+    // Foto für einen Mensa-Platz (statt für ein eigenes Lebensmittel)
+    var mensaPhoto by remember { mutableStateOf(false) }
+    var mensaSlot by remember { mutableStateOf<MensaSlotEntity?>(null) }
 
     LaunchedEffect(Unit) {
         vm.reset()
@@ -166,7 +186,8 @@ fun AddSheet(
         screen = Screen.Reading
         scope.launch {
             val text = runCatching { TextFromImage.read(context, uri) }.getOrDefault("")
-            screen = Screen.Custom(vm.prefillFromText(text, photoBase))
+            screen = if (mensaPhoto) Screen.MensaForm(vm.mensaPrefillFromText(text, mensaSlot?.name), mensaSlot)
+            else Screen.Custom(vm.prefillFromText(text, photoBase))
         }
     }
     var photoUri by remember { mutableStateOf<Uri?>(null) }
@@ -193,6 +214,7 @@ fun AddSheet(
         }
     }
     fun takePhoto(base: CustomPrefill?) {
+        mensaPhoto = false
         photoBase = base
         withCamera {
             val uri = TextFromImage.newPhotoUri(context)
@@ -201,8 +223,24 @@ fun AddSheet(
         }
     }
     fun pickPhoto(base: CustomPrefill?) {
+        mensaPhoto = false
         photoBase = base
         pickImage.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+    }
+    /** Foto der Mensa-Nährwerttabelle für einen Platz (oder ohne Platz) */
+    fun takeMensaPhoto(slot: MensaSlotEntity?) {
+        mensaPhoto = true
+        mensaSlot = slot
+        withCamera {
+            val uri = TextFromImage.newPhotoUri(context)
+            photoUri = uri
+            takePicture.launch(uri)
+        }
+    }
+    /** Gericht bearbeiten beenden und zur Übersicht zurück */
+    fun closeDish() {
+        dishDraft = null
+        pickForDish = false
     }
 
     fun added(entry: EntryEntity, keepOpen: Boolean) {
@@ -232,15 +270,30 @@ fun AddSheet(
                         meal = meal,
                         onMeal = { meal = it },
                         onFavorite = { screen = Screen.Detail(vm.toggleFavorite(s.food)) },
-                        onBack = { screen = Screen.Main(lastTab) },
-                        onEdit = { screen = Screen.EditFood(s.food) },
+                        onBack = { screen = if (pickForDish) Screen.DishPick else Screen.Main(lastTab) },
+                        onEdit = {
+                            if (s.food.source == FoodSource.DISH) {
+                                scope.launch { dishDraft = vm.loadDish(s.food); screen = Screen.DishEdit }
+                            } else {
+                                screen = Screen.EditFood(s.food)
+                            }
+                        },
                         onSetServing = { label, grams ->
                             scope.launch { screen = Screen.Detail(vm.setServing(s.food, label, grams)) }
                         },
                         onAdd = { amount, unitLabel, unitCount, keepOpen ->
-                            if (s.food.isPortionFood) vm.addPortions(s.food, amount, meal, date) { added(it, keepOpen) }
-                            else vm.addFood(s.food, amount, meal, date, unitLabel, unitCount) { added(it, keepOpen) }
+                            val draft = dishDraft
+                            if (pickForDish && draft != null) {
+                                dishDraft = draft.copy(items = draft.items + vm.ingredientOf(s.food, amount, unitLabel, unitCount))
+                                pickForDish = false
+                                screen = Screen.DishEdit
+                            } else if (s.food.isPortionFood) {
+                                vm.addPortions(s.food, amount, meal, date) { added(it, keepOpen) }
+                            } else {
+                                vm.addFood(s.food, amount, meal, date, unitLabel, unitCount) { added(it, keepOpen) }
+                            }
                         },
+                        ingredientMode = pickForDish,
                     )
                 }
                 is Screen.EditFood -> Scrollable {
@@ -268,7 +321,7 @@ fun AddSheet(
                 is Screen.Custom -> Scrollable {
                     CustomFoodForm(
                         prefill = s.prefill,
-                        onBack = { screen = Screen.Main(lastTab) },
+                        onBack = { screen = if (pickForDish) Screen.DishPick else Screen.Main(lastTab) },
                         onPhoto = { base -> takePhoto(base) },
                         onGallery = { base -> pickPhoto(base) },
                         onSave = { name, brand, basis, per, serving, favorite ->
@@ -276,6 +329,50 @@ fun AddSheet(
                                 val food = vm.saveCustom(name, brand, basis, per, serving, s.prefill.ean, favorite)
                                 screen = Screen.Detail(food)
                             }
+                        },
+                    )
+                }
+                Screen.DishEdit -> Scrollable {
+                    val d = dishDraft
+                    if (d == null) {
+                        LaunchedEffect(Unit) { screen = Screen.Main(lastTab) }
+                    } else {
+                        DishEditor(
+                            draft = d,
+                            onChange = { dishDraft = it },
+                            onAddIngredient = { pickForDish = true; vm.reset(); screen = Screen.DishPick },
+                            onCancel = { closeDish(); screen = Screen.Main(lastTab) },
+                            onSave = {
+                                scope.launch {
+                                    val food = vm.saveDish(d)
+                                    closeDish()
+                                    screen = Screen.Detail(food)
+                                }
+                            },
+                        )
+                    }
+                }
+                Screen.DishPick -> {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(stringResource(R.string.dish_pick_title), style = MaterialTheme.typography.titleLarge, color = c.fg, modifier = Modifier.weight(1f))
+                        TextButton(onClick = { pickForDish = false; screen = Screen.DishEdit }) { Text(stringResource(R.string.back), color = c.accent) }
+                    }
+                    SearchTab(
+                        vm,
+                        onTemplate = null,
+                        onPick = { screen = Screen.Detail(it) },
+                        onCreate = { name -> screen = Screen.Custom(CustomPrefill(name = name)) },
+                    )
+                }
+                is Screen.MensaForm -> Scrollable {
+                    val known by vm.mensaDishes.collectAsStateWithLifecycle()
+                    MensaForm(
+                        prefill = s.prefill,
+                        knownNames = known.map { it.searchKey }.toSet(),
+                        onPhoto = { takeMensaPhoto(s.slot) },
+                        onBack = { screen = Screen.Main(TAB_MENSA) },
+                        onSave = { name, per, grams ->
+                            scope.launch { screen = Screen.Detail(vm.saveMensaDish(name, per, grams, s.slot, date)) }
                         },
                     )
                 }
@@ -293,16 +390,20 @@ fun AddSheet(
                             TextButton(onClick = { vm.undo(e); lastAdded = null }) { Text(stringResource(R.string.undo), color = c.accent) }
                         }
                     }
-                    val tabs = listOf(R.string.tab_search, R.string.tab_scan, R.string.tab_photo, R.string.tab_quick)
-                    TabRow(
-                        selectedTabIndex = s.tab, containerColor = c.surface, contentColor = c.accent,
-                        indicator = { pos -> TabRowDefaults.SecondaryIndicator(Modifier.tabIndicatorOffset(pos[s.tab]), color = c.accent) },
+                    val tabNames = mapOf(
+                        TAB_SEARCH to R.string.tab_search, TAB_SCAN to R.string.tab_scan, TAB_PHOTO to R.string.tab_photo,
+                        TAB_MENSA to R.string.tab_mensa, TAB_QUICK to R.string.tab_quick,
+                    )
+                    val selectedIndex = TAB_ORDER.indexOf(s.tab).coerceAtLeast(0)
+                    ScrollableTabRow(
+                        selectedTabIndex = selectedIndex, containerColor = c.surface, contentColor = c.accent, edgePadding = 0.dp,
+                        indicator = { pos -> TabRowDefaults.SecondaryIndicator(Modifier.tabIndicatorOffset(pos[selectedIndex]), color = c.accent) },
                     ) {
-                        tabs.forEachIndexed { i, res ->
+                        TAB_ORDER.forEach { t ->
                             Tab(
-                                selected = s.tab == i,
-                                onClick = { lastTab = i; screen = Screen.Main(i) },
-                                text = { Text(stringResource(res), maxLines = 1) },
+                                selected = s.tab == t,
+                                onClick = { lastTab = t; screen = Screen.Main(t) },
+                                text = { Text(stringResource(tabNames.getValue(t)), maxLines = 1) },
                                 unselectedContentColor = c.muted,
                             )
                         }
@@ -320,7 +421,17 @@ fun AddSheet(
                             },
                             onPick = { screen = Screen.Detail(it) },
                             onCreate = { name -> screen = Screen.Custom(CustomPrefill(name = name)) },
+                            onCreateDish = { name -> dishDraft = DishDraft(name = name); screen = Screen.DishEdit },
                         )
+                        TAB_MENSA -> Scrollable {
+                            MensaTab(
+                                vm = vm, date = date,
+                                onPhoto = { slot -> takeMensaPhoto(slot) },
+                                onManual = { slot -> screen = Screen.MensaForm(MensaPrefill(slotName = slot?.name), slot) },
+                                onOpen = { f -> screen = Screen.Detail(f) },
+                                onSlotDeleted = { slot -> vm.deleteMensaSlot(slot) },
+                            )
+                        }
                         TAB_SCAN -> Scrollable {
                             ScanTab(
                                 cameraGranted = cameraGranted,
@@ -374,9 +485,11 @@ private fun Busy(text: String) {
 @Composable
 private fun SearchTab(
     vm: AddViewModel,
-    onTemplate: (TemplateWithItems) -> Unit,
+    /** null = keine Vorlagen zeigen (z. B. beim Wählen einer Zutat) */
+    onTemplate: ((TemplateWithItems) -> Unit)?,
     onPick: (FoodEntity) -> Unit,
     onCreate: (String) -> Unit,
+    onCreateDish: ((String) -> Unit)? = null,
 ) {
     val templates by vm.templates.collectAsStateWithLifecycle()
     val query by vm.query.collectAsStateWithLifecycle()
@@ -399,7 +512,7 @@ private fun SearchTab(
             item { Hint(stringResource(R.string.bls_preparing)) }
         }
         if (query.isBlank()) {
-            if (templates.isNotEmpty()) {
+            if (onTemplate != null && templates.isNotEmpty()) {
                 item { SectionLabel(stringResource(R.string.templates)) }
                 items(templates, key = { "t" + it.template.id }) { TemplateRow(it) { onTemplate(it) } }
             }
@@ -420,7 +533,8 @@ private fun SearchTab(
             }
             items(results, key = { it.id }) { FoodRow(it) { onPick(it) } }
         }
-        item { CreateOwnRow { onCreate(query.trim()) } }
+        item { CreateOwnRow(stringResource(R.string.custom_create)) { onCreate(query.trim()) } }
+        if (onCreateDish != null) item { CreateOwnRow(stringResource(R.string.dish_create)) { onCreateDish(query.trim()) } }
     }
 }
 
@@ -444,7 +558,7 @@ private fun TemplateRow(t: TemplateWithItems, onClick: () -> Unit) {
 }
 
 @Composable
-private fun CreateOwnRow(onClick: () -> Unit) {
+private fun CreateOwnRow(label: String, onClick: () -> Unit) {
     val c = Tokens.colors
     Column {
         HorizontalDivider(color = c.line)
@@ -454,7 +568,7 @@ private fun CreateOwnRow(onClick: () -> Unit) {
         ) {
             Icon(Icons.Filled.Add, contentDescription = null, tint = c.accent)
             Spacer(Modifier.size(8.dp))
-            Text(stringResource(R.string.custom_create), color = c.accent, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+            Text(label, color = c.accent, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -477,6 +591,8 @@ private fun sourceLabel(food: FoodEntity): String = stringResource(
     when (food.source) {
         FoodSource.BLS -> R.string.source_bls
         FoodSource.OFF -> R.string.source_off
+        FoodSource.DISH -> R.string.source_dish
+        FoodSource.MENSA -> R.string.source_mensa
         else -> R.string.source_custom
     },
 )
@@ -708,6 +824,8 @@ private fun FoodDetail(
     onEdit: () -> Unit,
     onSetServing: (label: String?, grams: Double?) -> Unit,
     onAdd: (amount: Double, unitLabel: String?, unitCount: Double?, keepOpen: Boolean) -> Unit,
+    /** true = Zutat für ein Gericht wählen (keine Mahlzeit, Knopf „Zum Gericht hinzufügen“) */
+    ingredientMode: Boolean = false,
 ) {
     var servingDialog by remember { mutableStateOf(false) }
     val c = Tokens.colors
@@ -802,8 +920,10 @@ private fun FoodDetail(
             NumberField(gramsText, { gramsText = it }, stringResource(R.string.amount_in, unit))
         }
     }
-    Text(stringResource(R.string.meal), style = MaterialTheme.typography.bodySmall, color = c.muted)
-    MealChips(meal, onMeal)
+    if (!ingredientMode) {
+        Text(stringResource(R.string.meal), style = MaterialTheme.typography.bodySmall, color = c.muted)
+        MealChips(meal, onMeal)
+    }
     val ok = (amountValue ?: 0.0) > 0
     fun add(keepOpen: Boolean) {
         val v = amountValue ?: return
@@ -818,10 +938,12 @@ private fun FoodDetail(
         Button(
             onClick = { add(false) }, enabled = ok, modifier = Modifier.weight(1f),
             colors = ButtonDefaults.buttonColors(containerColor = c.accent, contentColor = c.surface),
-        ) { Text(stringResource(R.string.add)) }
+        ) { Text(stringResource(if (ingredientMode) R.string.dish_add_ingredient_confirm else R.string.add)) }
     }
-    TextButton(onClick = { add(true) }, enabled = ok, modifier = Modifier.fillMaxWidth()) {
-        Text(stringResource(R.string.add_and_more), color = if (ok) c.accent else c.muted)
+    if (!ingredientMode) {
+        TextButton(onClick = { add(true) }, enabled = ok, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.add_and_more), color = if (ok) c.accent else c.muted)
+        }
     }
     if (servingDialog) {
         ServingDialog(
@@ -885,6 +1007,8 @@ private fun sourceHint(food: FoodEntity): String = when {
     food.isAdjusted -> stringResource(R.string.hint_adjusted)
     food.source == FoodSource.BLS -> stringResource(R.string.hint_bls)
     food.source == FoodSource.OFF -> stringResource(R.string.hint_off)
+    food.source == FoodSource.DISH -> stringResource(R.string.hint_dish)
+    food.source == FoodSource.MENSA -> stringResource(R.string.hint_mensa)
     else -> stringResource(R.string.hint_custom)
 }
 
@@ -898,7 +1022,7 @@ private fun FoodValuesForm(
 ) {
     val c = Tokens.colors
     fun fmt(d: Double?) = d?.let(NumberInput::format).orEmpty()
-    val isCustom = food.source == FoodSource.CUSTOM
+    val isCustom = food.source in FoodRepository.DIRECT_EDIT
     var name by remember(food.id) { mutableStateOf(food.name) }
     var kcal by remember(food.id) { mutableStateOf(food.kcal100.roundToInt().toString()) }
     var protein by remember(food.id) { mutableStateOf(fmt(food.protein100)) }
