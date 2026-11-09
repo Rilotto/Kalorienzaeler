@@ -64,8 +64,10 @@ data class NutritionColumn(
  */
 object NutritionTextParser {
     private val num = """(\d{1,4}(?:[.,]\d{1,2})?)"""
-    private val kcalRegex = Regex("""$num\s*k\s?c\s?a\s?[l1iI|]""", RegexOption.IGNORE_CASE)
-    private val kjRegex = Regex("""(\d{2,5}(?:[.,]\d)?)\s*k\s?j""", RegexOption.IGNORE_CASE)
+    /** Energie: auch mit Tausenderpunkt („2.287 kJ“, „1.050 kcal“) */
+    private val energyNum = """(\d{1,2}\.\d{3}(?![.,]?\d)|\d{1,4}(?:[.,]\d{1,2})?)"""
+    private val kcalRegex = Regex("""$energyNum\s*k\s?c\s?a\s?[l1iI|]""", RegexOption.IGNORE_CASE)
+    private val kjRegex = Regex("""(\d{1,2}\.\d{3}(?![.,]?\d)|\d{2,5}(?:[.,]\d)?)\s*k\s?j""", RegexOption.IGNORE_CASE)
     private val gramRegex = Regex("""$num\s*g\b""", RegexOption.IGNORE_CASE)
     private val anyNumber = Regex(num)
 
@@ -86,18 +88,20 @@ object NutritionTextParser {
             .replace(Regex("""(?<=\d)[lI](?=\d)"""), "1")
         val lines = text.lines().map { it.trim() }.filter { it.isNotEmpty() }
 
-        val kcal = kcalRegex.find(text)?.let { toDouble(it.groupValues[1]) }
-            ?: kjRegex.find(text)?.let { toDouble(it.groupValues[1])?.let(NutritionUnits::kjToKcal) }
+        val kcal = kcalRegex.find(text)?.let { energy(it.groupValues[1]) }
+            ?: kjRegex.find(text)?.let { energy(it.groupValues[1])?.let(NutritionUnits::kjToKcal) }
 
         val columns = twoColumns(text, lines)
+        // Kacheln („Brennwert (kCal)  Fett (g) …“ und darunter die Zahlen) als Rückfall, wenn die Tabelle fehlt
+        val tiles = tiles(lines)
         return ParsedNutrition(
             name = guessName(lines),
-            kcal = kcal?.takeIf { it in 1.0..5000.0 },
-            protein = valueAfter(lines, proteinWords),
-            carbs = valueAfter(lines, carbWords),
-            fat = valueAfter(lines, fatWords),
+            kcal = (kcal ?: tiles[energyWords])?.takeIf { it in 1.0..5000.0 },
+            protein = valueAfter(lines, proteinWords) ?: tiles[proteinWords],
+            carbs = valueAfter(lines, carbWords) ?: tiles[carbWords],
+            fat = valueAfter(lines, fatWords) ?: tiles[fatWords],
             basis = columns.firstOrNull()?.basis ?: basis(text),
-            sugar = valueAfter(lines, sugarWords),
+            sugar = valueAfter(lines, sugarWords) ?: tiles[sugarWords],
             columns = columns,
             portionGrams = portionGrams(text, columns),
         )
@@ -114,11 +118,15 @@ object NutritionTextParser {
         val h100 = per100Header.find(text) ?: return emptyList()
         val hPortion = portionHeader.find(text) ?: return emptyList()
         val b100 = if (h100.groupValues[1].lowercase() == "ml") NutritionBasis.PER_100ML else NutritionBasis.PER_100G
-        val bases = if (h100.range.first < hPortion.range.first) listOf(b100, NutritionBasis.PER_PORTION)
-        else listOf(NutritionBasis.PER_PORTION, b100)
+        // Reihenfolge aus der Zeile, in der beide Überschriften stehen („Je 100 g   Je Portion“);
+        // sonst aus dem ersten Vorkommen (eine Überschrift wie „Nährwerte je Portion (650 g)“ darüber zählt dann nicht)
+        val header = lines.firstOrNull { per100Header.containsMatchIn(it) && portionHeader.containsMatchIn(it) && !portionWeightOnly(it) }
+        val per100First = if (header != null) per100Header.find(header)!!.range.first < portionHeader.find(header)!!.range.first
+        else h100.range.first < hPortion.range.first
+        val bases = if (per100First) listOf(b100, NutritionBasis.PER_PORTION) else listOf(NutritionBasis.PER_PORTION, b100)
 
-        val kcals = kcalRegex.findAll(text).mapNotNull { toDouble(it.groupValues[1]) }.filter { it in 1.0..5000.0 }.toList()
-            .ifEmpty { kjRegex.findAll(text).mapNotNull { toDouble(it.groupValues[1])?.let(NutritionUnits::kjToKcal) }.toList() }
+        val kcals = kcalRegex.findAll(text).mapNotNull { energy(it.groupValues[1]) }.filter { it in 1.0..5000.0 }.toList()
+            .ifEmpty { kjRegex.findAll(text).mapNotNull { energy(it.groupValues[1])?.let(NutritionUnits::kjToKcal) }.toList() }
         val protein = valuesAfter(lines, proteinWords)
         val carbs = valuesAfter(lines, carbWords)
         val fat = valuesAfter(lines, fatWords)
@@ -140,12 +148,35 @@ object NutritionTextParser {
         for ((i, line) in lines.withIndex()) {
             val m = label.find(line) ?: continue
             if (label === fatWords && subLine.containsMatchIn(line)) continue
+            if (isLabelRow(line)) continue
             val rest = line.substring(m.range.last + 1)
             val found = numbers(rest).ifEmpty { lines.getOrNull(i + 1)?.let(::numbers).orEmpty() }.filter { it in 0.0..1000.0 }
             if (found.isNotEmpty()) return found
         }
         return emptyList()
     }
+
+    /**
+     * Kacheln: eine Zeile mit mehreren Nährwert-Namen, darunter gleich viele Zahlen in derselben Reihenfolge
+     * (die Zeile mit „%“ darunter wird ignoriert). Ergebnis: Wort → Wert.
+     */
+    private fun tiles(lines: List<String>): Map<Regex, Double> {
+        val words = listOf(energyWords, fatWords, carbWords, proteinWords, sugarWords, saltWords)
+        for ((i, line) in lines.withIndex()) {
+            if (!isLabelRow(line)) continue
+            val order = words.mapNotNull { w -> w.find(line)?.let { it.range.first to w } }.sortedBy { it.first }.map { it.second }
+            val next = lines.getOrNull(i + 1) ?: continue
+            if (next.contains('%')) continue
+            val numbers = anyNumber.findAll(next).mapNotNull { toDouble(it.groupValues[1]) }.toList()
+            if (numbers.size < order.size) continue
+            return order.zip(numbers).toMap()
+        }
+        return emptyMap()
+    }
+
+    /** „Portion (650 g)“ allein ist keine Spaltenüberschrift für 100 g. */
+    private fun portionWeightOnly(line: String): Boolean =
+        !Regex("""100\s*(g|ml)""", RegexOption.IGNORE_CASE).containsMatchIn(line.replace(Regex("""\(\s*\d+\s*g\s*\)"""), ""))
 
     private val portionWeight = listOf(
         Regex("""(?:portion|teller|gericht)\s*\(?\s*(?:à|a|=|zu|ca\.?)?\s*(\d{2,4})\s*g\b""", RegexOption.IGNORE_CASE),
@@ -167,6 +198,7 @@ object NutritionTextParser {
             val m = label.find(line) ?: continue
             // „davon gesättigte Fettsäuren“ o. Ä. ist nicht der Fettwert
             if (label === fatWords && subLine.containsMatchIn(line)) continue
+            if (isLabelRow(line)) continue
             val rest = line.substring(m.range.last + 1)
             val v = (gramRegex.find(rest) ?: anyNumber.find(rest))?.groupValues?.get(1)
                 ?: lines.getOrNull(i + 1)?.let { next -> (gramRegex.find(next) ?: anyNumber.find(next))?.groupValues?.get(1) }
@@ -187,9 +219,37 @@ object NutritionTextParser {
     }
 
     /** Erste Zeile, die nach einem Gerichtsnamen aussieht (Buchstaben, keine Nährwert-Wörter/Zahlen). */
+    /** Bildschirm-Reste, die kein Gerichtname sind (Mensa-Webseite, Reiter) */
+    private val notAName = Regex("""datenschutz|impressum|^details\b|cookie|anmelden|speiseplan|allergene|zusatzstoffe|^davon\b|alkohol|stärke""", RegexOption.IGNORE_CASE)
+
     private fun guessName(lines: List<String>): String? = lines
-        .firstOrNull { l -> l.count { it.isLetter() } >= 4 && !nutritionWords.containsMatchIn(l) }
+        .firstOrNull { l -> l.count { it.isLetter() } >= 4 && !nutritionWords.containsMatchIn(l) && !notAName.containsMatchIn(l) }
         ?.take(60)
 
     private fun toDouble(s: String): Double? = s.replace(',', '.').toDoubleOrNull()
+
+    /** Energiewerte: „2.287“ ist zweitausend…, kein Komma */
+    private fun energy(s: String): Double? =
+        if (Regex("""\d{1,2}\.\d{3}""").matches(s)) s.replace(".", "").toDoubleOrNull() else toDouble(s)
+
+    /**
+     * Kopfzeile mit mehreren Nährwert-Namen nebeneinander (z. B. Kacheln „Brennwert (kCal)  Fett (g)  Kohlenhydrate (g)“)
+     * – deren Zahlen (und die %-Zeile darunter) gehören nicht zu einer einzelnen Zeile der Tabelle.
+     */
+    private fun isLabelRow(line: String): Boolean =
+        listOf(proteinWords, carbWords, fatWords, energyWords, saltWords).count { it.containsMatchIn(line) } >= 3
+
+    private val energyWords = Regex("""brennwert|energie|energy""", RegexOption.IGNORE_CASE)
+    private val saltWords = Regex("""\bsalz\b|\bsalt\b""", RegexOption.IGNORE_CASE)
+
+    /**
+     * Mehrere Lesarten desselben Fotos (z. B. zeilenweise neu zusammengesetzt und wie erkannt) –
+     * die Lesart mit den meisten gefundenen Werten gewinnt; bei Gleichstand die erste.
+     */
+    fun parseBest(variants: List<String>): ParsedNutrition {
+        val parsed = variants.filter { it.isNotBlank() }.map(::parse).ifEmpty { listOf(parse("")) }
+        fun score(p: ParsedNutrition) = p.columns.size * 10 + p.columns.sumOf { c -> listOfNotNull(c.kcal, c.protein, c.carbs, c.fat, c.sugar).size } +
+            listOfNotNull(p.kcal, p.protein, p.carbs, p.fat, p.sugar, p.portionGrams).size
+        return parsed.maxWith(compareBy<ParsedNutrition> { score(it) }.thenByDescending { -parsed.indexOf(it) })
+    }
 }

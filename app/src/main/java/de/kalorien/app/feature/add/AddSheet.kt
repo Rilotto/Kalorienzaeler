@@ -185,7 +185,7 @@ fun AddSheet(
     fun readImage(uri: Uri) {
         screen = Screen.Reading
         scope.launch {
-            val text = runCatching { TextFromImage.read(context, uri) }.getOrDefault("")
+            val text = runCatching { TextFromImage.read(context, uri) }.getOrDefault(emptyList())
             screen = if (mensaPhoto) Screen.MensaForm(vm.mensaPrefillFromText(text, mensaSlot?.name), mensaSlot)
             else Screen.Custom(vm.prefillFromText(text, photoBase))
         }

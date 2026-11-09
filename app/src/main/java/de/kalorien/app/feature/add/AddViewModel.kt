@@ -100,8 +100,8 @@ class AddViewModel(
     }
 
     /** Foto der Mensa-Tabelle auswerten. */
-    fun mensaPrefillFromText(text: String, slotName: String?): MensaPrefill {
-        val p = NutritionTextParser.parse(text)
+    fun mensaPrefillFromText(text: List<String>, slotName: String?): MensaPrefill {
+        val p = NutritionTextParser.parseBest(text)
         return MensaPrefill(
             name = p.name.orEmpty(), portion = p.perPortion(), per100 = p.per100(), portionGrams = p.portionGrams,
             found = p.hasAnyValue || p.columns.isNotEmpty(), slotName = slotName,
@@ -212,8 +212,8 @@ class AddViewModel(
     }
 
     /** Erkannten Text (Foto) in ein Formular übersetzen; vorhandene Eingaben (z. B. Barcode) bleiben. */
-    fun prefillFromText(text: String, base: CustomPrefill?): CustomPrefill {
-        val p = NutritionTextParser.parse(text)
+    fun prefillFromText(text: List<String>, base: CustomPrefill?): CustomPrefill {
+        val p = NutritionTextParser.parseBest(text)
         val b = base ?: CustomPrefill()
         // Tabelle mit zwei Spalten: für eigene Lebensmittel die 100-g-Spalte nehmen (dann geht auch Gramm), Portion als Portionsgröße
         p.per100()?.takeIf { p.columns.size == 2 }?.let { col ->

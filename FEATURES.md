@@ -105,7 +105,7 @@ Status: ✅ fertig · 🧪 in Testversion · ⏳ geplant (Version) · 💭 viell
 | ID | Funktion | Quelle | Seit | Status | Prüfanker |
 |---|---|---|---|---|---|
 | M1 | Mensa-Menüs als feste Plätze (z. B. „Menü 1“, „Menü 2“, „Vegetarisch“), jeden Tag neu belegbar; Plätze anlegen/umbenennen/löschen | N 09.11. | 0.8.0 | 🧪 | `fun ColumnScope.MensaTab` |
-| M2 | Foto der Mensa-Nährwerttabelle → Gericht mit Werten pro Portion; Tabellen mit zwei Spalten (pro 100 g + pro Portion) werden erkannt, Portionsgewicht wird ausgerechnet | N 09.11. | 0.8.0 | 🧪 | `private fun twoColumns` |
+| M2 | Foto der Mensa-Nährwerttabelle → Gericht mit Werten pro Portion; Tabellen mit zwei Spalten (pro 100 g + pro Portion) werden erkannt, Portionsgewicht wird ausgerechnet; Zeilen werden über ihre Position im Foto zusammengesetzt (Monitor-Foto der Mensa, 09.11.) | N 09.11. | 0.8.0 | 🧪 | `private fun twoColumns` |
 | M3 | Bekannte Mensa-Gerichte wiederfinden und einem Platz zuordnen (Gerichte wiederholen sich) | N 09.11. | 0.8.0 | 🧪 | `fun findMensaFood` |
 | M4 | Gerichte aus Zutaten (z. B. Sandwich): Zutaten über Suche, Menge je Zutat, Anzahl Portionen → Nährwerte pro Portion; später bearbeiten | N 09.11., K | 0.8.0 | 🧪 | `fun ColumnScope.DishEditor` |
 

@@ -6,6 +6,8 @@ import android.media.ExifInterface
 import android.net.Uri
 import androidx.core.content.FileProvider
 import com.google.mlkit.vision.common.InputImage
+import de.kalorien.app.core.domain.OcrLayout
+import de.kalorien.app.core.domain.OcrLine
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlinx.coroutines.Dispatchers
@@ -17,18 +19,28 @@ import kotlin.coroutines.resumeWithException
 
 /** Texterkennung auf dem Gerät (ML Kit, lateinische Schrift, offline). */
 object TextFromImage {
-    suspend fun read(context: Context, uri: Uri): String {
+    /**
+     * Liest den Text und gibt zwei Lesarten zurück:
+     * 1. Tabellenzeilen nach Position neu zusammengesetzt (Beschriftung und Zahlen auf gleicher Höhe → eine Zeile),
+     * 2. der Text, wie ML Kit ihn liefert.
+     * Der [de.kalorien.app.core.domain.NutritionTextParser] nimmt die Lesart mit den meisten Werten.
+     */
+    suspend fun read(context: Context, uri: Uri): List<String> {
         val image = withContext(Dispatchers.IO) { loadScaled(context, uri) }
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-        return try {
+        val result = try {
             suspendCancellableCoroutine { cont ->
                 recognizer.process(image)
-                    .addOnSuccessListener { cont.resume(it.text) }
+                    .addOnSuccessListener { cont.resume(it) }
                     .addOnFailureListener { cont.resumeWithException(it) }
             }
         } finally {
             recognizer.close()
         }
+        val lines = result.textBlocks.flatMap { it.lines }.mapNotNull { l ->
+            l.boundingBox?.let { b -> OcrLine(l.text, b.left, b.top, b.right, b.bottom) }
+        }
+        return listOf(OcrLayout.rows(lines), result.text)
     }
 
     /**

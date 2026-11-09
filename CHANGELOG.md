@@ -6,6 +6,9 @@
   Pro Platz und Tag: **Foto der Nährwerttabelle**, ein **bekanntes Gericht** wählen oder Werte von Hand eintragen.
 - **Tabellen mit zwei Spalten** (pro 100 g und pro Portion) werden erkannt; das Portionsgewicht wird ausgerechnet.
   Gilt auch für Fotos im Reiter „Foto“ (dort wird die 100-g-Spalte genommen, die Portion als Portionsgröße).
+- Fotos von Monitoren/Webseiten (rc.2, abgestimmt auf ein echtes Mensa-Foto): Tabellenzeilen werden über ihre Position
+  wieder zusammengesetzt, auch wenn Beschriftung und Zahlen weit auseinanderstehen; Kacheln mit %-Werten stören nicht mehr;
+  „2.287 kJ“ wird richtig gelesen; „Datenschutzerklärung“ & Co. landen nicht mehr als Gerichtname.
 - Mensa-Gerichte merken sich ihre Werte: Kommt ein Gericht wieder, wird es mit einem Tipp gewählt (gleicher Name → aktualisiert statt doppelt).
 - **Gerichte aus Zutaten** (z. B. Sandwich): „Gericht aus Zutaten anlegen“ in der Suche, Zutaten über die normale Suche mit Menge,
   Anzahl Portionen → Werte pro Portion. Über den Stift im Gericht lassen sich die Zutaten später ändern.
